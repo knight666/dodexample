@@ -7,6 +7,8 @@
 #include "Texture.hpp"
 #include "VertexArrays.hpp"
 
+#define OGL_DEBUGGING (0)
+
 void traceMessage(const char* message)
 {
 #if defined(WIN32) || defined(_WINDOWS)
@@ -16,6 +18,15 @@ void traceMessage(const char* message)
 	fprintf(stdout, message);
 }
 
+static void glfwErrors(int errorCode, const char* description)
+{
+	char buffer[1024] = { 0 };
+	_snprintf_s(buffer, 1023, "%x: %s\n", errorCode, description);
+
+	traceMessage(buffer);
+}
+
+#if OGL_DEBUGGING
 static void APIENTRY debugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, GLvoid* userParam)
 {
 	if (severity == GL_DEBUG_SEVERITY_NOTIFICATION)
@@ -113,13 +124,16 @@ static void APIENTRY debugOutput(GLenum source, GLenum type, GLuint id, GLenum s
 	}
 
 	char buffer[1024] = { 0 };
-	_snprintf_s(buffer, 1024, "%s: %s(%s) %d: %s\n", debSource.c_str(), debType.c_str(), debSev.c_str(), id, message);
+	_snprintf_s(buffer, 1023, "%s: %s(%s) %d: %s\n", debSource.c_str(), debType.c_str(), debSev.c_str(), id, message);
 
 	traceMessage(message);
 }
+#endif
 
 int main(int argc, const char** argv)
 {
+	glfwSetErrorCallback(glfwErrors);
+
 	if (glfwInit() == 0)
 	{
 		std::cerr << "Failed to initialize GLFW." << std::endl;
@@ -129,9 +143,11 @@ int main(int argc, const char** argv)
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#if OGL_DEBUGGING
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+#endif
 
 	GLFWwindow* window = glfwCreateWindow(1280, 720, "UnicodeText", nullptr, nullptr);
 	if (window == nullptr)
@@ -151,13 +167,12 @@ int main(int argc, const char** argv)
 		return false;
 	}
 
-#ifdef GL_ARB_debug_output
+#if OGL_DEBUGGING && defined(GL_ARB_debug_output)
 	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
 	glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
 	glDebugMessageCallback(&debugOutput, nullptr);
 #endif
 
-	//glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 
