@@ -146,6 +146,7 @@ namespace Tmpl {
 	void Quad::render(const glm::mat4x4& camera)
 	{
 		glm::mat4x4 model = glm::mat4(1.0f);
+		// model = glm::scale(model, glm::vec3(256.0f, 256.0f, 1.0f));
 
 		_uniforms->bind();
 			Uniforms* transform = _uniforms->mapRange<Uniforms>(0, 1, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);

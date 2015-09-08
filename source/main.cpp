@@ -109,6 +109,25 @@ static void APIENTRY debugOutput(GLenum source, GLenum type, GLuint id, GLenum s
 }
 #endif
 
+static void windowKeyHandler(GLFWwindow* window, int key, int scanCode, int action, int modifierKeys)
+{
+	Tmpl::Application* app = reinterpret_cast<Tmpl::Application*>(glfwGetWindowUserPointer(window));
+	if (app == nullptr)
+	{
+		return;
+	}
+
+	if (action == GLFW_PRESS)
+	{
+		app->onKeyPressed(key, modifierKeys);
+	}
+	else if (
+		action == GLFW_RELEASE)
+	{
+		app->onKeyReleased(key, modifierKeys);
+	}
+}
+
 int main(int argc, const char** argv)
 {
 	Tmpl::Logger::initialize();
@@ -133,7 +152,7 @@ int main(int argc, const char** argv)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #if TMPL_FEATURE_OPENGL_DEBUG
-	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+	//glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 #endif
 
 	TMPL_LOG_INFO(GLFW) << "Creating window.";
@@ -150,6 +169,8 @@ int main(int argc, const char** argv)
 
 		return 0;
 	}
+
+	glfwSetKeyCallback(window, windowKeyHandler);
 
 	TMPL_LOG_INFO(GLFW) << "Enable window context.";
 
@@ -177,6 +198,8 @@ int main(int argc, const char** argv)
 	TMPL_LOG_INFO(Application) << "Initializing.";
 
 	Tmpl::Application* application = new Tmpl::Application(window);
+
+	glfwSetWindowUserPointer(window, application);
 
 	if (!application->initialize())
 	{

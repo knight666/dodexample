@@ -10,6 +10,7 @@ namespace Tmpl {
 		: _window(window)
 		, _loader(new FreeTypeLoader())
 	{
+		m_camera.z = 1.0f;
 	}
 
 	Application::~Application()
@@ -40,11 +41,57 @@ namespace Tmpl {
 
 		glClearBufferfv(GL_COLOR, 0, glm::value_ptr(glm::vec4(0.0f, 0.0f, 0.0f, 0.0f)));
 
-		glm::mat4x4 projection = glm::perspective(45.0f, (float)width / (float)height, 0.1f, 100.0f);
-		glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
-		glm::mat4x4 camera = projection * view;
+		glDisable(GL_CULL_FACE);
+		glDisable(GL_DEPTH_TEST);
 
-		_text->render(camera);
+		glm::mat4x4 projection = glm::ortho(
+			0.0f, (float)width,
+			(float)height, 0.0f,
+			-1.0f, 1.0f);
+
+		glm::mat4 view = glm::translate(glm::mat4(1.0f), m_camera);
+
+		_text->render(projection * view);
+
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_CULL_FACE);
+	}
+
+	void Application::onKeyPressed(int key, int modifierKeys)
+	{
+
+	}
+
+	void Application::onKeyReleased(int key, int modifierKeys)
+	{
+		switch (key)
+		{
+
+		case GLFW_KEY_A:
+			m_camera.x -= 1.0f;
+			break;
+
+		case GLFW_KEY_D:
+			m_camera.x += 1.0f;
+			break;
+
+		case GLFW_KEY_W:
+			m_camera.y += 1.0f;
+			break;
+
+		case GLFW_KEY_S:
+			m_camera.y -= 1.0f;
+			break;
+
+		case GLFW_KEY_Q:
+			m_camera.z -= 1.0f;
+			break;
+
+		case GLFW_KEY_E:
+			m_camera.z += 1.0f;
+			break;
+
+		}
 	}
 
 }; // namespace Tmpl

@@ -50,7 +50,9 @@ namespace Tmpl {
 
 	void TextBatch::render(const glm::mat4x4& camera)
 	{
-		_quad->render(camera);
+		glm::mat4x4 model = glm::scale(glm::mat4x4(1.0f), glm::vec3((float)_width, (float)_height, 1.0f));
+
+		_quad->render(camera * model);
 	}
 
 	void TextBatch::clearPixels()

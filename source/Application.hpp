@@ -22,12 +22,17 @@ namespace Tmpl {
 		void update(uint32_t milliSeconds);
 		void render();
 
+		void onKeyPressed(int key, int modifierKeys);
+		void onKeyReleased(int key, int modifierKeys);
+
 	private:
 
 		bool _running;
 		GLFWwindow* _window;
 		std::shared_ptr<FreeTypeLoader> _loader;
 		std::shared_ptr<TextBatch> _text;
+
+		glm::vec3 m_camera;
 
 	};
 
