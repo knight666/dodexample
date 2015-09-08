@@ -1,66 +1,11 @@
 #include "base/Main.hpp"
 
-#include "logging/Logger.hpp"
 #include "Application.hpp"
 #include "Buffer.hpp"
 #include "Program.hpp"
 #include "Quad.hpp"
 #include "Texture.hpp"
 #include "VertexArrays.hpp"
-
-namespace Tmpl {
-
-	std::string narrow(const std::wstring& wideText)
-	{
-		std::string converted;
-		int32_t errors = 0;
-
-		size_t convertedSize = widetoutf8(
-			wideText.c_str(), wideText.length() * sizeof(wchar_t),
-			nullptr, 0,
-			&errors);
-		if (convertedSize == 0 ||
-			errors != 0)
-		{
-			return converted;
-		}
-
-		converted.resize(convertedSize);
-
-		widetoutf8(
-			wideText.c_str(), wideText.length() * sizeof(wchar_t),
-			&converted[0], converted.size(),
-			nullptr);
-
-		return converted;
-	}
-
-	std::wstring widen(const std::string& utf8Text)
-	{
-		std::wstring converted;
-		int32_t errors = 0;
-
-		size_t convertedSize = utf8towide(
-			utf8Text.c_str(), utf8Text.length(),
-			nullptr, 0,
-			&errors);
-		if (convertedSize == 0 ||
-			errors != 0)
-		{
-			return converted;
-		}
-
-		converted.resize(convertedSize);
-
-		utf8towide(
-			utf8Text.c_str(), utf8Text.length(),
-			&converted[0], converted.size(),
-			nullptr);
-
-		return converted;
-	}
-
-}; // namespace Tmpl
 
 void traceMessage(const char* message)
 {
@@ -69,14 +14,6 @@ void traceMessage(const char* message)
 #endif
 
 	fprintf(stdout, message);
-}
-
-static void glfwErrors(int errorCode, const char* description)
-{
-	char buffer[1024] = { 0 };
-	_snprintf_s(buffer, 1023, "%x: %s\n", errorCode, description);
-
-	traceMessage(buffer);
 }
 
 #if TMPL_FEATURE_OPENGL_DEBUG
@@ -187,16 +124,20 @@ int main(int argc, const char** argv)
 {
 	Tmpl::Logger::initialize();
 
-	TMPL_LOG_INFO(Main) << "Initializing application.";
+	TMPL_LOG_INFO(Main) << "Starting...";
 
-	glfwSetErrorCallback(glfwErrors);
+	glfwSetErrorCallback(Tmpl::glfwErrors);
+
+	TMPL_LOG_INFO(GLFW) << "Initializing.";
 
 	if (glfwInit() == 0)
 	{
-		std::cerr << "Failed to initialize GLFW." << std::endl;
+		TMPL_LOG_ERROR(GLFW) << "Failed to initialize.";
 
-		return false;
+		return 0;
 	}
+
+	TMPL_LOG_INFO(GLFW) << "Setting window hints.";
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -206,6 +147,8 @@ int main(int argc, const char** argv)
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 #endif
 
+	TMPL_LOG_INFO(GLFW) << "Creating window.";
+
 	GLFWwindow* window = glfwCreateWindow(
 		TMPL_WINDOW_WIDTH, TMPL_WINDOW_HEIGHT,
 		TMPL_WINDOW_TITLE,
@@ -214,19 +157,23 @@ int main(int argc, const char** argv)
 
 	if (window == nullptr)
 	{
-		std::cerr << "Failed to create GFLW window." << std::endl;
+		TMPL_LOG_ERROR(GLFW) << "Failed to create window.";
 
-		return false;
+		return 0;
 	}
 
+	TMPL_LOG_INFO(GLFW) << "Enable window context.";
+
 	glfwMakeContextCurrent(window);
+
+	TMPL_LOG_INFO(GLEW) << "Initializing.";
 
 	glewExperimental = GL_TRUE;
 	if (glewInit() != GLEW_OK)
 	{
-		std::cerr << "Failed to initialize GLEW." << std::endl;
+		TMPL_LOG_ERROR(GLEW) << "Failed to initialize.";
 
-		return false;
+		return 0;
 	}
 
 #if TMPL_FEATURE_OPENGL_DEBUG && defined(GL_ARB_debug_output)
@@ -238,10 +185,14 @@ int main(int argc, const char** argv)
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 
+	TMPL_LOG_INFO(Application) << "Initializing.";
+
 	Application application(window);
 
 	if (!application.initialize())
 	{
+		TMPL_LOG_ERROR(Application) << "Failed to initialize.";
+
 		return 0;
 	}
 
@@ -250,6 +201,8 @@ int main(int argc, const char** argv)
 	static std::chrono::microseconds OneSecond = std::chrono::microseconds(1000 * 1000);
 	static std::chrono::microseconds TimeStep = OneSecond / 100;
 	static std::chrono::microseconds TimeStepMaximum = OneSecond / 20;
+
+	TMPL_LOG_INFO(Application) << "Starting main loop.";
 
 	while (
 		application.isRunning() &&
@@ -272,6 +225,10 @@ int main(int argc, const char** argv)
 
 		glfwSwapBuffers(window);
 	}
+
+	TMPL_LOG_INFO(Application) << "Shutting down.";
+
+	TMPL_LOG_INFO(Main) << "Done.";
 
 	Tmpl::Logger::destroy();
 

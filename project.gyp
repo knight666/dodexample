@@ -24,6 +24,8 @@
 			],
 			'sources': [
 				'source/base/Main.hpp',
+				'source/base/Utils.cpp',
+				'source/base/Utils.hpp',
 				'source/logging/Context.cpp',
 				'source/logging/Context.hpp',
 				'source/logging/Levels.hpp',

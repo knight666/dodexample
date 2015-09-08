@@ -47,7 +47,7 @@ namespace Tmpl {
 
 	void SinkFile::write(Levels level, const char* module, const char* timestamp, const char* filename, int line, const char* message)
 	{
-		m_file.open(m_filePath.c_str(), std::ios::out | std::ios::trunc);
+		m_file.open(m_filePath.c_str(), std::ios::out | std::ios::app);
 		if (!m_file.is_open())
 		{
 			return;

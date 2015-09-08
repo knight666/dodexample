@@ -49,10 +49,5 @@
 
 // Tools
 
-namespace Tmpl {
-
-	std::string narrow(const std::wstring& wideText);
-
-	std::wstring widen(const std::string& utf8Text);
-
-}; // namespace Tmpl
+#include "base/Utils.hpp"
+#include "logging/Logger.hpp"
