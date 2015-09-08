@@ -3,20 +3,24 @@
 // C
 
 #include <stdint.h>
+#include <time.h>
 
 // STL
 
 #include <chrono>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <sstream>
 #include <string>
 #include <vector>
 
 #if defined(WIN32) || defined(_WINDOWS)
 	#include <windows.h>
+	#include <ShlObj.h>
 #endif
 
 // OpenGL
@@ -42,3 +46,13 @@
 // utf8rewind
 
 #include <utf8rewind.h>
+
+// Tools
+
+namespace Tmpl {
+
+	std::string narrow(const std::wstring& wideText);
+
+	std::wstring widen(const std::string& utf8Text);
+
+}; // namespace Tmpl

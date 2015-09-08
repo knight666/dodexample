@@ -1,11 +1,66 @@
-#include "Base.hpp"
+#include "base/Main.hpp"
 
+#include "logging/Logger.hpp"
 #include "Application.hpp"
 #include "Buffer.hpp"
 #include "Program.hpp"
 #include "Quad.hpp"
 #include "Texture.hpp"
 #include "VertexArrays.hpp"
+
+namespace Tmpl {
+
+	std::string narrow(const std::wstring& wideText)
+	{
+		std::string converted;
+		int32_t errors = 0;
+
+		size_t convertedSize = widetoutf8(
+			wideText.c_str(), wideText.length() * sizeof(wchar_t),
+			nullptr, 0,
+			&errors);
+		if (convertedSize == 0 ||
+			errors != 0)
+		{
+			return converted;
+		}
+
+		converted.resize(convertedSize);
+
+		widetoutf8(
+			wideText.c_str(), wideText.length() * sizeof(wchar_t),
+			&converted[0], converted.size(),
+			nullptr);
+
+		return converted;
+	}
+
+	std::wstring widen(const std::string& utf8Text)
+	{
+		std::wstring converted;
+		int32_t errors = 0;
+
+		size_t convertedSize = utf8towide(
+			utf8Text.c_str(), utf8Text.length(),
+			nullptr, 0,
+			&errors);
+		if (convertedSize == 0 ||
+			errors != 0)
+		{
+			return converted;
+		}
+
+		converted.resize(convertedSize);
+
+		utf8towide(
+			utf8Text.c_str(), utf8Text.length(),
+			&converted[0], converted.size(),
+			nullptr);
+
+		return converted;
+	}
+
+}; // namespace Tmpl
 
 void traceMessage(const char* message)
 {
@@ -130,6 +185,10 @@ static void APIENTRY debugOutput(GLenum source, GLenum type, GLuint id, GLenum s
 
 int main(int argc, const char** argv)
 {
+	Tmpl::Logger::initialize();
+
+	TMPL_LOG_INFO(Main) << "Initializing application.";
+
 	glfwSetErrorCallback(glfwErrors);
 
 	if (glfwInit() == 0)
@@ -213,6 +272,8 @@ int main(int argc, const char** argv)
 
 		glfwSwapBuffers(window);
 	}
+
+	Tmpl::Logger::destroy();
 
 	return 1;
 }

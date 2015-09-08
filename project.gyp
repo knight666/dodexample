@@ -19,10 +19,21 @@
 				'dependencies/glfw-3.0.2/glfw.gyp:glfw',
 				'dependencies/glm-0.9.4.5/glm.gyp:glm',
 			],
+			'include_dirs': [
+				'source'
+			],
 			'sources': [
+				'source/base/Main.hpp',
+				'source/logging/Context.cpp',
+				'source/logging/Context.hpp',
+				'source/logging/Levels.hpp',
+				'source/logging/Logger.cpp',
+				'source/logging/Logger.hpp',
+				'source/logging/Sink.hpp',
+				'source/logging/SinkFile.cpp',
+				'source/logging/SinkFile.hpp',
 				'source/Application.cpp',
 				'source/Application.hpp',
-				'source/Base.hpp',
 				'source/Buffer.cpp',
 				'source/Buffer.hpp',
 				'source/FreeTypeLoader.cpp',

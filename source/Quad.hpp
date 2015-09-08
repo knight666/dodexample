@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Base.hpp"
+#include "base/Main.hpp"
 #include "Buffer.hpp"
 #include "Program.hpp"
 #include "Texture.hpp"
