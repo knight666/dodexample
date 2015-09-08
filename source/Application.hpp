@@ -2,29 +2,33 @@
 
 #include "base/Main.hpp"
 
-class FreeTypeLoader;
-class Quad;
-class TextBatch;
+namespace Tmpl {
 
-class Application
-{
+	class FreeTypeLoader;
+	class Quad;
+	class TextBatch;
 
-public:
+	class Application
+	{
 
-	Application(GLFWwindow* window);
-	~Application();
+	public:
 
-	bool isRunning() const { return _running; }
+		Application(GLFWwindow* window);
+		~Application();
 
-	bool initialize();
-	void update(uint32_t milliSeconds);
-	void render();
+		bool isRunning() const { return _running; }
 
-private:
+		bool initialize();
+		void update(uint32_t milliSeconds);
+		void render();
 
-	bool _running;
-	GLFWwindow* _window;
-	std::shared_ptr<FreeTypeLoader> _loader;
-	std::shared_ptr<TextBatch> _text;
+	private:
 
-};
+		bool _running;
+		GLFWwindow* _window;
+		std::shared_ptr<FreeTypeLoader> _loader;
+		std::shared_ptr<TextBatch> _text;
+
+	};
+
+}; // namespace Tmpl

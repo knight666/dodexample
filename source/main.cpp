@@ -1,11 +1,12 @@
 #include "base/Main.hpp"
 
+#include "graphics/Buffer.hpp"
+#include "graphics/Program.hpp"
+#include "graphics/Quad.hpp"
+#include "graphics/Texture.hpp"
+#include "graphics/VertexArrays.hpp"
+
 #include "Application.hpp"
-#include "Buffer.hpp"
-#include "Program.hpp"
-#include "Quad.hpp"
-#include "Texture.hpp"
-#include "VertexArrays.hpp"
 
 #if TMPL_FEATURE_OPENGL_DEBUG
 static void APIENTRY debugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, GLvoid* userParam)
@@ -175,7 +176,7 @@ int main(int argc, const char** argv)
 
 	TMPL_LOG_INFO(Application) << "Initializing.";
 
-	Application* application = new Application(window);
+	Tmpl::Application* application = new Tmpl::Application(window);
 
 	if (!application->initialize())
 	{
