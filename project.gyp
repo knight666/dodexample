@@ -32,6 +32,8 @@
 				'source/logging/Logger.cpp',
 				'source/logging/Logger.hpp',
 				'source/logging/Sink.hpp',
+				'source/logging/SinkConsole.cpp',
+				'source/logging/SinkConsole.hpp',
 				'source/logging/SinkFile.cpp',
 				'source/logging/SinkFile.hpp',
 				'source/Application.cpp',

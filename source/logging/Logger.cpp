@@ -1,5 +1,6 @@
 #include "logging/Logger.hpp"
 
+#include "logging/SinkConsole.hpp"
 #include "logging/SinkFile.hpp"
 
 namespace Tmpl {
@@ -8,6 +9,7 @@ namespace Tmpl {
 
 	Logger::Logger()
 	{
+		addSink(SinkPtr(new SinkConsole()));
 		addSink(SinkPtr(new SinkFile("example.log")));
 	}
 
