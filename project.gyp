@@ -4,8 +4,14 @@
 	],
 	'targets': [
 		{
-			'target_name': 'UnicodeText',
+			'target_name': 'DODExample',
 			'type': 'executable',
+			'defines': [
+				'TMPL_WINDOW_TITLE="DODExample"',
+				'TMPL_WINDOW_WIDTH=1280',
+				'TMPL_WINDOW_HEIGHT=720',
+				'TMPL_FEATURE_OPENGL_DEBUG=0'
+			],
 			'dependencies': [
 				'dependencies/utf8rewind-1.1.1/utf8rewind.gyp:utf8rewind',
 				'dependencies/freetype-2.5.0.1/freetype.gyp:freetype',

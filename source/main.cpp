@@ -7,8 +7,6 @@
 #include "Texture.hpp"
 #include "VertexArrays.hpp"
 
-#define OGL_DEBUGGING (0)
-
 void traceMessage(const char* message)
 {
 #if defined(WIN32) || defined(_WINDOWS)
@@ -26,7 +24,7 @@ static void glfwErrors(int errorCode, const char* description)
 	traceMessage(buffer);
 }
 
-#if OGL_DEBUGGING
+#if TMPL_FEATURE_OPENGL_DEBUG
 static void APIENTRY debugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, GLvoid* userParam)
 {
 	if (severity == GL_DEBUG_SEVERITY_NOTIFICATION)
@@ -145,11 +143,16 @@ int main(int argc, const char** argv)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#if OGL_DEBUGGING
+#if TMPL_FEATURE_OPENGL_DEBUG
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 #endif
 
-	GLFWwindow* window = glfwCreateWindow(1280, 720, "UnicodeText", nullptr, nullptr);
+	GLFWwindow* window = glfwCreateWindow(
+		TMPL_WINDOW_WIDTH, TMPL_WINDOW_HEIGHT,
+		TMPL_WINDOW_TITLE,
+		nullptr,
+		nullptr);
+
 	if (window == nullptr)
 	{
 		std::cerr << "Failed to create GFLW window." << std::endl;
@@ -167,7 +170,7 @@ int main(int argc, const char** argv)
 		return false;
 	}
 
-#if OGL_DEBUGGING && defined(GL_ARB_debug_output)
+#if TMPL_FEATURE_OPENGL_DEBUG && defined(GL_ARB_debug_output)
 	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
 	glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
 	glDebugMessageCallback(&debugOutput, nullptr);
