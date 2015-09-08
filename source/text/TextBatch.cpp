@@ -46,13 +46,19 @@ namespace Tmpl {
 		}
 
 		_quad->setTextureData(_pixels, _width, _height);
+
+		float offset = _loader->getBaseLineOffset();
+
+		_model = glm::mat4(1.0f);
+		_model = glm::scale(_model, glm::vec3(
+			(float)_width, (float)_height, 1.0f));
+		_model = glm::translate(_model, glm::vec3(
+			0.0f, -offset / (float)_height, 0.0f));
 	}
 
-	void TextBatch::render(const glm::mat4x4& camera)
+	void TextBatch::render(const glm::mat4x4& viewProjection)
 	{
-		glm::mat4x4 model = glm::scale(glm::mat4x4(1.0f), glm::vec3((float)_width, (float)_height, 1.0f));
-
-		_quad->render(camera * model);
+		_quad->render(viewProjection * _model);
 	}
 
 	void TextBatch::clearPixels()

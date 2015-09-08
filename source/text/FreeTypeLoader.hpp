@@ -29,6 +29,7 @@ namespace Tmpl {
 
 		bool loadFace(const char* path, float size);
 
+		float getBaseLineOffset() const;
 		float getLineHeight() const;
 
 		std::shared_ptr<Glyph> createGlyph(unicode_t codepoint);

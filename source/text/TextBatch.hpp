@@ -18,7 +18,7 @@ namespace Tmpl {
 
 		void setText(const char* text);
 
-		void render(const glm::mat4x4& camera);
+		void render(const glm::mat4x4& viewProjection);
 
 	private:
 
@@ -34,6 +34,7 @@ namespace Tmpl {
 		glm::vec2 _cursor;
 		std::shared_ptr<FreeTypeLoader> _loader;
 		std::shared_ptr<Quad> _quad;
+		glm::mat4x4 _model;
 
 	};
 

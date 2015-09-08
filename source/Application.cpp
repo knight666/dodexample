@@ -37,24 +37,24 @@ namespace Tmpl {
 		int width, height;
 		glfwGetWindowSize(_window, &width, &height);
 
-		glViewport(0, 0, (GLsizei)width, (GLsizei)height);
+		glViewport(
+			0, 0,
+			(GLsizei)width, (GLsizei)height);
 
-		glClearBufferfv(GL_COLOR, 0, glm::value_ptr(glm::vec4(0.0f, 0.0f, 0.0f, 0.0f)));
+		glClearBufferfv(
+			GL_COLOR,
+			0,
+			glm::value_ptr(glm::vec4(0.0f, 0.0f, 0.0f, 0.0f)));
 
-		glDisable(GL_CULL_FACE);
-		glDisable(GL_DEPTH_TEST);
-
-		glm::mat4x4 projection = glm::ortho(
+		glm::mat4x4 viewProjection = glm::ortho(
 			0.0f, (float)width,
 			(float)height, 0.0f,
 			-1.0f, 1.0f);
+		viewProjection = glm::translate(
+			viewProjection,
+			m_camera);
 
-		glm::mat4 view = glm::translate(glm::mat4(1.0f), m_camera);
-
-		_text->render(projection * view);
-
-		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_CULL_FACE);
+		_text->render(viewProjection);
 	}
 
 	void Application::onKeyPressed(int key, int modifierKeys)

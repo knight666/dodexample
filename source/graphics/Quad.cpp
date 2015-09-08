@@ -29,19 +29,19 @@ namespace Tmpl {
 			Vertex vertex_data[4] = {
 				{
 					glm::vec2(0.0f, 0.0f),
-					glm::vec2(0.0f, 1.0f)
-				},
-				{
-					glm::vec2(1.0f, 0.0f),
-					glm::vec2(1.0f, 1.0f)
-				},
-				{
-					glm::vec2(0.0f, 1.0f),
 					glm::vec2(0.0f, 0.0f)
 				},
 				{
-					glm::vec2(1.0f, 1.0f),
+					glm::vec2(1.0f, 0.0f),
 					glm::vec2(1.0f, 0.0f)
+				},
+				{
+					glm::vec2(0.0f, 1.0f),
+					glm::vec2(0.0f, 1.0f)
+				},
+				{
+					glm::vec2(1.0f, 1.0f),
+					glm::vec2(1.0f, 1.0f)
 				},
 			};
 			_vertices->setData(vertex_data, 4, GL_STATIC_DRAW);
@@ -53,8 +53,8 @@ namespace Tmpl {
 		_elements->bind();
 
 			GLuint element_data[6] = {
-				0, 1, 2,
-				1, 3, 2
+				1, 0, 2,
+				3, 1, 2
 			};
 			_elements->setData(element_data, 6, GL_STATIC_DRAW);
 
@@ -143,14 +143,11 @@ namespace Tmpl {
 		GLenum errors = glGetError();
 	}
 
-	void Quad::render(const glm::mat4x4& camera)
+	void Quad::render(const glm::mat4x4& modelViewProjection)
 	{
-		glm::mat4x4 model = glm::mat4(1.0f);
-		// model = glm::scale(model, glm::vec3(256.0f, 256.0f, 1.0f));
-
 		_uniforms->bind();
 			Uniforms* transform = _uniforms->mapRange<Uniforms>(0, 1, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-				transform->modelViewProjection = camera * model;
+				transform->modelViewProjection = modelViewProjection;
 			_uniforms->unmap();
 		_uniforms->unbind();
 

@@ -38,7 +38,7 @@ namespace Tmpl {
 
 		void setTextureData(const GLuint* pixels, GLsizei width, GLsizei height);
 
-		void render(const glm::mat4x4& camera);
+		void render(const glm::mat4x4& modelViewProjection);
 
 	private:
 

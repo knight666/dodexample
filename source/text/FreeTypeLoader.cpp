@@ -69,6 +69,12 @@ namespace Tmpl {
 		return true;
 	}
 
+	float FreeTypeLoader::getBaseLineOffset() const
+	{
+		FT_Size_Metrics face_metrics = _face->size->metrics;
+		return (float)(face_metrics.ascender >> 6);
+	}
+
 	float FreeTypeLoader::getLineHeight() const
 	{
 		FT_Size_Metrics face_metrics = _face->size->metrics;
