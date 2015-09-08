@@ -60,22 +60,30 @@ namespace Tmpl {
 
 	void TextBatch::addCodepoint(unicode_t codepoint)
 	{
-		std::shared_ptr<Glyph> glyph = _loader->createGlyph(codepoint);
-		if (glyph == nullptr)
+		if (codepoint == '\n')
 		{
-			glyph = _loader->createGlyph(0xFFFD);
+			_cursor.x = 0.0f;
+			_cursor.y += _loader->getLineHeight();
+		}
+		else
+		{
+			std::shared_ptr<Glyph> glyph = _loader->createGlyph(codepoint);
 			if (glyph == nullptr)
 			{
-				return;
+				glyph = _loader->createGlyph(0xFFFD);
+				if (glyph == nullptr)
+				{
+					return;
+				}
 			}
-		}
 
-		if (glyph->bitmapData != nullptr)
-		{
-			renderBitmap(glyph);
-		}
+			if (glyph->bitmapData != nullptr)
+			{
+				renderBitmap(glyph);
+			}
 
-		_cursor.x += glyph->advance;
+			_cursor.x += glyph->advance;
+		}
 	}
 
 	void TextBatch::renderBitmap(std::shared_ptr<Glyph> glyph)

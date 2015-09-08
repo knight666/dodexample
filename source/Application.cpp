@@ -18,10 +18,10 @@ namespace Tmpl {
 
 	bool Application::initialize()
 	{
-		_loader->loadFace("media/fonts/Roboto/Roboto-Black.ttf", 28.0f);
+		_loader->loadFace("media/fonts/Roboto/Roboto-Black.ttf", 12.0f);
 
 		_text = std::shared_ptr<TextBatch>(new TextBatch(_loader, 256, 256));
-		_text->setText("Hello world! \xE3\x8A\x98\xE3\x85\xBB\xE2\x92\x94\xE2\x85\xA6\xE2\x84\x80\xE2\x81\xB4");
+		_text->setText("Update: 00 ms\nRender: 00 ms");
 
 		return true;
 	}

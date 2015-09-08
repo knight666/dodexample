@@ -69,6 +69,12 @@ namespace Tmpl {
 		return true;
 	}
 
+	float FreeTypeLoader::getLineHeight() const
+	{
+		FT_Size_Metrics face_metrics = _face->size->metrics;
+		return (float)(face_metrics.height >> 6);
+	}
+
 	std::shared_ptr<Glyph> FreeTypeLoader::createGlyph(unicode_t codepoint)
 	{
 		if (_face == nullptr)
