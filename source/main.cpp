@@ -7,15 +7,6 @@
 #include "Texture.hpp"
 #include "VertexArrays.hpp"
 
-void traceMessage(const char* message)
-{
-#if defined(WIN32) || defined(_WINDOWS)
-	::OutputDebugStringA(message);
-#endif
-
-	fprintf(stdout, message);
-}
-
 #if TMPL_FEATURE_OPENGL_DEBUG
 static void APIENTRY debugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, GLvoid* userParam)
 {
@@ -113,10 +104,7 @@ static void APIENTRY debugOutput(GLenum source, GLenum type, GLuint id, GLenum s
 
 	}
 
-	char buffer[1024] = { 0 };
-	_snprintf_s(buffer, 1023, "%s: %s(%s) %d: %s\n", debSource.c_str(), debType.c_str(), debSev.c_str(), id, message);
-
-	traceMessage(message);
+	TMPL_LOG_TRACE(OpenGL) << debSource << ": " << debType << "(" << debSev << ") " << id << ": " << message;
 }
 #endif
 
@@ -187,9 +175,9 @@ int main(int argc, const char** argv)
 
 	TMPL_LOG_INFO(Application) << "Initializing.";
 
-	Application application(window);
+	Application* application = new Application(window);
 
-	if (!application.initialize())
+	if (!application->initialize())
 	{
 		TMPL_LOG_ERROR(Application) << "Failed to initialize.";
 
@@ -205,7 +193,7 @@ int main(int argc, const char** argv)
 	TMPL_LOG_INFO(Application) << "Starting main loop.";
 
 	while (
-		application.isRunning() &&
+		application->isRunning() &&
 		!glfwWindowShouldClose(window))
 	{
 		glfwPollEvents();
@@ -216,17 +204,20 @@ int main(int argc, const char** argv)
 		{
 			time_delta = std::min(time_delta, TimeStepMaximum);
 
-			application.update((uint32_t)(time_delta.count() / 1000));
+			application->update((uint32_t)(time_delta.count() / 1000));
 
 			time_start = time_current;
 		}
 
-		application.render();
+		application->render();
 
 		glfwSwapBuffers(window);
 	}
 
 	TMPL_LOG_INFO(Application) << "Shutting down.";
+
+	delete application;
+	application = nullptr;
 
 	TMPL_LOG_INFO(Main) << "Done.";
 
