@@ -115,7 +115,7 @@ namespace Tmpl {
 		FT_Size_Metrics face_metrics = _face->size->metrics;
 
 		glyph->offsetX = (float)(glyph_metrics.horiBearingX >> 6);
-		glyph->offsetY = (float)((face_metrics.height - glyph_metrics.horiBearingY - face_metrics.ascender + face_metrics.descender) >> 6);
+		glyph->offsetY = (float)((face_metrics.height - glyph_metrics.horiBearingY - face_metrics.ascender - face_metrics.descender) >> 6);
 		glyph->advance = (float)(glyph_metrics.horiAdvance >> 6);
 
 		FT_Bitmap& glyph_bitmap = _face->glyph->bitmap;

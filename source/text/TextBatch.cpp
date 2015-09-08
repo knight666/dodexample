@@ -56,6 +56,9 @@ namespace Tmpl {
 	void TextBatch::clearPixels()
 	{
 		memset(_pixels, 0, _width * _height * sizeof(GLuint));
+
+		_cursor.x = 0.0f;
+		_cursor.y = _loader->getLineHeight();
 	}
 
 	void TextBatch::addCodepoint(unicode_t codepoint)
@@ -88,25 +91,28 @@ namespace Tmpl {
 
 	void TextBatch::renderBitmap(std::shared_ptr<Glyph> glyph)
 	{
-		uint32_t from_x = (uint32_t)(_cursor.x + glyph->boundingBoxMinimum.x);
-		uint32_t to_x = std::max(std::min(from_x + glyph->bitmapWidth, (uint32_t)_width), (uint32_t)0);
+		float from_x = _cursor.x + glyph->offsetX;
+		float to_x = glm::clamp(from_x + glyph->bitmapWidth, 0.0f, (float)_width);
 
-		uint32_t from_y = (uint32_t)(_cursor.y + glyph->boundingBoxMinimum.y);
-		uint32_t to_y = std::max(std::min(from_y + glyph->bitmapHeight, (uint32_t)_height), (uint32_t)0);
+		float from_y = _cursor.y + glyph->offsetY;
+		float to_y = glm::clamp(from_y + (float)glyph->bitmapHeight, 0.0f, (float)_height);
 
-		if (from_x > _width || to_x == 0 ||
-			from_y > _height || to_y == 0)
+		if (from_x > _width || to_x <= 0.0f ||
+			from_y > _height || to_y <= 0.0f)
 		{
 			return;
 		}
 
-		GLuint* dst = _pixels + (from_y * _width) + from_x;
+		GLuint* dst = _pixels + ((GLuint)from_y * _width) + (GLuint)from_x;
 		GLuint* dst_end = _pixels + (_width * _height);
 
 		uint32_t* src = glyph->bitmapData;
 		uint32_t src_pitch = glyph->bitmapWidth;
 
-		for (uint32_t y = from_y; y < to_y; ++y)
+		uint32_t render_width = (uint32_t)(to_x - from_x);
+		uint32_t render_height = (uint32_t)(to_y - from_y);
+
+		for (uint32_t y = 0; y < render_height; ++y)
 		{
 			if (dst >= _pixels &&
 				dst + src_pitch < dst_end)
@@ -114,7 +120,7 @@ namespace Tmpl {
 				uint32_t* dst_line = dst;
 				uint32_t* src_line = src;
 
-				for (uint32_t x = from_x; x < to_x; ++x)
+				for (uint32_t x = 0; x < render_width; ++x)
 				{
 					uint32_t src_a = (*src_line & 0x000000FF);
 					uint32_t src_r = (*src_line & 0x0000FF00) >> 8;
