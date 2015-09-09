@@ -44,6 +44,7 @@ namespace Tmpl {
 		virtual void generateVoxels(size_t count, float halfSize) override;
 
 		virtual void update(uint32_t milliSeconds) override;
+		virtual void cullVoxels(const glm::vec3& targetPosition) override;
 		virtual void render(const glm::mat4x4& modelViewProjection) override;
 
 	private:

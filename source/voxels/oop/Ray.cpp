@@ -8,8 +8,8 @@ namespace Tmpl {
 		: m_owner(owner)
 		, m_origin(origin)
 		, m_direction(direction)
-		, m_timeMinimum(0.0f)
-		, m_timeMaximum(std::numeric_limits<float>::max())
+		, m_timeMinimum(std::numeric_limits<float>::max())
+		, m_timeMaximum(0.0f)
 	{
 	}
 
@@ -30,15 +30,25 @@ namespace Tmpl {
 		glm::vec3 distanceMinimum = glm::min(localMinimum, localMaximum);
 		glm::vec3 distanceMaximum = glm::max(localMinimum, localMaximum);
 
-		m_timeMinimum = glm::max(m_timeMinimum, distanceMinimum.x);
-		m_timeMinimum = glm::max(m_timeMinimum, distanceMinimum.y);
-		m_timeMinimum = glm::max(m_timeMinimum, distanceMinimum.z);
+		float localTimeMinimum = 0.0f;
+		localTimeMinimum = glm::max(localTimeMinimum, distanceMinimum.x);
+		localTimeMinimum = glm::max(localTimeMinimum, distanceMinimum.y);
+		localTimeMinimum = glm::max(localTimeMinimum, distanceMinimum.z);
 
-		m_timeMaximum = glm::min(m_timeMaximum, distanceMaximum.x);
-		m_timeMaximum = glm::min(m_timeMaximum, distanceMaximum.y);
-		m_timeMaximum = glm::min(m_timeMaximum, distanceMaximum.z);
+		float localTimeMaximum = std::numeric_limits<float>::max();
+		localTimeMaximum = glm::min(localTimeMaximum, distanceMaximum.x);
+		localTimeMaximum = glm::min(localTimeMaximum, distanceMaximum.y);
+		localTimeMaximum = glm::min(localTimeMaximum, distanceMaximum.z);
 
-		return (m_timeMinimum < m_timeMaximum);
+		if (localTimeMinimum <= localTimeMaximum &&
+			localTimeMinimum <= m_timeMinimum)
+		{
+			m_timeMinimum = localTimeMinimum;
+
+			return true;
+		}
+
+		return false;
 	}
 
 }; // namespace Tmpl

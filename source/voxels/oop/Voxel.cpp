@@ -2,6 +2,11 @@
 
 namespace Tmpl {
 
+	Voxel::Voxel()
+		: m_culled(false)
+	{
+	}
+
 	void Voxel::setup(
 		const glm::vec3& position, float halfSize,
 		const glm::vec3& color)

@@ -11,9 +11,14 @@ namespace Tmpl {
 
 	public:
 
+		Voxel();
+
 		void setup(
 			const glm::vec3& position, float halfSize,
 			const glm::vec3& color);
+
+		bool isCulled() const { return m_culled; }
+		void setCulled(bool value) { m_culled = value; }
 
 		const glm::vec3& getPosition() const { return m_position; }
 
@@ -28,6 +33,7 @@ namespace Tmpl {
 		glm::vec3 m_aabbMinimum;
 		glm::vec3 m_aabbMaximum;
 		glm::vec3 m_color;
+		bool m_culled;
 
 	};
 

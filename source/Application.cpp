@@ -13,8 +13,10 @@ namespace Tmpl {
 		, m_logicOOP(new LogicOOP())
 		, m_voxelsActive(1000)
 		, m_voxelHalfSize(20.0f)
-		, m_cameraAngle(0.0f)
-		, m_cameraDistance(1000.0f)
+		, m_targetAngle(0.0f)
+		, m_targetDistance(1000.0f)
+		, m_cameraAngle(45.0f)
+		, m_cameraDistance(5000.0f)
 	{
 		memset(m_keysPressed, 0, sizeof(m_keysPressed));
 	}
@@ -59,7 +61,14 @@ namespace Tmpl {
 			m_cameraDistance += 10.0f;
 		}
 
-		m_logicOOP->update(milliSeconds);
+		m_targetPosition = glm::vec3(
+			glm::cos(glm::radians(m_targetAngle)) * m_targetDistance,
+			10.0f,
+			glm::sin(glm::radians(m_targetAngle)) * m_targetDistance);
+
+		m_logicOOP->cullVoxels(m_targetPosition);
+
+		m_targetAngle += 1.0f;
 	}
 
 	void Application::render()
@@ -77,10 +86,12 @@ namespace Tmpl {
 		glm::vec4 clear_color(0.0f, 0.0f, 0.0f, 1.0f);
 		glClearBufferfv(GL_COLOR, 0, glm::value_ptr(clear_color));
 
-		glm::vec3 eyePosition(
+		/*glm::vec3 eyePosition(
 			glm::cos(glm::radians(m_cameraAngle)) * m_cameraDistance,
 			0.0f,
-			glm::sin(glm::radians(m_cameraAngle)) * m_cameraDistance);
+			glm::sin(glm::radians(m_cameraAngle)) * m_cameraDistance);*/
+
+		glm::vec3 eyePosition = m_targetPosition;
 
 		glm::mat4x4 perspective = glm::perspectiveFov(
 			120.0f,
@@ -114,27 +125,6 @@ namespace Tmpl {
 	void Application::onKeyReleased(int key, int modifierKeys)
 	{
 		m_keysPressed[key] = false;
-
-		switch (key)
-		{
-
-		case GLFW_KEY_LEFT:
-			m_camera.x -= 1.0f;
-			break;
-
-		case GLFW_KEY_RIGHT:
-			m_camera.x += 1.0f;
-			break;
-
-		case GLFW_KEY_UP:
-			m_camera.y -= 1.0f;
-			break;
-
-		case GLFW_KEY_DOWN:
-			m_camera.y += 1.0f;
-			break;
-
-		}
 	}
 
 }; // namespace Tmpl

@@ -115,6 +115,33 @@ namespace Tmpl {
 	{
 	}
 
+	void LogicOOP::cullVoxels(const glm::vec3& targetPosition)
+	{
+		for (size_t i = 0; i < m_voxelsActive; ++i)
+		{
+			Voxel& voxelLeft = m_voxels[i];
+
+			Ray rayLeft(
+				voxelLeft,
+				targetPosition,
+				glm::normalize(targetPosition - voxelLeft.getPosition()));
+
+			voxelLeft.setCulled(false);
+
+			for (size_t j = 0; j < m_voxelsActive; ++j)
+			{
+				Voxel& voxelRight = m_voxels[j];
+
+				if (rayLeft.intersects(voxelRight))
+				{
+					voxelLeft.setCulled(true);
+
+					break;
+				}
+			}
+		}
+	}
+
 	void LogicOOP::render(const glm::mat4x4& modelViewProjection)
 	{
 		m_uniforms->bind();
@@ -124,13 +151,23 @@ namespace Tmpl {
 		m_uniforms->unbind();
 
 		m_vertices->bind();
-			Vertex* data = m_vertices->map<Vertex>(GL_READ_WRITE);
-				for (size_t i = 0; i < m_voxelsActive; ++i)
-				{
-					data[i].position = m_voxels[i].getPosition();
-					data[i].color = m_voxels[i].getColor();
-				}
-			m_vertices->unmap();
+		Vertex* data = m_vertices->map<Vertex>(GL_READ_WRITE);
+		Vertex* data_dst = data;
+		size_t data_count = 0;
+
+		for (size_t i = 0; i < m_voxelsActive; ++i)
+		{
+			if (!m_voxels[i].isCulled())
+			{
+				data_dst->position = m_voxels[i].getPosition();
+				data_dst->color = m_voxels[i].getColor();
+
+				data_dst++;
+				data_count++;
+			}
+		}
+
+		m_vertices->unmap();
 		m_vertices->unbind();
 
 		m_program->bind();
@@ -141,7 +178,7 @@ namespace Tmpl {
 			
 			m_attributes->bind();
 
-			glDrawArrays(GL_POINTS, 0, m_voxelsActive);
+			glDrawArrays(GL_POINTS, 0, data_count);
 
 			m_attributes->unbind();
 
