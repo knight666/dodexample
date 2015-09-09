@@ -5,6 +5,7 @@
 namespace Tmpl {
 
 	class FreeTypeLoader;
+	class Logic;
 	class Quad;
 	class TextBatch;
 
@@ -31,6 +32,11 @@ namespace Tmpl {
 		GLFWwindow* m_window;
 		std::shared_ptr<FreeTypeLoader> m_loader;
 		std::shared_ptr<TextBatch> m_text;
+
+		std::shared_ptr<Logic> m_logicOOP;
+		std::shared_ptr<Logic> m_logicDOD;
+		size_t m_voxelsActive;
+		float m_voxelHalfSize;
 
 		glm::vec2 m_camera;
 

@@ -3,12 +3,16 @@
 #include "graphics/Quad.hpp"
 #include "text/FreeTypeLoader.hpp"
 #include "text/TextBatch.hpp"
+#include "voxels/oop/LogicOOP.hpp"
 
 namespace Tmpl {
 
 	Application::Application(GLFWwindow* window)
 		: m_window(window)
 		, m_loader(new FreeTypeLoader())
+		, m_logicOOP(new LogicOOP())
+		, m_voxelsActive(1000)
+		, m_voxelHalfSize(20.0f)
 	{
 	}
 
@@ -18,6 +22,8 @@ namespace Tmpl {
 
 	bool Application::initialize()
 	{
+		m_logicOOP->generateVoxels(m_voxelsActive, m_voxelHalfSize);
+
 		m_loader->loadFace("media/fonts/Roboto/Roboto-Black.ttf", 12.0f);
 		m_loader->loadGlyphRange(0x00, 0xFF); // preload Basic Latin and Latin-1
 
@@ -28,7 +34,7 @@ namespace Tmpl {
 
 	void Application::update(uint32_t milliSeconds)
 	{
-
+		m_logicOOP->update(milliSeconds);
 	}
 
 	void Application::render()
@@ -44,6 +50,8 @@ namespace Tmpl {
 			GL_COLOR,
 			0,
 			glm::value_ptr(glm::vec4(0.0f, 0.0f, 0.0f, 0.0f)));
+
+		m_logicOOP->render();
 
 		glm::mat4x4 projection = glm::ortho(
 			0.0f, (float)width,
