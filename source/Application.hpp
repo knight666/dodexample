@@ -40,6 +40,9 @@ namespace Tmpl {
 
 		glm::vec2 m_camera;
 		float m_cameraAngle;
+		float m_cameraDistance;
+
+		bool m_keysPressed[GLFW_KEY_LAST];
 
 	};
 

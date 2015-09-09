@@ -23,7 +23,7 @@ namespace Tmpl {
 	}
 	inline std::wstring widen(const std::string& utf8Text)
 	{
-		return widen(utf8Text.c_str(), utf8Text.length() * sizeof(wchar_t));
+		return widen(utf8Text.c_str(), utf8Text.length());
 	}
 
 	// GLFW

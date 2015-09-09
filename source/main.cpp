@@ -194,6 +194,8 @@ int main(int argc, const char** argv)
 
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
 
 	TMPL_LOG_INFO(Application) << "Initializing.";
 

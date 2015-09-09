@@ -20,30 +20,98 @@ void main()
 	{
 		geometryColor = vertexColor[i];
 
-		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4(-halfSize, halfSize, -halfSize, 0.0));
+		// Left
+
+		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4(-halfSize,  halfSize,  halfSize, 0.0));
+		EmitVertex();
+
+		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4(-halfSize, -halfSize,  halfSize, 0.0));
+		EmitVertex();
+
+		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4( halfSize,  halfSize,  halfSize, 0.0));
+		EmitVertex();
+
+		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4( halfSize, -halfSize,  halfSize, 0.0));
+		EmitVertex();
+
+		EndPrimitive();
+
+		// Right
+
+		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4( halfSize,  halfSize, -halfSize, 0.0));
+		EmitVertex();
+
+		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4( halfSize, -halfSize, -halfSize, 0.0));
+		EmitVertex();
+
+		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4(-halfSize,  halfSize, -halfSize, 0.0));
 		EmitVertex();
 
 		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4(-halfSize, -halfSize, -halfSize, 0.0));
 		EmitVertex();
 
-		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4(halfSize, halfSize, -halfSize, 0.0));
+		EndPrimitive();
+
+		// Top
+
+		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4( halfSize,  halfSize,  halfSize, 0.0));
 		EmitVertex();
 
-		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4(halfSize, -halfSize, -halfSize, 0.0));
+		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4( halfSize,  halfSize, -halfSize, 0.0));
+		EmitVertex();
+
+		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4(-halfSize,  halfSize,  halfSize, 0.0));
+		EmitVertex();
+
+		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4(-halfSize,  halfSize, -halfSize, 0.0));
 		EmitVertex();
 
 		EndPrimitive();
 
-		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4(halfSize, halfSize, halfSize, 0.0));
+		// Bottom
+
+		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4(-halfSize, -halfSize,  halfSize, 0.0));
 		EmitVertex();
 
-		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4(halfSize, -halfSize, halfSize, 0.0));
+		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4(-halfSize, -halfSize, -halfSize, 0.0));
 		EmitVertex();
 
-		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4(-halfSize, halfSize, halfSize, 0.0));
+		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4( halfSize, -halfSize,  halfSize, 0.0));
 		EmitVertex();
 
-		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4(-halfSize, -halfSize, halfSize, 0.0));
+		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4( halfSize, -halfSize, -halfSize, 0.0));
+		EmitVertex();
+
+		EndPrimitive();
+
+		// Front
+
+		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4( halfSize, -halfSize,  halfSize, 0.0));
+		EmitVertex();
+
+		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4( halfSize, -halfSize, -halfSize, 0.0));
+		EmitVertex();
+
+		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4( halfSize,  halfSize,  halfSize, 0.0));
+		EmitVertex();
+
+		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4( halfSize,  halfSize, -halfSize, 0.0));
+		EmitVertex();
+
+		EndPrimitive();
+
+		// Back
+
+		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4(-halfSize,  halfSize,  halfSize, 0.0));
+		EmitVertex();
+
+		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4(-halfSize,  halfSize, -halfSize, 0.0));
+		EmitVertex();
+
+		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4(-halfSize, -halfSize,  halfSize, 0.0));
+		EmitVertex();
+
+		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4(-halfSize, -halfSize, -halfSize, 0.0));
 		EmitVertex();
 
 		EndPrimitive();

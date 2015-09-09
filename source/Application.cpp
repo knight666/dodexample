@@ -14,7 +14,9 @@ namespace Tmpl {
 		, m_voxelsActive(1000)
 		, m_voxelHalfSize(20.0f)
 		, m_cameraAngle(0.0f)
+		, m_cameraDistance(1000.0f)
 	{
+		memset(m_keysPressed, 0, sizeof(m_keysPressed));
 	}
 
 	Application::~Application()
@@ -40,6 +42,23 @@ namespace Tmpl {
 
 	void Application::update(uint32_t milliSeconds)
 	{
+		if (m_keysPressed[GLFW_KEY_A])
+		{
+			m_cameraAngle += 1.0f;
+		}
+		if (m_keysPressed[GLFW_KEY_D])
+		{
+			m_cameraAngle -= 1.0f;
+		}
+		if (m_keysPressed[GLFW_KEY_W])
+		{
+			m_cameraDistance -= 10.0f;
+		}
+		if (m_keysPressed[GLFW_KEY_S])
+		{
+			m_cameraDistance += 10.0f;
+		}
+
 		m_logicOOP->update(milliSeconds);
 	}
 
@@ -52,18 +71,19 @@ namespace Tmpl {
 			0, 0,
 			(GLsizei)width, (GLsizei)height);
 
-		glClearBufferfv(
-			GL_COLOR,
-			0,
-			glm::value_ptr(glm::vec4(0.0f, 0.0f, 0.0f, 0.0f)));
+		float depth = 1.0f;
+		glClearBufferfv(GL_DEPTH, 0, &depth);
+
+		glm::vec4 clear_color(0.0f, 0.0f, 0.0f, 1.0f);
+		glClearBufferfv(GL_COLOR, 0, glm::value_ptr(clear_color));
 
 		glm::vec3 eyePosition(
-			glm::cos(glm::radians(m_cameraAngle)) * 1000.0f,
+			glm::cos(glm::radians(m_cameraAngle)) * m_cameraDistance,
 			0.0f,
-			glm::sin(glm::radians(m_cameraAngle)) * 1000.0f);
+			glm::sin(glm::radians(m_cameraAngle)) * m_cameraDistance);
 
 		glm::mat4x4 perspective = glm::perspectiveFov(
-			90.0f,
+			120.0f,
 			(float)width, (float)height,
 			0.1f, 10000.0f);
 
@@ -88,25 +108,13 @@ namespace Tmpl {
 
 	void Application::onKeyPressed(int key, int modifierKeys)
 	{
-		switch (key)
-		{
-
-		case GLFW_KEY_A:
-			m_cameraAngle -= 1.0f;
-			break;
-
-		case GLFW_KEY_D:
-			m_cameraAngle += 1.0f;
-			break;
-
-		default:
-			break;
-
-		}
+		m_keysPressed[key] = true;
 	}
 
 	void Application::onKeyReleased(int key, int modifierKeys)
 	{
+		m_keysPressed[key] = false;
+
 		switch (key)
 		{
 
