@@ -41,6 +41,7 @@ namespace Tmpl {
 		std::shared_ptr<Logic> m_logicOOP;
 		std::shared_ptr<Logic> m_logicDOD;
 		size_t m_voxelsActive;
+		size_t m_voxelsCulled;
 		float m_voxelHalfSize;
 
 		glm::vec3 m_targetPosition;

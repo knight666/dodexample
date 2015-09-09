@@ -111,8 +111,10 @@ namespace Tmpl {
 		m_voxelHalfSize = halfSize; 
 	}
 
-	void LogicOOP::cullVoxels(const Options& options, const glm::vec3& targetPosition)
+	size_t LogicOOP::cullVoxels(const Options& options, const glm::vec3& targetPosition)
 	{
+		size_t culled = 0;
+
 		for (size_t i = 0; i < m_voxelsActive; ++i)
 		{
 			Voxel& voxelLeft = m_voxels[i];
@@ -131,11 +133,14 @@ namespace Tmpl {
 				if (rayLeft.intersects(voxelRight))
 				{
 					voxelLeft.setCulled(true);
+					culled++;
 
 					break;
 				}
 			}
 		}
+
+		return culled;
 	}
 
 	void LogicOOP::render(const Options& options, const glm::mat4x4& modelViewProjection)

@@ -11,6 +11,7 @@ namespace Tmpl {
 		: m_window(window)
 		, m_loader(new FreeTypeLoader())
 		, m_logicOOP(new LogicOOP())
+		, m_voxelsCulled(0)
 		, m_voxelsActive(1000)
 		, m_voxelHalfSize(20.0f)
 		, m_targetAngle(0.0f)
@@ -69,9 +70,11 @@ namespace Tmpl {
 			10.0f,
 			glm::sin(glm::radians(m_targetAngle)) * m_targetDistance);
 
+		m_voxelsCulled = 0;
+
 		if (m_options.culling)
 		{
-			m_logicOOP->cullVoxels(m_options, m_targetPosition);
+			m_voxelsCulled = m_logicOOP->cullVoxels(m_options, m_targetPosition);
 		}
 
 		m_targetAngle += 1.0f;
@@ -126,6 +129,10 @@ namespace Tmpl {
 
 		m_textCombined.clear();
 
+		addText("Voxels: %d (%d culled = %.2f%%)",
+			m_voxelsActive,
+			m_voxelsCulled,
+			((float)m_voxelsCulled / (float)m_voxelsActive) * 100.0f);
 		addText("Eye: (%.2f, %.2f, %.2f)",
 			eye_position.x, eye_position.y, eye_position.z);
 

@@ -18,7 +18,7 @@ namespace Tmpl {
 
 		virtual void generateVoxels(size_t count, float halfSize) = 0;
 
-		virtual void cullVoxels(const Options& options, const glm::vec3& targetPosition) = 0;
+		virtual size_t cullVoxels(const Options& options, const glm::vec3& targetPosition) = 0;
 		virtual void render(const Options& options, const glm::mat4x4& modelViewProjection) = 0;
 
 	};
