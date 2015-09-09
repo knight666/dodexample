@@ -13,11 +13,11 @@
 				'TMPL_FEATURE_OPENGL_DEBUG=1'
 			],
 			'dependencies': [
-				'dependencies/utf8rewind-1.1.1/utf8rewind.gyp:utf8rewind',
+				'dependencies/utf8rewind-1.2.1/utf8rewind.gyp:utf8rewind',
 				'dependencies/freetype-2.5.0.1/freetype.gyp:freetype',
 				'dependencies/glew-1.10.0/glew.gyp:glew',
 				'dependencies/glfw-3.0.2/glfw.gyp:glfw',
-				'dependencies/glm-0.9.4.5/glm.gyp:glm',
+				'dependencies/glm-0.9.7.1/glm.gyp:glm',
 			],
 			'include_dirs': [
 				'source'

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)$(MSBuildThisFileName).xml"/>
+    <AvailableItemName Include="Doxyfile">
+      <Targets>_Doxyfile</Targets>
+    </AvailableItemName>
+  </ItemGroup>
+  <UsingTask AssemblyName="Microsoft.Build.Tasks.v4.0" TaskFactory="XamlTaskFactory" TaskName="Doxyfile">
+    <Task>$(MSBuildThisFileDirectory)$(MSBuildThisFileName).xml</Task>
+  </UsingTask>
+  <Target AfterTargets="$(DoxyfileAfterTargets)" BeforeTargets="$(DoxyfileBeforeTargets)" Condition="'@(Doxyfile)' != ''" DependsOnTargets="$(DoxyfileDependsOn);ComputeDoxyfileOutput" Inputs="%(Doxyfile.Identity);%(Doxyfile.AdditionalDependencies);$(MSBuildProjectFile)" Name="_Doxyfile" Outputs="%(Doxyfile.Outputs)">
+    <ItemGroup Condition="'@(SelectedFiles)' != ''">
+      <Doxyfile Condition="'%(Identity)' != '@(SelectedFiles)'" Remove="@(Doxyfile)"/>
+    </ItemGroup>
+    <ItemGroup>
+      <Doxyfile_inputs Include="%(Doxyfile.AdditionalDependencies)"/>
+    </ItemGroup>
+    <ItemGroup>
+      <Doxyfile_tlog Condition="'%(Doxyfile.Outputs)' != '' and '%(Doxyfile.ExcludedFromBuild)' != 'true'" Include="%(Doxyfile.Outputs)">
+        <Source>@(Doxyfile, &apos;|&apos;)</Source>
+        <Inputs>@(Doxyfile_inputs -&gt; &apos;%(Fullpath)&apos;, &apos;;&apos;)</Inputs>
+      </Doxyfile_tlog>
+    </ItemGroup>
+    <Message Importance="High" Text="%(Doxyfile.ExecutionDescription)"/>
+    <WriteLinesToFile Condition="'@(Doxyfile_tlog)' != '' and '%(Doxyfile_tlog.ExcludedFromBuild)' != 'true'" File="$(IntDir)$(ProjectName).write.1.tlog" Lines="^%(Doxyfile_tlog.Source);@(Doxyfile_tlog-&gt;'%(Fullpath)')"/>
+    <WriteLinesToFile Condition="'@(Doxyfile_tlog)' != '' and '%(Doxyfile_tlog.ExcludedFromBuild)' != 'true'" File="$(IntDir)$(ProjectName).read.1.tlog" Lines="^%(Doxyfile_tlog.Source);%(Doxyfile_tlog.Inputs)"/>
+    <Doxyfile AdditionalOptions="%(Doxyfile.AdditionalOptions)" CommandLineTemplate="%(Doxyfile.CommandLineTemplate)" Condition="'@(Doxyfile)' != '' and '%(Doxyfile.ExcludedFromBuild)' != 'true'" EchoOff="true" Inputs="%(Doxyfile.Identity)" StandardErrorImportance="High" StandardOutputImportance="High"/>
+  </Target>
+  <PropertyGroup>
+    <ComputeLinkInputsTargets>$(ComputeLinkInputsTargets);ComputeDoxyfileOutput;</ComputeLinkInputsTargets>
+    <ComputeLibInputsTargets>$(ComputeLibInputsTargets);ComputeDoxyfileOutput;</ComputeLibInputsTargets>
+  </PropertyGroup>
+  <Target Condition="'@(Doxyfile)' != ''" Name="ComputeDoxyfileOutput">
+    <ItemGroup>
+      <DoxyfileDirsToMake Condition="'@(Doxyfile)' != '' and '%(Doxyfile.ExcludedFromBuild)' != 'true'" Include="%(Doxyfile.Outputs)"/>
+      <Link Condition="'%(Extension)'=='.obj' or '%(Extension)'=='.res' or '%(Extension)'=='.rsc' or '%(Extension)'=='.lib'" Include="%(DoxyfileDirsToMake.Identity)"/>
+      <Lib Condition="'%(Extension)'=='.obj' or '%(Extension)'=='.res' or '%(Extension)'=='.rsc' or '%(Extension)'=='.lib'" Include="%(DoxyfileDirsToMake.Identity)"/>
+      <ImpLib Condition="'%(Extension)'=='.obj' or '%(Extension)'=='.res' or '%(Extension)'=='.rsc' or '%(Extension)'=='.lib'" Include="%(DoxyfileDirsToMake.Identity)"/>
+    </ItemGroup>
+    <MakeDir Directories="@(DoxyfileDirsToMake-&gt;'%(RootDir)%(Directory)')"/>
+  </Target>
+</Project>

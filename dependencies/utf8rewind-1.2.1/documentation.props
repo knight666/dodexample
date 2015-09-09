@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition="'$(DoxyfileBeforeTargets)' == '' and '$(DoxyfileAfterTargets)' == '' and '$(ConfigurationType)' != 'Makefile'">
+    <DoxyfileBeforeTargets>Midl</DoxyfileBeforeTargets>
+    <DoxyfileAfterTargets>CustomBuild</DoxyfileAfterTargets>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DoxyfileDependsOn Condition="'$(ConfigurationType)' != 'Makefile'">_SelectedFiles;$(DoxyfileDependsOn)</DoxyfileDependsOn>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <Doxyfile>
+      <CommandLineTemplate>call doxygen utf8rewind.doxyfile</CommandLineTemplate>
+      <Outputs>documentation\html\index.html</Outputs>
+      <ExecutionDescription>Doxyfile</ExecutionDescription>
+      <AdditionalDependencies></AdditionalDependencies>
+    </Doxyfile>
+  </ItemDefinitionGroup>
+</Project>
