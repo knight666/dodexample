@@ -4,7 +4,7 @@ namespace Tmpl {
 
 	void Voxel::setup(
 		const glm::vec3& position, float halfSize,
-		const glm::vec4& color)
+		const glm::vec3& color)
 	{
 		m_position = position;
 
@@ -13,6 +13,8 @@ namespace Tmpl {
 
 		m_aabbMaximum = position;
 		m_aabbMaximum += glm::vec3(halfSize);
+
+		m_color = color;
 	}
 
 }; // namespace Tmpl

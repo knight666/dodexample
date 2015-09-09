@@ -1,17 +1,12 @@
 #version 330 core
 
-uniform VertexUniforms
-{
-	mat4 modelViewProjection;
-} Uniforms;
-
 in vec3 attrPosition;
-in vec4 attrColor;
+in vec3 attrColor;
 
-out vec4 vertexColor;
+out vec3 vertexColor;
 
 void main()
 {
-	gl_Position = Uniforms.modelViewProjection * vec4(attrPosition, 1.0);
+	gl_Position = vec4(attrPosition, 1.0);
 	vertexColor = attrColor;
 }

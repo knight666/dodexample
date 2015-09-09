@@ -45,7 +45,7 @@ namespace Tmpl {
 
 			m_vertices->bind();
 			m_attributes->setAttribute(m_program->getAttributeLocation("attrPosition"), 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)Vertex::Offset::Position);
-			m_attributes->setAttribute(m_program->getAttributeLocation("attrColor"), 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)Vertex::Offset::Color);
+			m_attributes->setAttribute(m_program->getAttributeLocation("attrColor"), 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)Vertex::Offset::Color);
 
 		m_attributes->unbind();
 
@@ -79,9 +79,9 @@ namespace Tmpl {
 		m_voxels.resize(count);
 
 		glm::vec3 position;
-		glm::vec4 color = glm::linearRand(
-			glm::vec4(0.0f, 0.0f, 0.0f, 1.0f),
-			glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+		glm::vec3 color = glm::linearRand(
+			glm::vec3(0.0f, 0.0f, 0.0f),
+			glm::vec3(1.0f, 1.0f, 1.0f));
 
 		int last_direction = 0;
 
@@ -103,8 +103,8 @@ namespace Tmpl {
 			last_direction = side * sign;
 
 			color = glm::linearRand(
-				glm::vec4(0.0f, 0.0f, 0.0f, 1.0f),
-				glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+				glm::vec3(0.0f, 0.0f, 0.0f),
+				glm::vec3(1.0f, 1.0f, 1.0f));
 		}
 
 		m_voxelsActive = count;
@@ -141,12 +141,8 @@ namespace Tmpl {
 			
 			m_attributes->bind();
 
-			glDisable(GL_CULL_FACE);
-
 			glDrawArrays(GL_POINTS, 0, m_voxelsActive);
 
-			glEnable(GL_CULL_FACE);
-			
 			m_attributes->unbind();
 
 			m_uniforms->unbind();

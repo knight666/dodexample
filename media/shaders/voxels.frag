@@ -1,11 +1,10 @@
 #version 330 core
 
-in vec4 vertexColor;
+in vec3 geometryColor;
 
 out vec4 fragmentColor;
 
 void main()
 {
-	//fragmentColor = vertexColor;
-	fragmentColor = vec4(1.0, 0.0, 0.0, 1.0);
+	fragmentColor = vec4(geometryColor, 1.0);
 }

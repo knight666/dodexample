@@ -58,9 +58,9 @@ namespace Tmpl {
 			glm::value_ptr(glm::vec4(0.0f, 0.0f, 0.0f, 0.0f)));
 
 		glm::vec3 eyePosition(
-			glm::cos(glm::radians(m_cameraAngle)) * 100.0f,
+			glm::cos(glm::radians(m_cameraAngle)) * 1000.0f,
 			0.0f,
-			glm::sin(glm::radians(m_cameraAngle)) * 100.0f);
+			glm::sin(glm::radians(m_cameraAngle)) * 1000.0f);
 
 		glm::mat4x4 perspective = glm::perspectiveFov(
 			90.0f,

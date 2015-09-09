@@ -3,31 +3,49 @@
 layout(points) in;
 layout(triangle_strip, max_vertices = 36) out;
 
+uniform VertexUniforms
+{
+	mat4 modelViewProjection;
+} Uniforms;
+
 uniform float halfSize;
 
-in vec4 vertexColor[];
+in vec3 vertexColor[];
 
-out vec4 geometryColor;
+out vec3 geometryColor;
 
 void main()
 {
 	for (int i = 0; i < gl_in.length(); ++i)
 	{
-		vec4 boxMinimum = gl_in[i].gl_Position + vec4(vec3(-halfSize), 0.0);
-		vec4 boxMaximum = gl_in[i].gl_Position + vec4(vec3(halfSize), 0.0);
-
-		gl_Position = boxMinimum;
 		geometryColor = vertexColor[i];
+
+		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4(-halfSize, halfSize, -halfSize, 0.0));
 		EmitVertex();
 
-		gl_Position = vec4(boxMaximum.x, boxMinimum.y, boxMinimum.z, 1.0);
-		geometryColor = vertexColor[i];
+		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4(-halfSize, -halfSize, -halfSize, 0.0));
 		EmitVertex();
 
-		gl_Position = vec4(boxMaximum.xy, boxMinimum.z, 1.0);
-		geometryColor = vertexColor[i];
+		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4(halfSize, halfSize, -halfSize, 0.0));
 		EmitVertex();
+
+		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4(halfSize, -halfSize, -halfSize, 0.0));
+		EmitVertex();
+
+		EndPrimitive();
+
+		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4(halfSize, halfSize, halfSize, 0.0));
+		EmitVertex();
+
+		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4(halfSize, -halfSize, halfSize, 0.0));
+		EmitVertex();
+
+		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4(-halfSize, halfSize, halfSize, 0.0));
+		EmitVertex();
+
+		gl_Position = Uniforms.modelViewProjection * (gl_in[i].gl_Position + vec4(-halfSize, -halfSize, halfSize, 0.0));
+		EmitVertex();
+
+		EndPrimitive();
 	}
-
-	EndPrimitive();
 }
