@@ -56,8 +56,11 @@ namespace Tmpl {
 			0.0f, -offset / (float)_height, 0.0f));
 	}
 
-	void TextBatch::render(const glm::mat4x4& viewProjection)
+	void TextBatch::render(const glm::mat4x4& projection, const glm::vec2& position)
 	{
+		glm::mat4x4 viewProjection =
+			glm::translate(projection, glm::vec3(position, 0.0f));
+
 		_quad->render(viewProjection * _model);
 	}
 

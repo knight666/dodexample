@@ -32,7 +32,7 @@ namespace Tmpl {
 		std::shared_ptr<FreeTypeLoader> _loader;
 		std::shared_ptr<TextBatch> _text;
 
-		glm::vec3 m_camera;
+		glm::vec2 m_camera;
 
 	};
 

@@ -18,7 +18,7 @@ namespace Tmpl {
 
 		void setText(const char* text);
 
-		void render(const glm::mat4x4& viewProjection);
+		void render(const glm::mat4x4& projection, const glm::vec2& position);
 
 	private:
 

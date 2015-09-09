@@ -10,7 +10,6 @@ namespace Tmpl {
 		: _window(window)
 		, _loader(new FreeTypeLoader())
 	{
-		m_camera.z = 1.0f;
 	}
 
 	Application::~Application()
@@ -46,15 +45,12 @@ namespace Tmpl {
 			0,
 			glm::value_ptr(glm::vec4(0.0f, 0.0f, 0.0f, 0.0f)));
 
-		glm::mat4x4 viewProjection = glm::ortho(
+		glm::mat4x4 projection = glm::ortho(
 			0.0f, (float)width,
 			(float)height, 0.0f,
 			-1.0f, 1.0f);
-		viewProjection = glm::translate(
-			viewProjection,
-			m_camera);
 
-		_text->render(viewProjection);
+		_text->render(projection, glm::vec2(5.0f, 5.0f));
 	}
 
 	void Application::onKeyPressed(int key, int modifierKeys)
@@ -67,28 +63,20 @@ namespace Tmpl {
 		switch (key)
 		{
 
-		case GLFW_KEY_A:
+		case GLFW_KEY_LEFT:
 			m_camera.x -= 1.0f;
 			break;
 
-		case GLFW_KEY_D:
+		case GLFW_KEY_RIGHT:
 			m_camera.x += 1.0f;
 			break;
 
-		case GLFW_KEY_W:
-			m_camera.y += 1.0f;
-			break;
-
-		case GLFW_KEY_S:
+		case GLFW_KEY_UP:
 			m_camera.y -= 1.0f;
 			break;
 
-		case GLFW_KEY_Q:
-			m_camera.z -= 1.0f;
-			break;
-
-		case GLFW_KEY_E:
-			m_camera.z += 1.0f;
+		case GLFW_KEY_DOWN:
+			m_camera.y += 1.0f;
 			break;
 
 		}
