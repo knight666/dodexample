@@ -19,6 +19,7 @@ namespace Tmpl {
 			Fragment = GL_FRAGMENT_SHADER,
 			Geometry = GL_GEOMETRY_SHADER,
 		};
+		static std::string TypeToString(Type type);
 
 		Shader(Program& program, Type type);
 		~Shader();

@@ -6,10 +6,14 @@ namespace Tmpl {
 		: m_bound(0)
 	{
 		m_handle = glCreateProgram();
+
+		TMPL_LOG_INFO(Program) << m_handle << ": Created.";
 	}
 
 	Program::~Program()
 	{
+		TMPL_LOG_INFO(Program) << m_handle << ": Deleting.";
+
 		glDeleteProgram(m_handle);
 	}
 
@@ -50,6 +54,9 @@ namespace Tmpl {
 
 	bool Program::loadShader(Shader::Type type, const std::string& source)
 	{
+		TMPL_LOG_INFO(Program) << m_handle << ": Loading " << Shader::TypeToString(type)
+			<< " shader from source.";
+
 		std::shared_ptr<Shader> shader;
 
 		switch (type)
@@ -86,9 +93,14 @@ namespace Tmpl {
 
 	bool Program::loadShaderFromFile(Shader::Type type, const std::string& path)
 	{
+		TMPL_LOG_INFO(Program) << m_handle << ": Loading " << Shader::TypeToString(type)
+			<< " shader from \"" << path << "\".";
+
 		std::fstream file_handle(path);
 		if (!file_handle.is_open())
 		{
+			TMPL_LOG_ERROR(Program) << m_handle << ": Failed to open file.";
+
 			return false;
 		}
 
@@ -105,6 +117,8 @@ namespace Tmpl {
 		{
 			return false;
 		}
+
+		TMPL_LOG_INFO(Program) << m_handle << ": Linking.";
 
 		glLinkProgram(m_handle);
 
@@ -133,13 +147,22 @@ namespace Tmpl {
 		glGetProgramiv(m_handle, GL_LINK_STATUS, &success);
 		if (success != GL_TRUE)
 		{
+			TMPL_LOG_ERROR(Program) << m_handle << ": Failed to link.";
+
 			return false;
 		}
 
 		glValidateProgram(m_handle);
 		glGetProgramiv(m_handle, GL_VALIDATE_STATUS, &success);
 
-		return (success == GL_TRUE);
+		if (success != GL_TRUE)
+		{
+			TMPL_LOG_ERROR(Program) << m_handle << ": Program was not validated.";
+
+			return false;
+		}
+
+		return true;
 	}
 
 	GLint Program::getAttributeLocation(const char* name) const
