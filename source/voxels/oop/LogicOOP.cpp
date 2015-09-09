@@ -1,15 +1,34 @@
 #include "voxels/oop/LogicOOP.hpp"
 
+#include "graphics/Program.hpp"
+
 namespace Tmpl {
 
 	LogicOOP::LogicOOP()
 		: m_voxelsActive(0)
 		, m_voxelHalfSize(0.0f)
+		, m_program(new Program())
 	{
 	}
 
 	LogicOOP::~LogicOOP()
 	{
+	}
+
+	bool LogicOOP::initialize()
+	{
+		bool validated = true;
+		validated &= m_program->loadShaderFromFile(Shader::Type::Vertex, "media/shaders/voxels.vert");
+		validated &= m_program->loadShaderFromFile(Shader::Type::Geometry, "media/shaders/voxels.geom");
+		validated &= m_program->loadShaderFromFile(Shader::Type::Fragment, "media/shaders/voxels.frag");
+		validated &= m_program->link();
+
+		if (!validated)
+		{
+			return false;
+		}
+
+		return true;
 	}
 
 	void LogicOOP::generateVoxels(size_t count, float halfSize)

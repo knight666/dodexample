@@ -22,6 +22,11 @@ namespace Tmpl {
 
 	bool Application::initialize()
 	{
+		if (!m_logicOOP->initialize())
+		{
+			return false;
+		}
+
 		m_logicOOP->generateVoxels(m_voxelsActive, m_voxelHalfSize);
 
 		m_loader->loadFace("media/fonts/Roboto/Roboto-Black.ttf", 12.0f);

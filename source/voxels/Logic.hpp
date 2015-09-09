@@ -11,6 +11,8 @@ namespace Tmpl {
 
 		virtual ~Logic() { }
 
+		virtual bool initialize() = 0;
+
 		virtual void generateVoxels(size_t count, float halfSize) = 0;
 
 		virtual void update(uint32_t milliSeconds) = 0;
