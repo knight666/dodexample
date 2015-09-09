@@ -12,8 +12,8 @@ namespace Tmpl {
 		Texture(GLenum target, GLenum format, GLsizei width, GLsizei height);
 		~Texture();
 
-		GLsizei getWidth() const { return _width; }
-		GLsizei getHeight() const { return _height; }
+		GLsizei getWidth() const { return m_width; }
+		GLsizei getHeight() const { return m_height; }
 
 		void bind(GLuint index);
 		void unbind();
@@ -33,20 +33,20 @@ namespace Tmpl {
 
 	private:
 
-		GLuint _handle;
-		GLenum _target;
-		GLenum _format;
-		GLsizei _width;
-		GLsizei _height;
-		size_t _bound;
+		GLuint m_handle;
+		GLenum m_target;
+		GLenum m_format;
+		GLsizei m_width;
+		GLsizei m_height;
+		size_t m_bound;
 
 	};
 
 	template <>
 	inline void Texture::setParameter(GLenum parameter, GLint value)
 	{
-		if (_bound == 0) { return; }
-		glTexParameteri(_target, parameter, value);
+		if (m_bound == 0) { return; }
+		glTexParameteri(m_target, parameter, value);
 	}
 
 	template <>

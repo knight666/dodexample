@@ -39,11 +39,11 @@ namespace Tmpl {
 
 		bool renderGlyphBitmap(std::shared_ptr<Glyph> glyph, FT_UInt index);
 
-		FT_Library _library;
-		std::vector<FT_Byte> _faceData;
-		FT_Face _face;
-		std::map<FT_UInt, std::shared_ptr<Glyph>> _glyphs;
-		std::shared_ptr<Glyph> _glyphReplacement;
+		FT_Library m_library;
+		std::vector<FT_Byte> m_faceData;
+		FT_Face m_face;
+		std::map<FT_UInt, std::shared_ptr<Glyph>> m_glyphs;
+		std::shared_ptr<Glyph> m_glyphReplacement;
 
 	};
 

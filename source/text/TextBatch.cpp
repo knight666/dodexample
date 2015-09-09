@@ -7,20 +7,20 @@
 namespace Tmpl {
 
 	TextBatch::TextBatch(std::shared_ptr<FreeTypeLoader> loader, GLsizei width, GLsizei height)
-		: _loader(loader)
-		, _width(width)
-		, _height(height)
-		, _quad(new Quad())
+		: m_loader(loader)
+		, m_width(width)
+		, m_height(height)
+		, m_quad(new Quad())
 	{
-		_pixels = new GLuint[_width * _height];
+		m_pixels = new GLuint[m_width * m_height];
 
-		memset(_pixels, 0, _width * _height * sizeof(GLuint));
+		memset(m_pixels, 0, m_width * m_height * sizeof(GLuint));
 	}
 
 	TextBatch::~TextBatch()
 	{
-		delete _pixels;
-		_pixels = nullptr;
+		delete m_pixels;
+		m_pixels = nullptr;
 	}
 
 	void TextBatch::setText(const char* text)
@@ -45,15 +45,15 @@ namespace Tmpl {
 			addCodepoint(codepoint);
 		}
 
-		_quad->setTextureData(_pixels, _width, _height);
+		m_quad->setTextureData(m_pixels, m_width, m_height);
 
-		float offset = _loader->getBaseLineOffset();
+		float offset = m_loader->getBaseLineOffset();
 
-		_model = glm::mat4(1.0f);
-		_model = glm::scale(_model, glm::vec3(
-			(float)_width, (float)_height, 1.0f));
-		_model = glm::translate(_model, glm::vec3(
-			0.0f, -offset / (float)_height, 0.0f));
+		m_model = glm::mat4(1.0f);
+		m_model = glm::scale(m_model, glm::vec3(
+			(float)m_width, (float)m_height, 1.0f));
+		m_model = glm::translate(m_model, glm::vec3(
+			0.0f, -offset / (float)m_height, 0.0f));
 	}
 
 	void TextBatch::render(const glm::mat4x4& projection, const glm::vec2& position)
@@ -61,52 +61,52 @@ namespace Tmpl {
 		glm::mat4x4 viewProjection =
 			glm::translate(projection, glm::vec3(position, 0.0f));
 
-		_quad->render(viewProjection * _model);
+		m_quad->render(viewProjection * m_model);
 	}
 
 	void TextBatch::clearPixels()
 	{
-		memset(_pixels, 0, _width * _height * sizeof(GLuint));
+		memset(m_pixels, 0, m_width * m_height * sizeof(GLuint));
 
-		_cursor.x = 0.0f;
-		_cursor.y = _loader->getLineHeight();
+		m_cursor.x = 0.0f;
+		m_cursor.y = m_loader->getLineHeight();
 	}
 
 	void TextBatch::addCodepoint(unicode_t codepoint)
 	{
 		if (codepoint == '\n')
 		{
-			_cursor.x = 0.0f;
-			_cursor.y += _loader->getLineHeight();
+			m_cursor.x = 0.0f;
+			m_cursor.y += m_loader->getLineHeight();
 		}
 		else
 		{
-			std::shared_ptr<Glyph> glyph = _loader->createGlyph(codepoint);
+			std::shared_ptr<Glyph> glyph = m_loader->createGlyph(codepoint);
 			if (glyph->bitmapData != nullptr)
 			{
 				renderBitmap(glyph);
 			}
 
-			_cursor.x += glyph->advance;
+			m_cursor.x += glyph->advance;
 		}
 	}
 
 	void TextBatch::renderBitmap(std::shared_ptr<Glyph> glyph)
 	{
-		float from_x = _cursor.x + glyph->offsetX;
-		float to_x = glm::clamp(from_x + glyph->bitmapWidth, 0.0f, (float)_width);
+		float from_x = m_cursor.x + glyph->offsetX;
+		float to_x = glm::clamp(from_x + glyph->bitmapWidth, 0.0f, (float)m_width);
 
-		float from_y = _cursor.y + glyph->offsetY;
-		float to_y = glm::clamp(from_y + (float)glyph->bitmapHeight, 0.0f, (float)_height);
+		float from_y = m_cursor.y + glyph->offsetY;
+		float to_y = glm::clamp(from_y + (float)glyph->bitmapHeight, 0.0f, (float)m_height);
 
-		if (from_x > _width || to_x <= 0.0f ||
-			from_y > _height || to_y <= 0.0f)
+		if (from_x > m_width || to_x <= 0.0f ||
+			from_y > m_height || to_y <= 0.0f)
 		{
 			return;
 		}
 
-		GLuint* dst = _pixels + ((GLuint)from_y * _width) + (GLuint)from_x;
-		GLuint* dst_end = _pixels + (_width * _height);
+		GLuint* dst = m_pixels + ((GLuint)from_y * m_width) + (GLuint)from_x;
+		GLuint* dst_end = m_pixels + (m_width * m_height);
 
 		uint32_t* src = glyph->bitmapData;
 		uint32_t src_pitch = glyph->bitmapWidth;
@@ -116,7 +116,7 @@ namespace Tmpl {
 
 		for (uint32_t y = 0; y < render_height; ++y)
 		{
-			if (dst >= _pixels &&
+			if (dst >= m_pixels &&
 				dst + src_pitch < dst_end)
 			{
 				uint32_t* dst_line = dst;
@@ -147,7 +147,7 @@ namespace Tmpl {
 				}
 			}
 
-			dst += _width;
+			dst += m_width;
 			src += src_pitch;
 		}
 	}

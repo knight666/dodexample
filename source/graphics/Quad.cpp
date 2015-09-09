@@ -3,28 +3,28 @@
 namespace Tmpl {
 
 	Quad::Quad()
-		: _texture(new Texture(GL_TEXTURE_2D, GL_RGBA8, 256, 256))
-		, _vertices(new Buffer(GL_ARRAY_BUFFER))
-		, _elements(new Buffer(GL_ELEMENT_ARRAY_BUFFER))
-		, _program(new Program())
-		, _attributes(new VertexArrays())
-		, _uniforms(new Buffer(GL_UNIFORM_BUFFER))
+		: m_texture(new Texture(GL_TEXTURE_2D, GL_RGBA8, 256, 256))
+		, m_vertices(new Buffer(GL_ARRAY_BUFFER))
+		, m_elements(new Buffer(GL_ELEMENT_ARRAY_BUFFER))
+		, m_program(new Program())
+		, m_attributes(new VertexArrays())
+		, m_uniforms(new Buffer(GL_UNIFORM_BUFFER))
 	{
 		// Texture
 
-		_texture->bind(0);
+		m_texture->bind(0);
 
-			_texture->setParameter(GL_TEXTURE_MIN_FILTER,  GL_LINEAR);
-			_texture->setParameter(GL_TEXTURE_MAG_FILTER,  GL_LINEAR);
-			_texture->setParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			_texture->setParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-			_texture->image2D(0, (const GLbyte*)nullptr, GL_BGRA);
+			m_texture->setParameter(GL_TEXTURE_MIN_FILTER,  GL_LINEAR);
+			m_texture->setParameter(GL_TEXTURE_MAG_FILTER,  GL_LINEAR);
+			m_texture->setParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			m_texture->setParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			m_texture->image2D(0, (const GLbyte*)nullptr, GL_BGRA);
 
-		_texture->unbind();
+		m_texture->unbind();
 
 		// Vertices
 
-		_vertices->bind();
+		m_vertices->bind();
 
 			Vertex vertex_data[4] = {
 				{
@@ -44,45 +44,45 @@ namespace Tmpl {
 					glm::vec2(1.0f, 1.0f)
 				},
 			};
-			_vertices->setData(vertex_data, 4, GL_STATIC_DRAW);
+			m_vertices->setData(vertex_data, 4, GL_STATIC_DRAW);
 
-		_vertices->unbind();
+		m_vertices->unbind();
 
 		// Elements
 
-		_elements->bind();
+		m_elements->bind();
 
 			GLuint element_data[6] = {
 				1, 0, 2,
 				3, 1, 2
 			};
-			_elements->setData(element_data, 6, GL_STATIC_DRAW);
+			m_elements->setData(element_data, 6, GL_STATIC_DRAW);
 
-		_elements->unbind();
+		m_elements->unbind();
 
 		// Program
 
 		bool validated = true;
-		validated &= _program->loadShaderFromFile(Shader::Type::Vertex, "media/shaders/texture-2d.vert");
-		validated &= _program->loadShaderFromFile(Shader::Type::Fragment, "media/shaders/texture-2d.frag");
-		validated &= _program->link();
+		validated &= m_program->loadShaderFromFile(Shader::Type::Vertex, "media/shaders/texture-2d.vert");
+		validated &= m_program->loadShaderFromFile(Shader::Type::Fragment, "media/shaders/texture-2d.frag");
+		validated &= m_program->link();
 
-		_program->bindFragmentDataLocation("Color", Program::FragmentDataLocation::Color);
+		m_program->bindFragmentDataLocation("Color", Program::FragmentDataLocation::Color);
 
-		_uniformTransform = _program->getUniformBlockIndex("vertexUniforms");
-		_uniformDiffuse = _program->getUniformLocation("texDiffuse");
+		m_uniformTransform = m_program->getUniformBlockIndex("vertexUniforms");
+		m_uniformDiffuse = m_program->getUniformLocation("texDiffuse");
 
 		// Attributes
 
-		_attributes->bind();
+		m_attributes->bind();
 
-			_vertices->bind();
-			_attributes->setAttribute(_program->getAttributeLocation("attrPosition"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)Vertex::Offset::Position);
-			_attributes->setAttribute(_program->getAttributeLocation("attrTextureCoordinate"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)Vertex::Offset::TextureCoordinate);
+			m_vertices->bind();
+			m_attributes->setAttribute(m_program->getAttributeLocation("attrPosition"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)Vertex::Offset::Position);
+			m_attributes->setAttribute(m_program->getAttributeLocation("attrTextureCoordinate"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)Vertex::Offset::TextureCoordinate);
 
-			_elements->bind();
+			m_elements->bind();
 
-		_attributes->unbind();
+		m_attributes->unbind();
 
 		// Uniforms
 
@@ -90,11 +90,11 @@ namespace Tmpl {
 		glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &uniform_buffer_offset);
 		size_t uniform_buffer_size = glm::max(uniform_buffer_offset, (GLint)sizeof(Uniforms));
 
-		_uniforms->bind();
+		m_uniforms->bind();
 
-			_uniforms->setData(nullptr, uniform_buffer_size, GL_DYNAMIC_DRAW);
+			m_uniforms->setData(nullptr, uniform_buffer_size, GL_DYNAMIC_DRAW);
 
-		_uniforms->unbind();
+		m_uniforms->unbind();
 	}
 
 	Quad::~Quad()
@@ -105,9 +105,9 @@ namespace Tmpl {
 	{
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-		_texture->bind(0);
+		m_texture->bind(0);
 
-		GLsizei dst_pitch = _texture->getWidth() * sizeof(GLuint);
+		GLsizei dst_pitch = m_texture->getWidth() * sizeof(GLuint);
 
 		const GLbyte* src = (const GLbyte*)pixels;
 		GLsizei src_pitch = width * sizeof(GLuint);
@@ -132,34 +132,34 @@ namespace Tmpl {
 
 		glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
 
-		_texture->subImage2D(0, (const GLbyte*)nullptr, GL_BGRA);
+		m_texture->subImage2D(0, (const GLbyte*)nullptr, GL_BGRA);
 
 		glDeleteBuffers(1, &pixel_buffer);
 
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
-		_texture->unbind();
+		m_texture->unbind();
 
 		GLenum errors = glGetError();
 	}
 
 	void Quad::render(const glm::mat4x4& modelViewProjection)
 	{
-		_uniforms->bind();
-			Uniforms* transform = _uniforms->mapRange<Uniforms>(0, 1, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+		m_uniforms->bind();
+			Uniforms* transform = m_uniforms->mapRange<Uniforms>(0, 1, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 				transform->modelViewProjection = modelViewProjection;
-			_uniforms->unmap();
-		_uniforms->unbind();
+			m_uniforms->unmap();
+		m_uniforms->unbind();
 
-		_program->bind();
+		m_program->bind();
 
-		_texture->bind(0);
-		_program->setUniform(_uniformDiffuse, 0);
+		m_texture->bind(0);
+		m_program->setUniform(m_uniformDiffuse, 0);
 
-		_uniforms->bindBase(0);
-		_program->setUniformBlockBinding(_uniformTransform, 0);
+		m_uniforms->bindBase(0);
+		m_program->setUniformBlockBinding(m_uniformTransform, 0);
 
-		_attributes->bind();
+		m_attributes->bind();
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -168,10 +168,10 @@ namespace Tmpl {
 
 		glDisable(GL_BLEND);
 
-		_attributes->unbind();
-		_uniforms->unbind();
-		_texture->unbind();
-		_program->unbind();
+		m_attributes->unbind();
+		m_uniforms->unbind();
+		m_texture->unbind();
+		m_program->unbind();
 	}
 
 }; // namespace Tmpl

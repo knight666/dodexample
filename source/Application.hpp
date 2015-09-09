@@ -16,7 +16,7 @@ namespace Tmpl {
 		Application(GLFWwindow* window);
 		~Application();
 
-		bool isRunning() const { return _running; }
+		bool isRunning() const { return m_running; }
 
 		bool initialize();
 		void update(uint32_t milliSeconds);
@@ -27,10 +27,10 @@ namespace Tmpl {
 
 	private:
 
-		bool _running;
-		GLFWwindow* _window;
-		std::shared_ptr<FreeTypeLoader> _loader;
-		std::shared_ptr<TextBatch> _text;
+		bool m_running;
+		GLFWwindow* m_window;
+		std::shared_ptr<FreeTypeLoader> m_loader;
+		std::shared_ptr<TextBatch> m_text;
 
 		glm::vec2 m_camera;
 

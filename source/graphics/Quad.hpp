@@ -33,8 +33,8 @@ namespace Tmpl {
 		Quad();
 		~Quad();
 
-		GLsizei getTextureWidth() const { return _texture->getWidth(); }
-		GLsizei getTextureHeight() const { return _texture->getHeight(); }
+		GLsizei getTextureWidth() const { return m_texture->getWidth(); }
+		GLsizei getTextureHeight() const { return m_texture->getHeight(); }
 
 		void setTextureData(const GLuint* pixels, GLsizei width, GLsizei height);
 
@@ -42,14 +42,14 @@ namespace Tmpl {
 
 	private:
 
-		std::shared_ptr<Texture> _texture;
-		std::shared_ptr<Buffer> _vertices;
-		std::shared_ptr<Buffer> _elements;
-		std::shared_ptr<Program> _program;
-		GLint _uniformTransform;
-		GLint _uniformDiffuse;
-		std::shared_ptr<VertexArrays> _attributes;
-		std::shared_ptr<Buffer> _uniforms;
+		std::shared_ptr<Texture> m_texture;
+		std::shared_ptr<Buffer> m_vertices;
+		std::shared_ptr<Buffer> m_elements;
+		std::shared_ptr<Program> m_program;
+		GLint m_uniformTransform;
+		GLint m_uniformDiffuse;
+		std::shared_ptr<VertexArrays> m_attributes;
+		std::shared_ptr<Buffer> m_uniforms;
 
 	};
 

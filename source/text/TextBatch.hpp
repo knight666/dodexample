@@ -28,13 +28,13 @@ namespace Tmpl {
 
 	private:
 
-		GLsizei _width;
-		GLsizei _height;
-		GLuint* _pixels;
-		glm::vec2 _cursor;
-		std::shared_ptr<FreeTypeLoader> _loader;
-		std::shared_ptr<Quad> _quad;
-		glm::mat4x4 _model;
+		GLsizei m_width;
+		GLsizei m_height;
+		GLuint* m_pixels;
+		glm::vec2 m_cursor;
+		std::shared_ptr<FreeTypeLoader> m_loader;
+		std::shared_ptr<Quad> m_quad;
+		glm::mat4x4 m_model;
 
 	};
 

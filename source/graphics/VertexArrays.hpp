@@ -19,8 +19,8 @@ namespace Tmpl {
 
 	private:
 
-		GLuint _handle;
-		size_t _bound;
+		GLuint m_handle;
+		size_t m_bound;
 
 	};
 

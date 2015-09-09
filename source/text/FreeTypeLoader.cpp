@@ -22,15 +22,15 @@ namespace Tmpl {
 	}
 
 	FreeTypeLoader::FreeTypeLoader()
-		: _library(nullptr)
-		, _face(nullptr)
+		: m_library(nullptr)
+		, m_face(nullptr)
 	{
-		FT_Error errors = FT_Init_FreeType(&_library);
+		FT_Error errors = FT_Init_FreeType(&m_library);
 	}
 
 	FreeTypeLoader::~FreeTypeLoader()
 	{
-		FT_Error errors = FT_Done_FreeType(_library);
+		FT_Error errors = FT_Done_FreeType(m_library);
 	}
 
 	bool FreeTypeLoader::loadFace(const char* path, float size)
@@ -50,29 +50,29 @@ namespace Tmpl {
 			return false;
 		}
 
-		_faceData.resize(font_file_size);
-		font_stream.read((char*)&_faceData[0], font_file_size);
+		m_faceData.resize(font_file_size);
+		font_stream.read((char*)&m_faceData[0], font_file_size);
 
 		FT_Error errors = 0;
-		errors = FT_New_Memory_Face(_library, &_faceData[0], (FT_Long)font_file_size, 0, &_face);
+		errors = FT_New_Memory_Face(m_library, &m_faceData[0], (FT_Long)font_file_size, 0, &m_face);
 		if (errors != FT_Err_Ok)
 		{
 			return false;
 		}
 
-		errors = FT_Set_Char_Size(_face, 0, (FT_F26Dot6)(size * 64.0f), 0, 96);
+		errors = FT_Set_Char_Size(m_face, 0, (FT_F26Dot6)(size * 64.0f), 0, 96);
 		if (errors != FT_Err_Ok)
 		{
 			return false;
 		}
 
-		_glyphReplacement = std::make_shared<Glyph>();
+		m_glyphReplacement = std::make_shared<Glyph>();
 
-		FT_UInt replacementCharacter = FT_Get_Char_Index(_face, (FT_ULong)0xFFFD);
-		if (!renderGlyphBitmap(_glyphReplacement, replacementCharacter))
+		FT_UInt replacementCharacter = FT_Get_Char_Index(m_face, (FT_ULong)0xFFFD);
+		if (!renderGlyphBitmap(m_glyphReplacement, replacementCharacter))
 		{
-			replacementCharacter = FT_Get_Char_Index(_face, (FT_ULong)'?');
-			renderGlyphBitmap(_glyphReplacement, replacementCharacter);
+			replacementCharacter = FT_Get_Char_Index(m_face, (FT_ULong)'?');
+			renderGlyphBitmap(m_glyphReplacement, replacementCharacter);
 		}
 
 		return true;
@@ -80,7 +80,7 @@ namespace Tmpl {
 
 	void FreeTypeLoader::loadGlyphRange(unicode_t codePointFrom, unicode_t codePointTo)
 	{
-		if (_face == nullptr)
+		if (m_face == nullptr)
 		{
 			return;
 		}
@@ -93,47 +93,47 @@ namespace Tmpl {
 
 	float FreeTypeLoader::getBaseLineOffset() const
 	{
-		FT_Size_Metrics face_metrics = _face->size->metrics;
+		FT_Size_Metrics face_metrics = m_face->size->metrics;
 		return (float)(face_metrics.ascender >> 6);
 	}
 
 	float FreeTypeLoader::getLineHeight() const
 	{
-		FT_Size_Metrics face_metrics = _face->size->metrics;
+		FT_Size_Metrics face_metrics = m_face->size->metrics;
 		return (float)(face_metrics.height >> 6);
 	}
 
 	std::shared_ptr<Glyph> FreeTypeLoader::createGlyph(unicode_t codepoint)
 	{
-		if (_face == nullptr)
+		if (m_face == nullptr)
 		{
 			return nullptr;
 		}
 
-		auto found = _glyphs.find(codepoint);
-		if (found != _glyphs.end())
+		auto found = m_glyphs.find(codepoint);
+		if (found != m_glyphs.end())
 		{
 			return found->second;
 		}
 
 		std::shared_ptr<Glyph> glyph;
 
-		FT_UInt index = FT_Get_Char_Index(_face, (FT_ULong)codepoint);
+		FT_UInt index = FT_Get_Char_Index(m_face, (FT_ULong)codepoint);
 		if (index > 0)
 		{
 			glyph = std::make_shared<Glyph>();
 
 			if (!renderGlyphBitmap(glyph, index))
 			{
-				glyph = _glyphReplacement;
+				glyph = m_glyphReplacement;
 			}
 		}
 		else
 		{
-			glyph = _glyphReplacement;
+			glyph = m_glyphReplacement;
 		}
 
-		_glyphs.insert(std::make_pair(codepoint, glyph));
+		m_glyphs.insert(std::make_pair(codepoint, glyph));
 
 		return glyph;
 	}
@@ -142,27 +142,27 @@ namespace Tmpl {
 	{
 		FT_Error errors = 0;
 
-		errors = FT_Load_Glyph(_face, index, FT_LOAD_DEFAULT);
+		errors = FT_Load_Glyph(m_face, index, FT_LOAD_DEFAULT);
 		if (errors != FT_Err_Ok)
 		{
 			return false;
 		}
 
-		errors = FT_Render_Glyph(_face->glyph, FT_RENDER_MODE_NORMAL);
+		errors = FT_Render_Glyph(m_face->glyph, FT_RENDER_MODE_NORMAL);
 		if (errors != FT_Err_Ok)
 		{
 			return false;
 		}
 
-		FT_GlyphSlot slot = _face->glyph;
+		FT_GlyphSlot slot = m_face->glyph;
 		FT_Glyph_Metrics glyph_metrics = slot->metrics;
-		FT_Size_Metrics face_metrics = _face->size->metrics;
+		FT_Size_Metrics face_metrics = m_face->size->metrics;
 
 		glyph->offsetX = (float)(glyph_metrics.horiBearingX >> 6);
 		glyph->offsetY = (float)((face_metrics.height - glyph_metrics.horiBearingY - face_metrics.ascender - face_metrics.descender) >> 6);
 		glyph->advance = (float)(glyph_metrics.horiAdvance >> 6);
 
-		FT_Bitmap& glyph_bitmap = _face->glyph->bitmap;
+		FT_Bitmap& glyph_bitmap = m_face->glyph->bitmap;
 
 		FT_BBox bounding_box;
 		errors = FT_Outline_Get_BBox(&slot->outline, &bounding_box);

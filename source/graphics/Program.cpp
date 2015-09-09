@@ -3,26 +3,26 @@
 namespace Tmpl {
 
 	Program::Program()
-		: _bound(0)
+		: m_bound(0)
 	{
-		_handle = glCreateProgram();
+		m_handle = glCreateProgram();
 	}
 
 	Program::~Program()
 	{
-		glDeleteProgram(_handle);
+		glDeleteProgram(m_handle);
 	}
 
 	void Program::bind()
 	{
-		glUseProgram(_handle);
-		_bound++;
+		glUseProgram(m_handle);
+		m_bound++;
 	}
 
 	void Program::unbind()
 	{
-		if (_bound > 0 &&
-			--_bound == 0)
+		if (m_bound > 0 &&
+			--m_bound == 0)
 		{
 			glUseProgram(0);
 		}
@@ -30,17 +30,17 @@ namespace Tmpl {
 
 	GLint Program::getUniformLocation(const char* name) const
 	{
-		return glGetUniformLocation(_handle, (const GLchar*)name);
+		return glGetUniformLocation(m_handle, (const GLchar*)name);
 	}
 
 	GLuint Program::getUniformBlockIndex(const char* name) const
 	{
-		return glGetUniformBlockIndex(_handle, (const GLchar*)name);
+		return glGetUniformBlockIndex(m_handle, (const GLchar*)name);
 	}
 
 	void Program::setUniformBlockBinding(GLuint index, GLuint binding)
 	{
-		glUniformBlockBinding(_handle, index, binding);
+		glUniformBlockBinding(m_handle, index, binding);
 	}
 
 	void Program::setUniformMatrix(GLint location, const glm::mat4x4& matrix, bool transposed /*= false*/)
@@ -56,27 +56,27 @@ namespace Tmpl {
 		{
 
 		case Shader::Type::Vertex:
-			if (_vertex == nullptr)
+			if (m_vertex == nullptr)
 			{
-				_vertex = std::shared_ptr<Shader>(new Shader(*this, Shader::Type::Vertex));
+				m_vertex = std::shared_ptr<Shader>(new Shader(*this, Shader::Type::Vertex));
 			}
-			shader = _vertex;
+			shader = m_vertex;
 			break;
 
 		case Shader::Type::Fragment:
-			if (_fragment == nullptr)
+			if (m_fragment == nullptr)
 			{
-				_fragment = std::shared_ptr<Shader>(new Shader(*this, Shader::Type::Fragment));
+				m_fragment = std::shared_ptr<Shader>(new Shader(*this, Shader::Type::Fragment));
 			}
-			shader = _fragment;
+			shader = m_fragment;
 			break;
 
 		case Shader::Type::Geometry:
-			if (_geometry == nullptr)
+			if (m_geometry == nullptr)
 			{
-				_geometry = std::shared_ptr<Shader>(new Shader(*this, Shader::Type::Geometry));
+				m_geometry = std::shared_ptr<Shader>(new Shader(*this, Shader::Type::Geometry));
 			}
-			shader = _geometry;
+			shader = m_geometry;
 			break;
 
 		}
@@ -101,65 +101,65 @@ namespace Tmpl {
 
 	bool Program::link()
 	{
-		if (_vertex == nullptr || _fragment == nullptr)
+		if (m_vertex == nullptr || m_fragment == nullptr)
 		{
 			return false;
 		}
 
-		glLinkProgram(_handle);
+		glLinkProgram(m_handle);
 
 		GLint log_length = 0;
-		glGetProgramiv(_handle, GL_INFO_LOG_LENGTH, &log_length);
+		glGetProgramiv(m_handle, GL_INFO_LOG_LENGTH, &log_length);
 		if (log_length > 1)
 		{
-			_log.resize(log_length + 1);
-			_log.clear();
+			m_log.resize(log_length + 1);
+			m_log.clear();
 
-			glGetProgramInfoLog(_handle, log_length, nullptr, (GLchar*)&_log[0]);
+			glGetProgramInfoLog(m_handle, log_length, nullptr, (GLchar*)&m_log[0]);
 
 			// some video card manufacturers (Intel) like to use the log to
 			// output a message explicitly saying that there were... no errors.
 			// we skip this message because it's specific to this manufacturer
 			// and it's never ever going to be useful information
 
-			if (_log == "No errors.\n")
+			if (m_log == "No errors.\n")
 			{
-				_log.clear();
+				m_log.clear();
 			}
 		}
 
 		GLint success = GL_TRUE;
 
-		glGetProgramiv(_handle, GL_LINK_STATUS, &success);
+		glGetProgramiv(m_handle, GL_LINK_STATUS, &success);
 		if (success != GL_TRUE)
 		{
 			return false;
 		}
 
-		glValidateProgram(_handle);
-		glGetProgramiv(_handle, GL_VALIDATE_STATUS, &success);
+		glValidateProgram(m_handle);
+		glGetProgramiv(m_handle, GL_VALIDATE_STATUS, &success);
 
 		return (success == GL_TRUE);
 	}
 
 	GLint Program::getAttributeLocation(const char* name) const
 	{
-		return glGetAttribLocation(_handle, (const GLchar*)name);
+		return glGetAttribLocation(m_handle, (const GLchar*)name);
 	}
 
 	void Program::bindAttributeLocation(const char* name, AttributeLocation location)
 	{
-		glBindAttribLocation(_handle, (GLuint)location, (const GLchar*)name);
+		glBindAttribLocation(m_handle, (GLuint)location, (const GLchar*)name);
 	}
 
 	GLint Program::getFragmentDataLocation(const char* name) const
 	{
-		return glGetFragDataLocation(_handle, (const GLchar*)name);
+		return glGetFragDataLocation(m_handle, (const GLchar*)name);
 	}
 
 	void Program::bindFragmentDataLocation(const char* name, FragmentDataLocation location)
 	{
-		glBindFragDataLocation(_handle, (GLuint)location, (const GLchar*)name);
+		glBindFragDataLocation(m_handle, (GLuint)location, (const GLchar*)name);
 	}
 
 }; // namespace Tmpl

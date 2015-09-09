@@ -31,17 +31,17 @@ namespace Tmpl {
 
 	private:
 
-		GLuint _handle;
-		GLenum _target;
-		size_t _bound;
+		GLuint m_handle;
+		GLenum m_target;
+		size_t m_bound;
 
 	};
 
 	template <typename DataType>
 	inline void Buffer::setData(DataType* data, size_t count, GLenum usage)
 	{
-		if (_bound == 0) { return; }
-		glBufferData(_target, count * sizeof(DataType), data, usage);
+		if (m_bound == 0) { return; }
+		glBufferData(m_target, count * sizeof(DataType), data, usage);
 	}
 
 	template <typename DataType>

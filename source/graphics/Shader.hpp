@@ -23,16 +23,16 @@ namespace Tmpl {
 		Shader(Program& program, Type type);
 		~Shader();
 
-		const std::string& getLog() const { return _log; }
+		const std::string& getLog() const { return m_log; }
 
 		bool compile(const std::string& source);
 
 	private:
 
-		Program& _program;
-		GLuint _handle;
-		Type _type;
-		std::string _log;
+		Program& m_program;
+		GLuint m_handle;
+		Type m_type;
+		std::string m_log;
 
 	};
 

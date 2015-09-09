@@ -30,7 +30,7 @@ namespace Tmpl {
 		Program();
 		~Program();
 
-		const std::string& getLog() const { return _log; }
+		const std::string& getLog() const { return m_log; }
 
 		void bind();
 		void unbind();
@@ -58,26 +58,26 @@ namespace Tmpl {
 
 	private:
 
-		GLuint _handle;
-		size_t _bound;
-		std::shared_ptr<Shader> _vertex;
-		std::shared_ptr<Shader> _fragment;
-		std::shared_ptr<Shader> _geometry;
-		std::string _log;
+		GLuint m_handle;
+		size_t m_bound;
+		std::shared_ptr<Shader> m_vertex;
+		std::shared_ptr<Shader> m_fragment;
+		std::shared_ptr<Shader> m_geometry;
+		std::string m_log;
 
 	};
 
 	template <>
 	inline void Program::setUniform(GLint location, GLint value)
 	{
-		if (_bound == 0) { return; }
+		if (m_bound == 0) { return; }
 		glUniform1i(location, value);
 	}
 
 	template <>
 	inline void Program::setUniform(GLint location, glm::mat4x4 value)
 	{
-		if (_bound == 0) { return; }
+		if (m_bound == 0) { return; }
 		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
 	}
 
