@@ -39,6 +39,7 @@ namespace Tmpl {
 		float m_voxelHalfSize;
 
 		glm::vec2 m_camera;
+		float m_cameraAngle;
 
 	};
 

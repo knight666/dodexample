@@ -13,6 +13,7 @@ namespace Tmpl {
 		, m_logicOOP(new LogicOOP())
 		, m_voxelsActive(1000)
 		, m_voxelHalfSize(20.0f)
+		, m_cameraAngle(0.0f)
 	{
 	}
 
@@ -56,7 +57,22 @@ namespace Tmpl {
 			0,
 			glm::value_ptr(glm::vec4(0.0f, 0.0f, 0.0f, 0.0f)));
 
-		m_logicOOP->render();
+		glm::vec3 eyePosition(
+			glm::cos(glm::radians(m_cameraAngle)) * 100.0f,
+			0.0f,
+			glm::sin(glm::radians(m_cameraAngle)) * 100.0f);
+
+		glm::mat4x4 perspective = glm::perspectiveFov(
+			90.0f,
+			(float)width, (float)height,
+			0.1f, 10000.0f);
+
+		glm::mat4x4 viewCamera = glm::lookAt(
+			eyePosition,
+			glm::vec3(0.0f, 0.0f, 0.0f),
+			glm::vec3(0.0f, 1.0f, 0.0f));
+
+		m_logicOOP->render(perspective *  viewCamera);
 
 		glm::mat4x4 projection = glm::ortho(
 			0.0f, (float)width,
@@ -64,7 +80,7 @@ namespace Tmpl {
 			-1.0f, 1.0f);
 
 		char cameraText[256] = { 0 };
-		sprintf_s(cameraText, "Camera: (%.2f, %.2f)", m_camera.x, m_camera.y);
+		sprintf_s(cameraText, "Eye: (%.2f, %.2f, %.2f)", eyePosition.x, eyePosition.y, eyePosition.z);
 		m_text->setText(cameraText);
 
 		m_text->render(projection, glm::vec2(5.0f, 5.0f));
@@ -72,7 +88,21 @@ namespace Tmpl {
 
 	void Application::onKeyPressed(int key, int modifierKeys)
 	{
+		switch (key)
+		{
 
+		case GLFW_KEY_A:
+			m_cameraAngle -= 1.0f;
+			break;
+
+		case GLFW_KEY_D:
+			m_cameraAngle += 1.0f;
+			break;
+
+		default:
+			break;
+
+		}
 	}
 
 	void Application::onKeyReleased(int key, int modifierKeys)

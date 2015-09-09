@@ -75,6 +75,13 @@ namespace Tmpl {
 	}
 
 	template <>
+	inline void Program::setUniform(GLint location, float value)
+	{
+		if (m_bound == 0) { return; }
+		glUniform1f(location, value);
+	}
+
+	template <>
 	inline void Program::setUniform(GLint location, glm::mat4x4 value)
 	{
 		if (m_bound == 0) { return; }

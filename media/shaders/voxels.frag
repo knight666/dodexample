@@ -6,5 +6,6 @@ out vec4 fragmentColor;
 
 void main()
 {
-	fragmentColor = vertexColor;
+	//fragmentColor = vertexColor;
+	fragmentColor = vec4(1.0, 0.0, 0.0, 1.0);
 }

@@ -6,6 +6,8 @@ namespace Tmpl {
 		const glm::vec3& position, float halfSize,
 		const glm::vec4& color)
 	{
+		m_position = position;
+
 		m_aabbMinimum = position;
 		m_aabbMinimum -= glm::vec3(halfSize);
 

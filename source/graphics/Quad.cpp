@@ -92,7 +92,7 @@ namespace Tmpl {
 
 		m_uniforms->bind();
 
-			m_uniforms->setData(nullptr, uniform_buffer_size, GL_DYNAMIC_DRAW);
+			m_uniforms->setData<Uniforms>(nullptr, uniform_buffer_size, GL_DYNAMIC_DRAW);
 
 		m_uniforms->unbind();
 	}

@@ -35,18 +35,6 @@ namespace Tmpl {
 		}
 	}
 
-	void Buffer::setData(const GLvoid* data, size_t dataSize, GLenum usage)
-	{
-		if (m_bound == 0) { return; }
-		glBufferData(m_target, dataSize, data, usage);
-	}
-
-	GLvoid* Buffer::mapRange(GLintptr offset, GLsizeiptr length, GLbitfield access)
-	{
-		if (m_bound == 0) { return nullptr; }
-		return glMapBufferRange(m_target, offset, length, access);
-	}
-
 	void Buffer::unmap()
 	{
 		glUnmapBuffer(m_target);
