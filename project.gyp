@@ -59,6 +59,7 @@
 				'source/voxels/oop/Voxel.cpp',
 				'source/voxels/oop/Voxel.hpp',
 				'source/voxels/Logic.hpp',
+				'source/voxels/Options.hpp',
 				'source/Application.cpp',
 				'source/Application.hpp',
 				'source/main.cpp',

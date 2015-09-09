@@ -111,11 +111,7 @@ namespace Tmpl {
 		m_voxelHalfSize = halfSize; 
 	}
 
-	void LogicOOP::update(uint32_t milliSeconds)
-	{
-	}
-
-	void LogicOOP::cullVoxels(const glm::vec3& targetPosition)
+	void LogicOOP::cullVoxels(const Options& options, const glm::vec3& targetPosition)
 	{
 		for (size_t i = 0; i < m_voxelsActive; ++i)
 		{
@@ -142,7 +138,7 @@ namespace Tmpl {
 		}
 	}
 
-	void LogicOOP::render(const glm::mat4x4& modelViewProjection)
+	void LogicOOP::render(const Options& options, const glm::mat4x4& modelViewProjection)
 	{
 		m_uniforms->bind();
 			Uniforms* transform = m_uniforms->mapRange<Uniforms>(0, 1, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);

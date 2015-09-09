@@ -1,6 +1,7 @@
 #pragma once
 
 #include "base/Main.hpp"
+#include "voxels/Options.hpp"
 
 namespace Tmpl {
 
@@ -28,11 +29,15 @@ namespace Tmpl {
 
 	private:
 
+		void renderHelp();
+
+		void addText(const char* message, ...);
+
 		bool m_running;
 		GLFWwindow* m_window;
 		std::shared_ptr<FreeTypeLoader> m_loader;
-		std::shared_ptr<TextBatch> m_text;
 
+		Options m_options;
 		std::shared_ptr<Logic> m_logicOOP;
 		std::shared_ptr<Logic> m_logicDOD;
 		size_t m_voxelsActive;
@@ -46,6 +51,9 @@ namespace Tmpl {
 		float m_cameraDistance;
 
 		bool m_keysPressed[GLFW_KEY_LAST];
+
+		std::shared_ptr<TextBatch> m_text;
+		std::string m_textCombined;
 
 	};
 
