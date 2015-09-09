@@ -66,7 +66,29 @@ namespace Tmpl {
 			return false;
 		}
 
+		_glyphReplacement = std::make_shared<Glyph>();
+
+		FT_UInt replacementCharacter = FT_Get_Char_Index(_face, (FT_ULong)0xFFFD);
+		if (!renderGlyphBitmap(_glyphReplacement, replacementCharacter))
+		{
+			replacementCharacter = FT_Get_Char_Index(_face, (FT_ULong)'?');
+			renderGlyphBitmap(_glyphReplacement, replacementCharacter);
+		}
+
 		return true;
+	}
+
+	void FreeTypeLoader::loadGlyphRange(unicode_t codePointFrom, unicode_t codePointTo)
+	{
+		if (_face == nullptr)
+		{
+			return;
+		}
+
+		for (unicode_t i = codePointFrom; i <= codePointTo; ++i)
+		{
+			createGlyph(i);
+		}
 	}
 
 	float FreeTypeLoader::getBaseLineOffset() const
@@ -88,33 +110,49 @@ namespace Tmpl {
 			return nullptr;
 		}
 
-		FT_UInt index = FT_Get_Char_Index(_face, (FT_ULong)codepoint);
-		if (index == 0)
-		{
-			return nullptr;
-		}
-
 		auto found = _glyphs.find(codepoint);
 		if (found != _glyphs.end())
 		{
 			return found->second;
 		}
 
+		std::shared_ptr<Glyph> glyph;
+
+		FT_UInt index = FT_Get_Char_Index(_face, (FT_ULong)codepoint);
+		if (index > 0)
+		{
+			glyph = std::make_shared<Glyph>();
+
+			if (!renderGlyphBitmap(glyph, index))
+			{
+				glyph = _glyphReplacement;
+			}
+		}
+		else
+		{
+			glyph = _glyphReplacement;
+		}
+
+		_glyphs.insert(std::make_pair(codepoint, glyph));
+
+		return glyph;
+	}
+
+	bool FreeTypeLoader::renderGlyphBitmap(std::shared_ptr<Glyph> glyph, FT_UInt index)
+	{
 		FT_Error errors = 0;
 
 		errors = FT_Load_Glyph(_face, index, FT_LOAD_DEFAULT);
 		if (errors != FT_Err_Ok)
 		{
-			return nullptr;
+			return false;
 		}
 
 		errors = FT_Render_Glyph(_face->glyph, FT_RENDER_MODE_NORMAL);
 		if (errors != FT_Err_Ok)
 		{
-			return nullptr;
+			return false;
 		}
-
-		std::shared_ptr<Glyph> glyph = std::make_shared<Glyph>();
 
 		FT_GlyphSlot slot = _face->glyph;
 		FT_Glyph_Metrics glyph_metrics = slot->metrics;
@@ -172,9 +210,7 @@ namespace Tmpl {
 			}
 		}
 
-		_glyphs.insert(std::make_pair(codepoint, glyph));
-
-		return glyph;
+		return true;
 	}
 
 }; // namespace Tmpl

@@ -28,6 +28,7 @@ namespace Tmpl {
 		~FreeTypeLoader();
 
 		bool loadFace(const char* path, float size);
+		void loadGlyphRange(unicode_t codePointFrom, unicode_t codePointTo);
 
 		float getBaseLineOffset() const;
 		float getLineHeight() const;
@@ -36,10 +37,13 @@ namespace Tmpl {
 
 	private:
 
+		bool renderGlyphBitmap(std::shared_ptr<Glyph> glyph, FT_UInt index);
+
 		FT_Library _library;
 		std::vector<FT_Byte> _faceData;
 		FT_Face _face;
 		std::map<FT_UInt, std::shared_ptr<Glyph>> _glyphs;
+		std::shared_ptr<Glyph> _glyphReplacement;
 
 	};
 

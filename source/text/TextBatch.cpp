@@ -82,15 +82,6 @@ namespace Tmpl {
 		else
 		{
 			std::shared_ptr<Glyph> glyph = _loader->createGlyph(codepoint);
-			if (glyph == nullptr)
-			{
-				glyph = _loader->createGlyph(0xFFFD);
-				if (glyph == nullptr)
-				{
-					return;
-				}
-			}
-
 			if (glyph->bitmapData != nullptr)
 			{
 				renderBitmap(glyph);
