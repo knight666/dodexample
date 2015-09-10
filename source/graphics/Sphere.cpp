@@ -19,17 +19,14 @@ namespace Tmpl {
 		// Attributes
 
 		m_attributes->bind();
-
 			m_vertices->bind();
-			m_attributes->setAttribute(
-				m_program->getAttributeLocation("attrPosition"),
-				3, GL_FLOAT,
-				GL_FALSE,
-				sizeof(Vertex),
-				(const GLvoid*)Vertex::Offset::Position);
-
-			m_elements->bind();
-
+				m_attributes->setAttribute(
+					m_program->getAttributeLocation("attrPosition"),
+					3, GL_FLOAT,
+					GL_FALSE,
+					sizeof(Vertex),
+					(const GLvoid*)Vertex::Offset::Position);
+			m_vertices->unbind();
 		m_attributes->unbind();
 
 		// Uniforms
@@ -42,9 +39,10 @@ namespace Tmpl {
 		size_t uniform_buffer_size = glm::max(uniform_buffer_offset, (GLint)sizeof(Uniforms));
 
 		m_uniforms->bind();
-
-			m_uniforms->setData<Uniforms>(nullptr, uniform_buffer_size, GL_DYNAMIC_DRAW);
-
+			m_uniforms->setData<Uniforms>(
+				nullptr,
+				uniform_buffer_size,
+				GL_DYNAMIC_DRAW);
 		m_uniforms->unbind();
 	}
 
@@ -195,11 +193,14 @@ namespace Tmpl {
 
 		m_program->bind();
 
-		m_uniforms->bindBase(0);
-		m_program->setUniformBlockBinding(m_uniformTransform, 0);
 		m_program->setUniform(m_uniformColor, color);
 
+		m_uniforms->bindBase(0);
+		m_program->setUniformBlockBinding(m_uniformTransform, 0);
+
 		m_attributes->bind();
+
+		m_elements->bind();
 
 			glDrawElements(
 				GL_TRIANGLES,
@@ -207,6 +208,7 @@ namespace Tmpl {
 				GL_UNSIGNED_INT,
 				nullptr);
 
+		m_elements->unbind();
 		m_attributes->unbind();
 		m_uniforms->unbind();
 		m_program->unbind();

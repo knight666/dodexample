@@ -13,19 +13,16 @@ namespace Tmpl {
 		// Texture
 
 		m_texture->bind(0);
-
 			m_texture->setParameter(GL_TEXTURE_MIN_FILTER,  GL_LINEAR);
 			m_texture->setParameter(GL_TEXTURE_MAG_FILTER,  GL_LINEAR);
 			m_texture->setParameter(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 			m_texture->setParameter(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-			m_texture->image2D(0, (const GLbyte*)nullptr, GL_BGRA);
-
+			m_texture->image2D<GLbyte>(0, nullptr, GL_BGRA);
 		m_texture->unbind();
 
 		// Vertices
 
 		m_vertices->bind();
-
 			Vertex vertex_data[4] = {
 				{
 					glm::vec2(0.0f, 0.0f),
@@ -45,19 +42,16 @@ namespace Tmpl {
 				},
 			};
 			m_vertices->setData(vertex_data, 4, GL_STATIC_DRAW);
-
 		m_vertices->unbind();
 
 		// Elements
 
 		m_elements->bind();
-
 			GLuint element_data[6] = {
 				1, 0, 2,
 				3, 1, 2
 			};
 			m_elements->setData(element_data, 6, GL_STATIC_DRAW);
-
 		m_elements->unbind();
 
 		// Program
@@ -75,13 +69,10 @@ namespace Tmpl {
 		// Attributes
 
 		m_attributes->bind();
-
 			m_vertices->bind();
-			m_attributes->setAttribute(m_program->getAttributeLocation("attrPosition"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)Vertex::Offset::Position);
-			m_attributes->setAttribute(m_program->getAttributeLocation("attrTextureCoordinate"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)Vertex::Offset::TextureCoordinate);
-
-			m_elements->bind();
-
+				m_attributes->setAttribute(m_program->getAttributeLocation("attrPosition"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)Vertex::Offset::Position);
+				m_attributes->setAttribute(m_program->getAttributeLocation("attrTextureCoordinate"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)Vertex::Offset::TextureCoordinate);
+			m_vertices->unbind();
 		m_attributes->unbind();
 
 		// Uniforms
@@ -91,9 +82,7 @@ namespace Tmpl {
 		size_t uniform_buffer_size = glm::max(uniform_buffer_offset, (GLint)sizeof(Uniforms));
 
 		m_uniforms->bind();
-
 			m_uniforms->setData<Uniforms>(nullptr, uniform_buffer_size, GL_DYNAMIC_DRAW);
-
 		m_uniforms->unbind();
 	}
 
@@ -159,13 +148,20 @@ namespace Tmpl {
 
 		m_attributes->bind();
 
+		m_elements->bind();
+
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+			glDrawElements(
+				GL_TRIANGLES,
+				6,
+				GL_UNSIGNED_INT,
+				nullptr);
 
 		glDisable(GL_BLEND);
 
+		m_elements->unbind();
 		m_attributes->unbind();
 		m_uniforms->unbind();
 		m_texture->unbind();
