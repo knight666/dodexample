@@ -49,6 +49,7 @@ namespace Tmpl {
 	private:
 
 		std::vector<Voxel> m_voxels;
+		std::vector<Ray> m_rays;
 		size_t m_voxelsActive;
 		float m_voxelHalfSize;
 

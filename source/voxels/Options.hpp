@@ -16,12 +16,14 @@ namespace Tmpl {
 			: camera(CameraType::User)
 			, culling(true)
 			, help(false)
+			, showCulled(false)
 		{
 		}
 
 		CameraType camera;
 		bool culling;
 		bool help;
+		bool showCulled;
 	};
 
 }; // namespace Tmpl

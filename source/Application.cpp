@@ -166,6 +166,13 @@ namespace Tmpl {
 			m_options.culling = !m_options.culling;
 			break;
 
+		case GLFW_KEY_F:
+			if (m_options.culling)
+			{
+				m_options.showCulled = !m_options.showCulled;
+			}
+			break;
+
 		case GLFW_KEY_H:
 			m_options.help = !m_options.help;
 			break;
@@ -199,6 +206,15 @@ namespace Tmpl {
 		if (m_options.culling)
 		{
 			addText("Disable culling: [C]");
+
+			if (m_options.showCulled)
+			{
+				addText("Hide culled voxels: [F]");
+			}
+			else
+			{
+				addText("Show culled state: [F]");
+			}
 		}
 		else
 		{

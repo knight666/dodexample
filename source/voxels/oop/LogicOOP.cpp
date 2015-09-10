@@ -77,6 +77,7 @@ namespace Tmpl {
 
 		count = std::min(count, Logic::MaxVoxelCount);
 		m_voxels.resize(count);
+		m_rays.resize(count);
 
 		glm::vec3 position;
 		glm::vec3 color = glm::linearRand(
@@ -117,12 +118,18 @@ namespace Tmpl {
 
 		for (size_t i = 0; i < m_voxelsActive; ++i)
 		{
-			Voxel& voxelLeft = m_voxels[i];
+			Voxel& current = m_voxels[i];
 
-			Ray rayLeft(
-				voxelLeft,
+			m_rays[i].setup(
+				current,
 				targetPosition,
-				glm::normalize(targetPosition - voxelLeft.getPosition()));
+				glm::vec3(1.0f) / glm::normalize(current.getPosition() - targetPosition));
+		}
+
+		for (size_t i = 0; i < m_voxelsActive; ++i)
+		{
+			Voxel& voxelLeft = m_voxels[i];
+			Ray& rayLeft = m_rays[i];
 
 			voxelLeft.setCulled(false);
 
@@ -156,15 +163,42 @@ namespace Tmpl {
 		Vertex* data_dst = data;
 		size_t data_count = 0;
 
-		for (size_t i = 0; i < m_voxelsActive; ++i)
+		if (!options.culling)
 		{
-			if (!m_voxels[i].isCulled())
+			for (size_t i = 0; i < m_voxelsActive; ++i)
 			{
-				data_dst->position = m_voxels[i].getPosition();
-				data_dst->color = m_voxels[i].getColor();
+				data[i].position = m_voxels[i].getPosition();
+				data[i].color = m_voxels[i].getColor();
+			}
 
-				data_dst++;
-				data_count++;
+			data_count = m_voxelsActive;
+		}
+		else if (
+			options.showCulled)
+		{
+			static const glm::vec3 ColorCulled(1.0f, 0.0f, 0.0f);
+			static const glm::vec3 ColorVisible(0.0f, 1.0f, 0.0f);
+
+			for (size_t i = 0; i < m_voxelsActive; ++i)
+			{
+				data[i].position = m_voxels[i].getPosition();
+				data[i].color = m_voxels[i].isCulled() ? ColorCulled : ColorVisible;
+			}
+
+			data_count = m_voxelsActive;
+		}
+		else
+		{
+			for (size_t i = 0; i < m_voxelsActive; ++i)
+			{
+				if (!m_voxels[i].isCulled())
+				{
+					data_dst->position = m_voxels[i].getPosition();
+					data_dst->color = m_voxels[i].getColor();
+
+					data_dst++;
+					data_count++;
+				}
 			}
 		}
 
