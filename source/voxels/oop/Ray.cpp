@@ -6,6 +6,7 @@ namespace Tmpl {
 
 	Ray::Ray()
 		: m_owner(nullptr)
+		, m_closest(nullptr)
 		, m_timeMinimum(std::numeric_limits<float>::max())
 		, m_timeMaximum(0.0f)
 	{
@@ -17,6 +18,7 @@ namespace Tmpl {
 		const glm::vec3& direction)
 	{
 		m_owner = &owner;
+		m_closest = nullptr;
 		m_origin = origin;
 		m_direction = direction;
 		m_timeMinimum = std::numeric_limits<float>::max();
@@ -25,11 +27,6 @@ namespace Tmpl {
 
 	bool Ray::intersects(Voxel& other)
 	{
-		if (&other == m_owner)
-		{
-			return false;
-		}
-
 		float t0, t1;
 		float tmin = 0.f;
 		float tmax = std::numeric_limits<float>::max();
@@ -76,6 +73,7 @@ namespace Tmpl {
 		if (tmin <= tmax && tmin <= m_timeMinimum)
 		{
 			m_timeMinimum = tmin;
+			m_closest = &other;
 
 			return true;
 		}

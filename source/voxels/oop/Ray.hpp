@@ -18,11 +18,13 @@ namespace Tmpl {
 			const glm::vec3& origin,
 			const glm::vec3& direction);
 
+		Voxel* getClosest() const { return m_closest; }
 		bool intersects(Voxel& other);
 
 	private:
 
 		Voxel* m_owner;
+		Voxel* m_closest;
 		glm::vec3 m_origin;
 		glm::vec3 m_direction;
 		float m_timeMinimum;

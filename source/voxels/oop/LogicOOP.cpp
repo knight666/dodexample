@@ -122,32 +122,32 @@ namespace Tmpl {
 
 		for (size_t i = 0; i < m_voxelsActive; ++i)
 		{
-			Voxel& current = m_voxels[i];
+			Voxel& voxelCurrent = m_voxels[i];
+			Ray& rayCurrent = m_rays[i];
 
-			m_rays[i].setup(
-				current,
+			rayCurrent.setup(
+				voxelCurrent,
 				targetPosition,
-				glm::vec3(1.0f) / glm::normalize(current.getPosition() - targetPosition));
+				glm::vec3(1.0f) / glm::normalize(voxelCurrent.getPosition() - targetPosition));
+
+			for (size_t j = 0; j < m_voxelsActive; ++j)
+			{
+				rayCurrent.intersects(m_voxels[j]);
+			}
 		}
 
 		for (size_t i = 0; i < m_voxelsActive; ++i)
 		{
-			Voxel& voxelLeft = m_voxels[i];
-			Ray& rayLeft = m_rays[i];
+			Voxel& voxelCurrent = m_voxels[i];
+			Ray& rayCurrent = m_rays[i];
 
-			voxelLeft.setCulled(false);
+			voxelCurrent.setCulled(
+				rayCurrent.getClosest() == nullptr ||
+				rayCurrent.getClosest() != &voxelCurrent);
 
-			for (size_t j = 0; j < m_voxelsActive; ++j)
+			if (voxelCurrent.isCulled())
 			{
-				Voxel& voxelRight = m_voxels[j];
-
-				if (rayLeft.intersects(voxelRight))
-				{
-					voxelLeft.setCulled(true);
-					culled++;
-
-					break;
-				}
+				culled++;
 			}
 		}
 
