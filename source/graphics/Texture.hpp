@@ -1,6 +1,7 @@
 #pragma once
 
 #include "base/Main.hpp"
+#include "graphics/Buffer.hpp"
 
 namespace Tmpl {
 
@@ -17,6 +18,8 @@ namespace Tmpl {
 
 		void bind(GLuint index);
 		void unbind();
+
+		std::shared_ptr<Buffer> getPixels();
 
 		template <typename ValueType>
 		void setParameter(GLenum parameter, ValueType value);
@@ -39,6 +42,7 @@ namespace Tmpl {
 		GLsizei m_width;
 		GLsizei m_height;
 		size_t m_bound;
+		std::shared_ptr<Buffer> m_pixels;
 
 	};
 

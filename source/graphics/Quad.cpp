@@ -115,12 +115,10 @@ namespace Tmpl {
 
 		GLsizei texture_size = src_pitch * height;
 
-		GLuint pixel_buffer = 0;
-		glGenBuffers(1, &pixel_buffer);
-		glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pixel_buffer);
-		glBufferData(GL_PIXEL_UNPACK_BUFFER, src_size, nullptr, GL_STREAM_DRAW);
-		GLbyte* mapped = (GLbyte*)glMapBufferRange(GL_PIXEL_UNPACK_BUFFER, 0, src_size, GL_MAP_WRITE_BIT);
-
+		std::shared_ptr<Buffer> pixel_buffer = m_texture->getPixels();
+		pixel_buffer->bind();
+		pixel_buffer->setData<GLbyte>(nullptr, src_size, GL_STREAM_DRAW);
+		GLbyte* mapped = pixel_buffer->mapRange<GLbyte>(0, src_size, GL_MAP_WRITE_BIT);
 		GLbyte* dst = mapped;
 
 		for (GLsizei y = 0; y < height; ++y)
@@ -130,11 +128,11 @@ namespace Tmpl {
 			src += src_pitch;
 		}
 
-		glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
+		pixel_buffer->unmap();
 
 		m_texture->subImage2D(0, (const GLbyte*)nullptr, GL_BGRA);
 
-		glDeleteBuffers(1, &pixel_buffer);
+		pixel_buffer->unbind();
 
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 

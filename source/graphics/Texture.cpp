@@ -33,6 +33,21 @@ namespace Tmpl {
 		}
 	}
 
+	std::shared_ptr<Buffer> Texture::getPixels()
+	{
+		if (m_bound == 0)
+		{
+			return nullptr;
+		}
+
+		if (m_pixels == nullptr)
+		{
+			m_pixels = std::shared_ptr<Buffer>(new Buffer(GL_PIXEL_UNPACK_BUFFER));
+		}
+
+		return m_pixels;
+	}
+
 	void Texture::image2D(GLint level, GLenum dataType, const GLvoid* data, GLenum internalFormat, GLint border /*= 0*/)
 	{
 		if (m_bound == 0) { return; }
