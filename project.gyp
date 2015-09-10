@@ -44,6 +44,8 @@
 				'source/graphics/Program.hpp',
 				'source/graphics/Shader.cpp',
 				'source/graphics/Shader.hpp',
+				'source/graphics/Sphere.cpp',
+				'source/graphics/Sphere.hpp',
 				'source/graphics/Texture.cpp',
 				'source/graphics/Texture.hpp',
 				'source/graphics/VertexArrays.cpp',

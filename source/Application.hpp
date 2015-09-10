@@ -8,6 +8,7 @@ namespace Tmpl {
 	class FreeTypeLoader;
 	class Logic;
 	class Quad;
+	class Sphere;
 	class TextBatch;
 
 	class Application
@@ -47,6 +48,7 @@ namespace Tmpl {
 		glm::vec3 m_targetPosition;
 		float m_targetAngle;
 		float m_targetDistance;
+		std::shared_ptr<Sphere> m_targetSphere;
 
 		float m_cameraAngle;
 		float m_cameraDistance;

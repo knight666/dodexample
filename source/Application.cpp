@@ -1,6 +1,7 @@
 #include "Application.hpp"
 
 #include "graphics/Quad.hpp"
+#include "graphics/Sphere.hpp"
 #include "text/FreeTypeLoader.hpp"
 #include "text/TextBatch.hpp"
 #include "voxels/oop/LogicOOP.hpp"
@@ -16,6 +17,7 @@ namespace Tmpl {
 		, m_voxelHalfSize(20.0f)
 		, m_targetAngle(0.0f)
 		, m_targetDistance(1000.0f)
+		, m_targetSphere(new Sphere())
 		, m_cameraAngle(45.0f)
 		, m_cameraDistance(5000.0f)
 	{
@@ -39,6 +41,8 @@ namespace Tmpl {
 		m_loader->loadGlyphRange(0x00, 0xFF); // preload Basic Latin and Latin-1
 
 		m_text = std::shared_ptr<TextBatch>(new TextBatch(m_loader, 256, 256));
+
+		m_targetSphere->setup(20, 20);
 
 		return true;
 	}
@@ -120,7 +124,18 @@ namespace Tmpl {
 			glm::vec3(0.0f, 0.0f, 0.0f),
 			glm::vec3(0.0f, 1.0f, 0.0f));
 
-		m_logicOOP->render(m_options, perspective * viewCamera);
+		glm::mat4x4 viewProjection = perspective * viewCamera;
+
+		m_logicOOP->render(m_options, viewProjection);
+
+		if (m_options.camera != Options::CameraType::Target)
+		{
+			m_targetSphere->render(
+				viewProjection,
+				m_targetPosition,
+				15.0f,
+				glm::vec3(1.0f, 1.0f, 0.0f));
+		}
 
 		glm::mat4x4 interface_projection = glm::ortho(
 			0.0f, (float)width,

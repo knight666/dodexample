@@ -32,7 +32,7 @@ namespace Tmpl {
 
 		float t0, t1;
 		float tmin = 0.f;
-		float tmax = 10000.f;
+		float tmax = std::numeric_limits<float>::max();
 
 		t0 = (other.getAABBMinimum().x - m_origin.x) * m_direction.x;
 		t1 = (other.getAABBMaximum().x - m_origin.x) * m_direction.x;
