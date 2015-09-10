@@ -152,7 +152,7 @@ namespace Tmpl {
 		m_program->bind();
 
 		m_texture->bind(0);
-		m_program->setUniform(m_uniformDiffuse, 0);
+		m_program->setUniform<GLint>(m_uniformDiffuse, 0);
 
 		m_uniforms->bindBase(0);
 		m_program->setUniformBlockBinding(m_uniformTransform, 0);

@@ -207,18 +207,16 @@ namespace Tmpl {
 
 		m_program->bind();
 
-			m_uniforms->bindBase(0);
-			m_program->setUniformBlockBinding(m_uniformTransform, 0);
-			m_program->setUniform(m_uniformHalfSize, m_voxelHalfSize);
+		m_uniforms->bindBase(0);
+		m_program->setUniformBlockBinding(m_uniformTransform, 0);
+		m_program->setUniform(m_uniformHalfSize, m_voxelHalfSize);
 			
-			m_attributes->bind();
+		m_attributes->bind();
 
 			glDrawArrays(GL_POINTS, 0, data_count);
 
-			m_attributes->unbind();
-
-			m_uniforms->unbind();
-
+		m_attributes->unbind();
+		m_uniforms->unbind();
 		m_program->unbind();
 	}
 

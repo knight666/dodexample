@@ -39,7 +39,7 @@ namespace Tmpl {
 		GLuint getUniformBlockIndex(const char* name) const;
 
 		template <typename ValueType>
-		void setUniform(GLint location, ValueType value);
+		void setUniform(GLint location, const ValueType& value);
 
 		void setUniformMatrix(GLint location, const glm::mat4x4& matrix, bool transposed = false);
 
@@ -68,21 +68,42 @@ namespace Tmpl {
 	};
 
 	template <>
-	inline void Program::setUniform(GLint location, GLint value)
+	inline void Program::setUniform(GLint location, const GLint& value)
 	{
 		if (m_bound == 0) { return; }
 		glUniform1i(location, value);
 	}
 
 	template <>
-	inline void Program::setUniform(GLint location, float value)
+	inline void Program::setUniform(GLint location, const float& value)
 	{
 		if (m_bound == 0) { return; }
 		glUniform1f(location, value);
 	}
 
 	template <>
-	inline void Program::setUniform(GLint location, glm::mat4x4 value)
+	inline void Program::setUniform(GLint location, const glm::vec2& value)
+	{
+		if (m_bound == 0) { return; }
+		glUniform2fv(location, 1, glm::value_ptr(value));
+	}
+
+	template <>
+	inline void Program::setUniform(GLint location, const glm::vec3& value)
+	{
+		if (m_bound == 0) { return; }
+		glUniform3fv(location, 1, glm::value_ptr(value));
+	}
+
+	template <>
+	inline void Program::setUniform(GLint location, const glm::vec4& value)
+	{
+		if (m_bound == 0) { return; }
+		glUniform4fv(location, 1, glm::value_ptr(value));
+	}
+
+	template <>
+	inline void Program::setUniform(GLint location, const glm::mat4x4& value)
 	{
 		if (m_bound == 0) { return; }
 		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));

@@ -50,11 +50,16 @@ namespace Tmpl {
 	{
 		TMPL_LOG_INFO(Shader)
 			<< m_handle << " (" << TypeToString(m_type) << "): "
-			<< "Compiling from source.";
+			<< "Setting source.";
 
 		const GLchar* input = (const GLchar*)source.c_str();
 		GLint input_length = (GLint)source.length();
 		glShaderSource(m_handle, 1, &input, &input_length);
+
+		TMPL_LOG_INFO(Shader)
+			<< m_handle << " (" << TypeToString(m_type) << "): "
+			<< "Compiling.";
+
 		glCompileShader(m_handle);
 
 		m_log.clear();

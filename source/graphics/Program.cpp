@@ -119,8 +119,27 @@ namespace Tmpl {
 		}
 
 		TMPL_LOG_INFO(Program) << m_handle << ": Linking.";
-
 		glLinkProgram(m_handle);
+
+		GLint success = GL_TRUE;
+
+		glGetProgramiv(m_handle, GL_LINK_STATUS, &success);
+		if (success != GL_TRUE)
+		{
+			TMPL_LOG_ERROR(Program) << m_handle << ": Failed to link.";
+		}
+		else
+		{
+			TMPL_LOG_INFO(Program) << m_handle << ": Validating.";
+
+			glValidateProgram(m_handle);
+			glGetProgramiv(m_handle, GL_VALIDATE_STATUS, &success);
+
+			if (success != GL_TRUE)
+			{
+				TMPL_LOG_ERROR(Program) << m_handle << ": Program was not validated.";
+			}
+		}
 
 		m_log.clear();
 
@@ -138,7 +157,8 @@ namespace Tmpl {
 			// we skip this message because it's specific to this manufacturer
 			// and it's never ever going to be useful information
 
-			if (strcmp(log_text, "No errors.\n") != 0)
+			if (strcmp(log_text, "No errors.\n") != 0 &&
+				strcmp(log_text, "Validation successful.\n") != 0)
 			{
 				m_log = log_text;
 			}
@@ -149,26 +169,6 @@ namespace Tmpl {
 		if (!m_log.empty())
 		{
 			TMPL_LOG_TRACE(Program) << m_handle << ": " << m_log;
-		}
-
-		GLint success = GL_TRUE;
-
-		glGetProgramiv(m_handle, GL_LINK_STATUS, &success);
-		if (success != GL_TRUE)
-		{
-			TMPL_LOG_ERROR(Program) << m_handle << ": Failed to link.";
-
-			return false;
-		}
-
-		glValidateProgram(m_handle);
-		glGetProgramiv(m_handle, GL_VALIDATE_STATUS, &success);
-
-		if (success != GL_TRUE)
-		{
-			TMPL_LOG_ERROR(Program) << m_handle << ": Program was not validated.";
-
-			return false;
 		}
 
 		return true;
