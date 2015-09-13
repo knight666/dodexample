@@ -79,7 +79,39 @@ namespace Tmpl {
 			return;
 		}
 
-		count = std::min(count, Logic::MaxVoxelCount);
+		m_voxelsActive = 0;
+		m_voxelHalfSize = halfSize;
+
+		glm::vec3 position;
+		size_t side = 10;
+
+		count = side * side * side;
+		m_voxels.resize(count);
+		m_rays.resize(count);
+
+		for (size_t x = 0; x < side; ++x)
+		{
+			position.x = (-(float)(side / 2) + (float)x) * (halfSize * 2.0f);
+
+			for (size_t y = 0; y < side; ++y)
+			{
+				position.y = (-(float)(side / 2) + (float)y) * (halfSize * 2.0f);
+
+				for (size_t z = 0; z < side; ++z)
+				{
+					position.z = (-(float)(side / 2) + (float)z) * (halfSize * 2.0f);
+
+					glm::vec3 color = glm::linearRand(
+						glm::vec3(0.0f, 0.0f, 0.0f),
+						glm::vec3(1.0f, 1.0f, 1.0f));
+
+					m_voxels[m_voxelsActive].setup(position, halfSize, color);
+					m_voxelsActive++;
+				}
+			}
+		}
+
+		/*count = std::min(count, Logic::MaxVoxelCount);
 		m_voxels.resize(count);
 		m_rays.resize(count);
 
@@ -113,7 +145,7 @@ namespace Tmpl {
 		}
 
 		m_voxelsActive = count;
-		m_voxelHalfSize = halfSize; 
+		m_voxelHalfSize = halfSize;*/
 	}
 
 	size_t LogicOOP::cullVoxels(const Options& options, const glm::vec3& targetPosition)
