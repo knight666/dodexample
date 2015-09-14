@@ -64,7 +64,6 @@ namespace Tmpl {
 			float ray_direction_y[Logic::MaxVoxelCount];
 			float ray_direction_z[Logic::MaxVoxelCount];
 			float ray_time_minimum[Logic::MaxVoxelCount];
-			size_t ray_closest[Logic::MaxVoxelCount];
 		};
 		VoxelCollection m_collection;
 		size_t m_collectionActive;

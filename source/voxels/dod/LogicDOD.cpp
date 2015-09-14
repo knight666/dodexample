@@ -117,71 +117,68 @@ namespace Tmpl {
 			m_collection.ray_direction_y[i] = 1.0f / (m_collection.ray_direction_y[i] * lengthReciprocal);
 			m_collection.ray_direction_z[i] = 1.0f / (m_collection.ray_direction_z[i] * lengthReciprocal);
 
+			// Setup ray
+
+			float offsetMinimum;
+			float offsetMaximum;
+
+			m_collection.ray_time_minimum[i] = 0.0f;
+
+			offsetMinimum = ((m_collection.voxel_position_x[i] - m_voxelHalfSize) - targetPosition.x) * m_collection.ray_direction_x[i];
+			offsetMaximum = ((m_collection.voxel_position_x[i] + m_voxelHalfSize) - targetPosition.x) * m_collection.ray_direction_x[i];
+
+			m_collection.ray_time_minimum[i] = glm::max(m_collection.ray_time_minimum[i], glm::min(offsetMinimum, offsetMaximum));
+
+			offsetMinimum = ((m_collection.voxel_position_y[i] - m_voxelHalfSize) - targetPosition.y) * m_collection.ray_direction_y[i];
+			offsetMaximum = ((m_collection.voxel_position_y[i] + m_voxelHalfSize) - targetPosition.y) * m_collection.ray_direction_y[i];
+
+			m_collection.ray_time_minimum[i] = glm::max(m_collection.ray_time_minimum[i], glm::min(offsetMinimum, offsetMaximum));
+
+			offsetMinimum = ((m_collection.voxel_position_z[i] - m_voxelHalfSize) - targetPosition.z) * m_collection.ray_direction_z[i];
+			offsetMaximum = ((m_collection.voxel_position_z[i] + m_voxelHalfSize) - targetPosition.z) * m_collection.ray_direction_z[i];
+
+			m_collection.ray_time_minimum[i] = glm::max(m_collection.ray_time_minimum[i], glm::min(offsetMinimum, offsetMaximum));
+
 			// Check intersections
 
-			m_collection.ray_time_minimum[i] = std::numeric_limits<float>::max();
-			m_collection.ray_closest[i] = i;
+			m_collection.voxel_culled[i] = false;
 
 			for (size_t j = 0; j < m_collectionActive; ++j)
 			{
-				float offsetMinimum, offsetMaximum;
-				float localTimeMinimum = 0.f;
+				if (j == i)
+				{
+					continue;
+				}
+
+				float localTimeMinimum = 0.0f;
 				float localTimeMaximum = std::numeric_limits<float>::max();
 
 				offsetMinimum = ((m_collection.voxel_position_x[j] - m_voxelHalfSize) - targetPosition.x) * m_collection.ray_direction_x[i];
 				offsetMaximum = ((m_collection.voxel_position_x[j] + m_voxelHalfSize) - targetPosition.x) * m_collection.ray_direction_x[i];
 
-				if (offsetMinimum > offsetMaximum)
-				{
-					localTimeMinimum = glm::max(offsetMaximum, localTimeMinimum);
-					localTimeMaximum = glm::min(offsetMinimum, localTimeMaximum);
-				}
-				else
-				{
-					localTimeMinimum = glm::max(offsetMinimum, localTimeMinimum);
-					localTimeMaximum = glm::min(offsetMaximum, localTimeMaximum);
-				}
+				localTimeMinimum = glm::max(localTimeMinimum, glm::min(offsetMinimum, offsetMaximum));
+				localTimeMaximum = glm::min(localTimeMaximum, glm::max(offsetMinimum, offsetMaximum));
 
 				offsetMinimum = ((m_collection.voxel_position_y[j] - m_voxelHalfSize) - targetPosition.y) * m_collection.ray_direction_y[i];
 				offsetMaximum = ((m_collection.voxel_position_y[j] + m_voxelHalfSize) - targetPosition.y) * m_collection.ray_direction_y[i];
 
-				if (offsetMinimum > offsetMaximum)
-				{
-					localTimeMinimum = glm::max(offsetMaximum, localTimeMinimum);
-					localTimeMaximum = glm::min(offsetMinimum, localTimeMaximum);
-				}
-				else
-				{
-					localTimeMinimum = glm::max(offsetMinimum, localTimeMinimum);
-					localTimeMaximum = glm::min(offsetMaximum, localTimeMaximum);
-				}
+				localTimeMinimum = glm::max(localTimeMinimum, glm::min(offsetMinimum, offsetMaximum));
+				localTimeMaximum = glm::min(localTimeMaximum, glm::max(offsetMinimum, offsetMaximum));
 
 				offsetMinimum = ((m_collection.voxel_position_z[j] - m_voxelHalfSize) - targetPosition.z) * m_collection.ray_direction_z[i];
 				offsetMaximum = ((m_collection.voxel_position_z[j] + m_voxelHalfSize) - targetPosition.z) * m_collection.ray_direction_z[i];
 
-				if (offsetMinimum > offsetMaximum)
-				{
-					localTimeMinimum = glm::max(offsetMaximum, localTimeMinimum);
-					localTimeMaximum = glm::min(offsetMinimum, localTimeMaximum);
-				}
-				else
-				{
-					localTimeMinimum = glm::max(offsetMinimum, localTimeMinimum);
-					localTimeMaximum = glm::min(offsetMaximum, localTimeMaximum);
-				}
+				localTimeMinimum = glm::max(localTimeMinimum, glm::min(offsetMinimum, offsetMaximum));
+				localTimeMaximum = glm::min(localTimeMaximum, glm::max(offsetMinimum, offsetMaximum));
 
 				if (localTimeMinimum <= localTimeMaximum &&
 					localTimeMinimum <= m_collection.ray_time_minimum[i])
 				{
-					m_collection.ray_time_minimum[i] = localTimeMinimum;
-					m_collection.ray_closest[i] = j;
-				}
-			}
+					m_collection.voxel_culled[i] = true;
+					culled++;
 
-			m_collection.voxel_culled[i] = m_collection.ray_closest[i] != i;
-			if (m_collection.voxel_culled[i])
-			{
-				culled++;
+					break;
+				}
 			}
 		}
 
@@ -192,12 +189,6 @@ namespace Tmpl {
 		const Options& options,
 		const glm::mat4x4& modelViewProjection)
 	{
-		m_uniforms->bind();
-			Uniforms* transform = m_uniforms->mapRange<Uniforms>(0, 1, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-				transform->modelViewProjection = modelViewProjection;
-			m_uniforms->unmap();
-		m_uniforms->unbind();
-
 		m_vertices->bind();
 		Vertex* data = m_vertices->map<Vertex>(GL_READ_WRITE);
 		Vertex* data_dst = data;
@@ -269,6 +260,13 @@ namespace Tmpl {
 		m_program->setUniform(m_uniformHalfSize, m_voxelHalfSize);
 
 		m_uniforms->bindBase(0);
+
+		Uniforms* transform = m_uniforms->mapRange<Uniforms>(
+			0, 1,
+			GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+			transform->modelViewProjection = modelViewProjection;
+		m_uniforms->unmap();
+
 		m_program->setUniformBlockBinding(m_uniformTransform, 0);
 
 		m_attributes->bind();

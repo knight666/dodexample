@@ -107,18 +107,18 @@ namespace Tmpl {
 				targetPosition,
 				glm::vec3(1.0f) / glm::normalize(voxelCurrent.getPosition() - targetPosition));
 
+			voxelCurrent.setCulled(false);
+
 			for (size_t j = 0; j < m_voxelsActive; ++j)
 			{
-				rayCurrent.intersects(m_voxels[j]);
-			}
+				if (j != i &&
+					rayCurrent.intersects(m_voxels[j]) != &voxelCurrent)
+				{
+					voxelCurrent.setCulled(true);
+					culled++;
 
-			voxelCurrent.setCulled(
-				rayCurrent.getClosest() == nullptr ||
-				rayCurrent.getClosest() != &voxelCurrent);
-
-			if (voxelCurrent.isCulled())
-			{
-				culled++;
+					break;
+				}
 			}
 		}
 
@@ -128,9 +128,7 @@ namespace Tmpl {
 	void LogicOOP::render(const Options& options, const glm::mat4x4& modelViewProjection)
 	{
 		m_uniforms->bind();
-			Uniforms* transform = m_uniforms->mapRange<Uniforms>(0, 1, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-				transform->modelViewProjection = modelViewProjection;
-			m_uniforms->unmap();
+			
 		m_uniforms->unbind();
 
 		m_vertices->bind();
@@ -185,6 +183,13 @@ namespace Tmpl {
 		m_program->setUniform(m_uniformHalfSize, m_voxelHalfSize);
 
 		m_uniforms->bindBase(0);
+
+		Uniforms* transform = m_uniforms->mapRange<Uniforms>(
+			0, 1,
+			GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+		transform->modelViewProjection = modelViewProjection;
+		m_uniforms->unmap();
+
 		m_program->setUniformBlockBinding(m_uniformTransform, 0);
 
 		m_attributes->bind();

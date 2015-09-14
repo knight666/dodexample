@@ -6,9 +6,7 @@ namespace Tmpl {
 
 	Ray::Ray()
 		: m_owner(nullptr)
-		, m_closest(nullptr)
-		, m_timeMinimum(std::numeric_limits<float>::max())
-		, m_timeMaximum(0.0f)
+		, m_timeMinimum(0.0f)
 	{
 	}
 
@@ -18,64 +16,44 @@ namespace Tmpl {
 		const glm::vec3& direction)
 	{
 		m_owner = &owner;
-		m_closest = nullptr;
 		m_origin = origin;
 		m_direction = direction;
-		m_timeMinimum = std::numeric_limits<float>::max();
-		m_timeMaximum = 0.0f;
+
+		glm::vec3 offsetMinimum = (owner.getAABBMinimum() - origin) * direction;
+		glm::vec3 offsetMaximum = (owner.getAABBMaximum() - origin) * direction;
+
+		m_timeMinimum = 0.f;
+		m_timeMinimum = glm::max(m_timeMinimum, glm::min(offsetMinimum.x, offsetMaximum.x));
+		m_timeMinimum = glm::max(m_timeMinimum, glm::min(offsetMinimum.y, offsetMaximum.y));
+		m_timeMinimum = glm::max(m_timeMinimum, glm::min(offsetMinimum.z, offsetMaximum.z));
 	}
 
-	bool Ray::intersects(Voxel& other)
+	Voxel* Ray::intersects(Voxel& other)
 	{
-		glm::vec3 offsetMinimum = (other.getAABBMinimum() - m_origin) * m_direction;
-		glm::vec3 offsetMaximum = (other.getAABBMaximum() - m_origin) * m_direction;
-
 		float localTimeMinimum = 0.f;
 		float localTimeMaximum = std::numeric_limits<float>::max();
 
-		if (offsetMinimum.x > offsetMaximum.x)
-		{
-			localTimeMinimum = glm::max(offsetMaximum.x, localTimeMinimum);
-			localTimeMaximum = glm::min(offsetMinimum.x, localTimeMaximum);
-		}
-		else
-		{
-			localTimeMinimum = glm::max(offsetMinimum.x, localTimeMinimum);
-			localTimeMaximum = glm::min(offsetMaximum.x, localTimeMaximum);
-		}
+		glm::vec3 offsetMinimum = (other.getAABBMinimum() - m_origin) * m_direction;
+		glm::vec3 offsetMaximum = (other.getAABBMaximum() - m_origin) * m_direction;
 
-		if (offsetMinimum.y > offsetMaximum.y)
-		{
-			localTimeMinimum = glm::max(offsetMaximum.y, localTimeMinimum);
-			localTimeMaximum = glm::min(offsetMinimum.y, localTimeMaximum);
-		}
-		else
-		{
-			localTimeMinimum = glm::max(offsetMinimum.y, localTimeMinimum);
-			localTimeMaximum = glm::min(offsetMaximum.y, localTimeMaximum);
-		}
+		localTimeMinimum = glm::max(localTimeMinimum, glm::min(offsetMinimum.x, offsetMaximum.x));
+		localTimeMaximum = glm::min(localTimeMaximum, glm::max(offsetMinimum.x, offsetMaximum.x));
 
-		if (offsetMinimum.z > offsetMaximum.z)
-		{
-			localTimeMinimum = glm::max(offsetMaximum.z, localTimeMinimum);
-			localTimeMaximum = glm::min(offsetMinimum.z, localTimeMaximum);
-		}
-		else
-		{
-			localTimeMinimum = glm::max(offsetMinimum.z, localTimeMinimum);
-			localTimeMaximum = glm::min(offsetMaximum.z, localTimeMaximum);
-		}
+		localTimeMinimum = glm::max(localTimeMinimum, glm::min(offsetMinimum.y, offsetMaximum.y));
+		localTimeMaximum = glm::min(localTimeMaximum, glm::max(offsetMinimum.y, offsetMaximum.y));
+
+		localTimeMinimum = glm::max(localTimeMinimum, glm::min(offsetMinimum.z, offsetMaximum.z));
+		localTimeMaximum = glm::min(localTimeMaximum, glm::max(offsetMinimum.z, offsetMaximum.z));
 
 		if (localTimeMinimum <= localTimeMaximum &&
 			localTimeMinimum <= m_timeMinimum)
 		{
 			m_timeMinimum = localTimeMinimum;
-			m_closest = &other;
 
-			return true;
+			return &other;
 		}
 
-		return false;
+		return m_owner;
 	}
 
 }; // namespace Tmpl
