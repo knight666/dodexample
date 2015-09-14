@@ -111,12 +111,6 @@ namespace Tmpl {
 			{
 				rayCurrent.intersects(m_voxels[j]);
 			}
-		}
-
-		for (size_t i = 0; i < m_voxelsActive; ++i)
-		{
-			Voxel& voxelCurrent = m_voxels[i];
-			Ray& rayCurrent = m_rays[i];
 
 			voxelCurrent.setCulled(
 				rayCurrent.getClosest() == nullptr ||

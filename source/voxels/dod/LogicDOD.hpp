@@ -59,6 +59,7 @@ namespace Tmpl {
 			float voxel_color_r[Logic::MaxVoxelCount];
 			float voxel_color_g[Logic::MaxVoxelCount];
 			float voxel_color_b[Logic::MaxVoxelCount];
+			bool voxel_culled[Logic::MaxVoxelCount];
 			float ray_direction_x[Logic::MaxVoxelCount];
 			float ray_direction_y[Logic::MaxVoxelCount];
 			float ray_direction_z[Logic::MaxVoxelCount];

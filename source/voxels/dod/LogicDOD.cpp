@@ -97,7 +97,95 @@ namespace Tmpl {
 		const Options& options,
 		const glm::vec3& targetPosition)
 	{
-		return 0;
+		size_t culled = 0;
+
+		for (size_t i = 0; i < m_collectionActive; ++i)
+		{
+			// Normalize ray direction
+
+			m_collection.ray_direction_x[i] = m_collection.voxel_position_x[i] - targetPosition.x;
+			m_collection.ray_direction_y[i] = m_collection.voxel_position_y[i] - targetPosition.y;
+			m_collection.ray_direction_z[i] = m_collection.voxel_position_z[i] - targetPosition.z;
+
+			float length = glm::sqrt(
+				(m_collection.ray_direction_x[i] * m_collection.ray_direction_x[i]) +
+				(m_collection.ray_direction_y[i] * m_collection.ray_direction_y[i]) +
+				(m_collection.ray_direction_z[i] * m_collection.ray_direction_z[i]));
+
+			float lengthReciprocal = 1.0f / length;
+			m_collection.ray_direction_x[i] = 1.0f / (m_collection.ray_direction_x[i] * lengthReciprocal);
+			m_collection.ray_direction_y[i] = 1.0f / (m_collection.ray_direction_y[i] * lengthReciprocal);
+			m_collection.ray_direction_z[i] = 1.0f / (m_collection.ray_direction_z[i] * lengthReciprocal);
+
+			// Check intersections
+
+			m_collection.ray_time_minimum[i] = std::numeric_limits<float>::max();
+			m_collection.ray_closest[i] = i;
+
+			for (size_t j = 0; j < m_collectionActive; ++j)
+			{
+				float offsetMinimum, offsetMaximum;
+				float localTimeMinimum = 0.f;
+				float localTimeMaximum = std::numeric_limits<float>::max();
+
+				offsetMinimum = ((m_collection.voxel_position_x[j] - m_voxelHalfSize) - targetPosition.x) * m_collection.ray_direction_x[i];
+				offsetMaximum = ((m_collection.voxel_position_x[j] + m_voxelHalfSize) - targetPosition.x) * m_collection.ray_direction_x[i];
+
+				if (offsetMinimum > offsetMaximum)
+				{
+					localTimeMinimum = glm::max(offsetMaximum, localTimeMinimum);
+					localTimeMaximum = glm::min(offsetMinimum, localTimeMaximum);
+				}
+				else
+				{
+					localTimeMinimum = glm::max(offsetMinimum, localTimeMinimum);
+					localTimeMaximum = glm::min(offsetMaximum, localTimeMaximum);
+				}
+
+				offsetMinimum = ((m_collection.voxel_position_y[j] - m_voxelHalfSize) - targetPosition.y) * m_collection.ray_direction_y[i];
+				offsetMaximum = ((m_collection.voxel_position_y[j] + m_voxelHalfSize) - targetPosition.y) * m_collection.ray_direction_y[i];
+
+				if (offsetMinimum > offsetMaximum)
+				{
+					localTimeMinimum = glm::max(offsetMaximum, localTimeMinimum);
+					localTimeMaximum = glm::min(offsetMinimum, localTimeMaximum);
+				}
+				else
+				{
+					localTimeMinimum = glm::max(offsetMinimum, localTimeMinimum);
+					localTimeMaximum = glm::min(offsetMaximum, localTimeMaximum);
+				}
+
+				offsetMinimum = ((m_collection.voxel_position_z[j] - m_voxelHalfSize) - targetPosition.z) * m_collection.ray_direction_z[i];
+				offsetMaximum = ((m_collection.voxel_position_z[j] + m_voxelHalfSize) - targetPosition.z) * m_collection.ray_direction_z[i];
+
+				if (offsetMinimum > offsetMaximum)
+				{
+					localTimeMinimum = glm::max(offsetMaximum, localTimeMinimum);
+					localTimeMaximum = glm::min(offsetMinimum, localTimeMaximum);
+				}
+				else
+				{
+					localTimeMinimum = glm::max(offsetMinimum, localTimeMinimum);
+					localTimeMaximum = glm::min(offsetMaximum, localTimeMaximum);
+				}
+
+				if (localTimeMinimum <= localTimeMaximum &&
+					localTimeMinimum <= m_collection.ray_time_minimum[i])
+				{
+					m_collection.ray_time_minimum[i] = localTimeMinimum;
+					m_collection.ray_closest[i] = j;
+				}
+			}
+
+			m_collection.voxel_culled[i] = m_collection.ray_closest[i] != i;
+			if (m_collection.voxel_culled[i])
+			{
+				culled++;
+			}
+		}
+
+		return culled;
 	}
 
 	void LogicDOD::render(
@@ -115,17 +203,63 @@ namespace Tmpl {
 		Vertex* data_dst = data;
 		size_t data_count = 0;
 
-		for (size_t i = 0; i < m_collectionActive; ++i)
+		if (!options.culling)
 		{
-			data[i].position.x = m_collection.voxel_position_x[i];
-			data[i].position.y = m_collection.voxel_position_y[i];
-			data[i].position.z = m_collection.voxel_position_z[i];
-			data[i].color.x = m_collection.voxel_color_r[i];
-			data[i].color.y = m_collection.voxel_color_g[i];
-			data[i].color.z = m_collection.voxel_color_b[i];
-		}
+			for (size_t i = 0; i < m_collectionActive; ++i)
+			{
+				data[i].position.x = m_collection.voxel_position_x[i];
+				data[i].position.y = m_collection.voxel_position_y[i];
+				data[i].position.z = m_collection.voxel_position_z[i];
+				data[i].color.r = m_collection.voxel_color_r[i];
+				data[i].color.g = m_collection.voxel_color_g[i];
+				data[i].color.b = m_collection.voxel_color_b[i];
+			}
 
-		data_count = m_collectionActive;
+			data_count = m_collectionActive;
+		}
+		else if (
+			options.showCulled)
+		{
+			for (size_t i = 0; i < m_collectionActive; ++i)
+			{
+				data[i].position.x = m_collection.voxel_position_x[i];
+				data[i].position.y = m_collection.voxel_position_y[i];
+				data[i].position.z = m_collection.voxel_position_z[i];
+
+				if (m_collection.voxel_culled[i])
+				{
+					data[i].color.r = 1.0f;
+					data[i].color.g = 0.0f;
+					data[i].color.b = 0.0f;
+				}
+				else
+				{
+					data[i].color.r = 0.0f;
+					data[i].color.g = 1.0f;
+					data[i].color.b = 0.0f;
+				}
+			}
+
+			data_count = m_collectionActive;
+		}
+		else
+		{
+			for (size_t i = 0; i < m_collectionActive; ++i)
+			{
+				if (!m_collection.voxel_culled[i])
+				{
+					data_dst->position.x = m_collection.voxel_position_x[i];
+					data_dst->position.y = m_collection.voxel_position_y[i];
+					data_dst->position.z = m_collection.voxel_position_z[i];
+					data_dst->color.x = m_collection.voxel_color_r[i];
+					data_dst->color.y = m_collection.voxel_color_g[i];
+					data_dst->color.z = m_collection.voxel_color_b[i];
+
+					data_dst++;
+					data_count++;
+				}
+			}
+		}
 
 		m_vertices->unmap();
 		m_vertices->unbind();

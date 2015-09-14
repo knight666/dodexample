@@ -393,6 +393,16 @@ namespace Tmpl {
 
 		m_textCombined.clear();
 
+		if (m_options.logic == Options::LogicType::ObjectOriented)
+		{
+			addText("Object-oriented logic");
+		}
+		else if (
+			m_options.logic == Options::LogicType::DataOriented)
+		{
+			addText("Data-oriented logic");
+		}
+
 		addText("Update: %d ms",
 			(uint32_t)(m_timeUpdate.count() / 1000));
 		addText("Render: %d ms",
