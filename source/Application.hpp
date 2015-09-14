@@ -32,7 +32,7 @@ namespace Tmpl {
 
 	private:
 
-		void generateScene();
+		void generateScene(float scale = 1.0f);
 
 		void renderHelp();
 

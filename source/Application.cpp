@@ -223,7 +223,7 @@ namespace Tmpl {
 		m_loader->loadFace("media/fonts/Roboto/Roboto-Black.ttf", 12.0f);
 		m_loader->loadGlyphRange(0x00, 0xFF); // preload Basic Latin and Latin-1
 
-		m_text = std::shared_ptr<TextBatch>(new TextBatch(m_loader, 256, 256));
+		m_text = std::shared_ptr<TextBatch>(new TextBatch(m_loader, 512, 512));
 
 		m_targetSphere = std::make_shared<Sphere>();
 		m_targetSphere->setup(20, 20);
@@ -234,9 +234,7 @@ namespace Tmpl {
 			return 1;
 		}
 
-		TMPL_LOG_INFO(Application) << "Generating scene...";
-
-		generateScene();
+		generateScene(1.0f);
 
 		// Main loop
 
@@ -418,11 +416,15 @@ namespace Tmpl {
 		{
 
 		case GLFW_KEY_1:
-			m_options.camera = Options::CameraType::User;
+			generateScene(1.0f);
 			break;
 
 		case GLFW_KEY_2:
-			m_options.camera = Options::CameraType::Target;
+			generateScene(1.4f);
+			break;
+
+		case GLFW_KEY_3:
+			generateScene(1.8f);
 			break;
 
 		case GLFW_KEY_C:
@@ -436,6 +438,17 @@ namespace Tmpl {
 			}
 			break;
 
+		case GLFW_KEY_G:
+			if (m_options.camera == Options::CameraType::Target)
+			{
+				m_options.camera = Options::CameraType::User;
+			}
+			else
+			{
+				m_options.camera = Options::CameraType::Target;
+			}
+			break;
+
 		case GLFW_KEY_H:
 			m_options.help = !m_options.help;
 			break;
@@ -446,8 +459,10 @@ namespace Tmpl {
 		}
 	}
 
-	void Application::generateScene()
+	void Application::generateScene(float scale /*= 1.0f*/)
 	{
+		TMPL_LOG_INFO(Application) << "Generating scene with a scale factor of " << scale << "...";
+
 		std::vector<Logic::VoxelData> voxels;
 		glm::vec3 position;
 		size_t side = 100;
@@ -465,14 +480,13 @@ namespace Tmpl {
 		};
 
 		std::vector<SphereData> spheres;
-		spheres.push_back(SphereData(glm::vec3(0.0f, 0.0f, 0.0f), 250.0f));
+		spheres.push_back(SphereData(glm::vec3(0.0f, 0.0f, 0.0f), 250.0f * scale));
+
+		float tilt = 25.0f;
+		float distance = 550.0f * scale;
 
 		for (size_t i = 0; i < 8; ++i)
 		{
-			float radians = glm::radians(360.0f / 8.0f) * i;
-			static const float tilt = 25.0f;
-			static const float distance = 550.0f;
-
 			glm::mat4x4 transform(1.0f);
 			transform = glm::translate(
 				transform,
@@ -489,7 +503,7 @@ namespace Tmpl {
 				glm::radians((360.0f / 8.0f) * i),
 				glm::vec3(0.0f, 1.0f, 0.0f));
 
-			spheres.push_back(SphereData(glm::vec3(transform * glm::vec4(1.0f)), 100.0f));
+			spheres.push_back(SphereData(glm::vec3(transform * glm::vec4(1.0f)), 100.0f * scale));
 		}
 
 		for (size_t x = 0; x < side; ++x)
@@ -545,15 +559,17 @@ namespace Tmpl {
 			return;
 		}
 
+		addText("Scene size: [1], [2], [3]");
+
 		if (m_options.camera == Options::CameraType::User)
 		{
-			addText("Target camera: [2]");
+			addText("Target camera: [G]");
 			addText("Rotate: [A], [D]");
 			addText("Zoom: [W], [S]");
 		}
 		else if (m_options.camera == Options::CameraType::Target)
 		{
-			addText("Free camera: [1]");
+			addText("Free camera: [G]");
 		}
 
 		if (m_options.culling)
