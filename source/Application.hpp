@@ -16,14 +16,16 @@ namespace Tmpl {
 
 	public:
 
-		Application(GLFWwindow* window);
+		Application();
 		~Application();
+
+		int run(int argc, const char** argv);
 
 		bool isRunning() const { return m_running; }
 
-		bool initialize();
 		void update(uint32_t milliSeconds);
 		void render();
+		void renderInterface();
 
 		void onKeyPressed(int key, int modifierKeys);
 		void onKeyReleased(int key, int modifierKeys);
@@ -38,6 +40,9 @@ namespace Tmpl {
 		GLFWwindow* m_window;
 		std::shared_ptr<FreeTypeLoader> m_loader;
 
+		std::chrono::microseconds m_timeUpdate;
+		std::chrono::microseconds m_timeRender;
+
 		Options m_options;
 		std::shared_ptr<Logic> m_logicOOP;
 		std::shared_ptr<Logic> m_logicDOD;
@@ -49,6 +54,8 @@ namespace Tmpl {
 		float m_targetAngle;
 		float m_targetDistance;
 		std::shared_ptr<Sphere> m_targetSphere;
+
+		glm::vec3 m_eyePosition;
 
 		float m_cameraAngle;
 		float m_cameraDistance;

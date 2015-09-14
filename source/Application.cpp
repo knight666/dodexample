@@ -8,16 +8,138 @@
 
 namespace Tmpl {
 
-	Application::Application(GLFWwindow* window)
-		: m_window(window)
+#if TMPL_FEATURE_OPENGL_DEBUG
+	static void APIENTRY debugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, GLvoid* userParam)
+	{
+		if (severity == GL_DEBUG_SEVERITY_NOTIFICATION)
+		{
+			// don't care
+
+			return;
+		}
+
+		std::string debSource;
+
+		switch (source)
+		{
+
+		case GL_DEBUG_SOURCE_API:
+			debSource = "OpenGL";
+			break;
+		case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+			debSource = "Window";
+			break;
+		case GL_DEBUG_SOURCE_SHADER_COMPILER:
+			debSource = "Shader Compiler";
+			break;
+		case GL_DEBUG_SOURCE_THIRD_PARTY:
+			debSource = "Third Party";
+			break;
+		case GL_DEBUG_SOURCE_APPLICATION:
+			debSource = "Application";
+			break;
+		case GL_DEBUG_SOURCE_OTHER:
+			debSource = "Other";
+			break;
+		default:
+			break;
+
+		}
+
+		std::string debType;
+
+		switch (type)
+		{
+
+		case GL_DEBUG_TYPE_ERROR:
+			debType = "error";
+			break;
+		case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+			debType = "deprecated behavior";
+			break;
+		case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+			debType = "undefined behavior";
+			break;
+		case GL_DEBUG_TYPE_PORTABILITY:
+			debType = "portability";
+			break;
+		case GL_DEBUG_TYPE_PERFORMANCE:
+			debType = "performance";
+			break;
+		case GL_DEBUG_TYPE_OTHER:
+			debType = "message";
+			break;
+		case GL_DEBUG_TYPE_MARKER:
+			debType = "marker";
+			break;
+		case GL_DEBUG_TYPE_PUSH_GROUP:
+			debType = "push group";
+			break;
+		case GL_DEBUG_TYPE_POP_GROUP:
+			debType = "pop group";
+			break;
+		default:
+			break;
+
+		}
+
+		std::string debSev;
+
+		switch (severity)
+		{
+
+		case GL_DEBUG_SEVERITY_NOTIFICATION:
+			debSev = "notification";
+			break;
+		case GL_DEBUG_SEVERITY_HIGH_ARB:
+			debSev = "high";
+			break;
+		case GL_DEBUG_SEVERITY_MEDIUM_ARB:
+			debSev = "medium";
+			break;
+		case GL_DEBUG_SEVERITY_LOW_ARB:
+			debSev = "low";
+			break;
+		default:
+			break;
+
+		}
+
+		TMPL_LOG_TRACE(OpenGL) << debSource << ": " << debType << "(" << debSev << ") " << id << ": " << message;
+	}
+#endif
+
+	static void windowKeyHandler(GLFWwindow* window, int key, int scanCode, int action, int modifierKeys)
+	{
+		Tmpl::Application* app = reinterpret_cast<Application*>(
+			glfwGetWindowUserPointer(window));
+
+		if (app == nullptr)
+		{
+			return;
+		}
+
+		if (action == GLFW_PRESS)
+		{
+			app->onKeyPressed(key, modifierKeys);
+		}
+		else if (
+			action == GLFW_RELEASE)
+		{
+			app->onKeyReleased(key, modifierKeys);
+		}
+	}
+
+	Application::Application()
+		: m_window(nullptr)
 		, m_loader(new FreeTypeLoader())
-		, m_logicOOP(new LogicOOP())
+		, m_logicOOP(nullptr)
 		, m_voxelsCulled(0)
 		, m_voxelsActive(1000)
 		, m_voxelHalfSize(20.0f)
 		, m_targetAngle(0.0f)
 		, m_targetDistance(1000.0f)
-		, m_targetSphere(new Sphere())
+		, m_targetSphere(nullptr)
 		, m_cameraAngle(45.0f)
 		, m_cameraDistance(5000.0f)
 	{
@@ -28,23 +150,131 @@ namespace Tmpl {
 	{
 	}
 
-	bool Application::initialize()
+	int Application::run(int argc, const char** argv)
 	{
-		if (!m_logicOOP->initialize())
+		glfwSetErrorCallback(Tmpl::glfwErrors);
+
+		TMPL_LOG_INFO(GLFW) << "Initializing.";
+
+		if (glfwInit() == 0)
 		{
-			return false;
+			TMPL_LOG_ERROR(GLFW) << "Failed to initialize.";
+
+			return 1;
 		}
 
-		m_logicOOP->generateVoxels(m_voxelsActive, m_voxelHalfSize);
+		TMPL_LOG_INFO(GLFW) << "Setting window hints.";
+
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
+		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	#if TMPL_FEATURE_OPENGL_DEBUG
+		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+	#endif
+
+		TMPL_LOG_INFO(GLFW) << "Creating window.";
+
+		m_window = glfwCreateWindow(
+			TMPL_WINDOW_WIDTH, TMPL_WINDOW_HEIGHT,
+			TMPL_WINDOW_TITLE,
+			nullptr,
+			nullptr);
+
+		if (m_window == nullptr)
+		{
+			TMPL_LOG_ERROR(GLFW) << "Failed to create window.";
+
+			return 1;
+		}
+
+		glfwSetWindowUserPointer(m_window, this);
+		glfwSetKeyCallback(m_window, windowKeyHandler);
+
+		TMPL_LOG_INFO(GLFW) << "Enable window context.";
+
+		glfwMakeContextCurrent(m_window);
+
+		TMPL_LOG_INFO(GLEW) << "Initializing.";
+
+		glewExperimental = GL_TRUE;
+		if (glewInit() != GLEW_OK)
+		{
+			TMPL_LOG_ERROR(GLEW) << "Failed to initialize.";
+
+			return 1;
+		}
+
+	#if TMPL_FEATURE_OPENGL_DEBUG && defined(GL_ARB_debug_output)
+		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
+		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+		glDebugMessageCallback(&debugOutput, nullptr);
+	#endif
+
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LESS);
+
+		TMPL_LOG_INFO(Application) << "Initializing.";
+
+		// Initialize
 
 		m_loader->loadFace("media/fonts/Roboto/Roboto-Black.ttf", 12.0f);
 		m_loader->loadGlyphRange(0x00, 0xFF); // preload Basic Latin and Latin-1
 
 		m_text = std::shared_ptr<TextBatch>(new TextBatch(m_loader, 256, 256));
 
+		m_logicOOP = std::make_shared<LogicOOP>();
+		if (!m_logicOOP->initialize())
+		{
+			return 1;
+		}
+
+		m_logicOOP->generateVoxels(m_voxelsActive, m_voxelHalfSize);
+
+		m_targetSphere = std::make_shared<Sphere>();
 		m_targetSphere->setup(20, 20);
 
-		return true;
+		// Main loop
+
+		typedef std::chrono::steady_clock clock;
+		typedef std::chrono::microseconds us;
+
+		clock::time_point time_start = clock::now();
+		clock::time_point time_current;
+		clock::time_point time_render_start;
+
+		while (
+			!glfwWindowShouldClose(m_window))
+		{
+			glfwPollEvents();
+
+			time_current = clock::now();
+			us time_delta = std::chrono::duration_cast<us>(
+				time_current - time_start);
+
+			update((uint32_t)(time_delta.count() / 1000));
+
+			time_render_start = clock::now();
+			m_timeUpdate = std::chrono::duration_cast<us>(
+				time_render_start - time_current);
+
+			render();
+
+			m_timeRender = std::chrono::duration_cast<us>(
+				clock::now() - time_render_start);
+
+			renderInterface();
+
+			glfwSwapBuffers(m_window);
+
+			time_start = time_current;
+		}
+
+		TMPL_LOG_INFO(Application) << "Shutting down.";
+
+		return 0;
 	}
 
 	void Application::update(uint32_t milliSeconds)
@@ -99,11 +329,9 @@ namespace Tmpl {
 		glm::vec4 clear_color(0.0f, 0.0f, 0.0f, 1.0f);
 		glClearBufferfv(GL_COLOR, 0, glm::value_ptr(clear_color));
 
-		glm::vec3 eye_position;
-
 		if (m_options.camera == Options::CameraType::User)
 		{
-			eye_position = glm::vec3(
+			m_eyePosition = glm::vec3(
 				glm::cos(glm::radians(m_cameraAngle)) * m_cameraDistance,
 				0.0f,
 				glm::sin(glm::radians(m_cameraAngle)) * m_cameraDistance);
@@ -111,7 +339,7 @@ namespace Tmpl {
 		else if (
 			m_options.camera == Options::CameraType::Target)
 		{
-			eye_position = m_targetPosition;
+			m_eyePosition = m_targetPosition;
 		}
 
 		glm::mat4x4 perspective = glm::perspectiveFov(
@@ -120,7 +348,7 @@ namespace Tmpl {
 			0.1f, 10000.0f);
 
 		glm::mat4x4 viewCamera = glm::lookAt(
-			eye_position,
+			m_eyePosition,
 			glm::vec3(0.0f, 0.0f, 0.0f),
 			glm::vec3(0.0f, 1.0f, 0.0f));
 
@@ -136,6 +364,16 @@ namespace Tmpl {
 				15.0f,
 				glm::vec3(1.0f, 1.0f, 0.0f));
 		}
+	}
+
+	void Application::renderInterface()
+	{
+		int width, height;
+		glfwGetWindowSize(m_window, &width, &height);
+
+		glViewport(
+			0, 0,
+			(GLsizei)width, (GLsizei)height);
 
 		glm::mat4x4 interface_projection = glm::ortho(
 			0.0f, (float)width,
@@ -144,12 +382,18 @@ namespace Tmpl {
 
 		m_textCombined.clear();
 
-		addText("Voxels: %d (%d culled = %.2f%%)",
-			m_voxelsActive,
+		addText("Update: %d ms",
+			(uint32_t)(m_timeUpdate.count() / 1000));
+		addText("Render: %d ms",
+			(uint32_t)(m_timeRender.count() / 1000));
+
+		addText("Voxels: %d",
+			m_voxelsActive);
+		addText("Culled: %d (%.2f%%)",
 			m_voxelsCulled,
 			((float)m_voxelsCulled / (float)m_voxelsActive) * 100.0f);
 		addText("Eye: (%.2f, %.2f, %.2f)",
-			eye_position.x, eye_position.y, eye_position.z);
+			m_eyePosition.x, m_eyePosition.y, m_eyePosition.z);
 
 		renderHelp();
 
