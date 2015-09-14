@@ -16,6 +16,8 @@ namespace Tmpl {
 		GLsizei getWidth() const { return m_width; }
 		GLsizei getHeight() const { return m_height; }
 
+		void resize(GLsizei width, GLsizei height);
+
 		void bind(GLuint index);
 		void unbind();
 

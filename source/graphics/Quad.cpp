@@ -95,6 +95,7 @@ namespace Tmpl {
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 		m_texture->bind(0);
+		m_texture->resize(width, height);
 
 		GLsizei dst_pitch = m_texture->getWidth() * sizeof(GLuint);
 

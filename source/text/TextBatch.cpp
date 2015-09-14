@@ -50,10 +50,12 @@ namespace Tmpl {
 		float offset = m_loader->getBaseLineOffset();
 
 		m_model = glm::mat4(1.0f);
-		m_model = glm::scale(m_model, glm::vec3(
-			(float)m_width, (float)m_height, 1.0f));
-		m_model = glm::translate(m_model, glm::vec3(
-			0.0f, -offset / (float)m_height, 0.0f));
+		m_model = glm::scale(
+			m_model,
+			glm::vec3((float)m_width, (float)m_height, 1.0f));
+		m_model = glm::translate(
+			m_model,
+			glm::vec3(0.0f, -offset / (float)m_height, 0.0f));
 	}
 
 	void TextBatch::render(const glm::mat4x4& projection, const glm::vec2& position)

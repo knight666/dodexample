@@ -17,6 +17,22 @@ namespace Tmpl {
 		glDeleteTextures(1, &m_handle);
 	}
 
+	void Texture::resize(GLsizei width, GLsizei height)
+	{
+		if (m_width == width &&
+			m_height == height)
+		{
+			return;
+		}
+
+		m_width = width;
+		m_height = height;
+
+		bind(0);
+		image2D(0, (const GLbyte*)nullptr, GL_BGRA);
+		unbind();
+	}
+
 	void Texture::bind(GLuint index)
 	{
 		glActiveTexture(GL_TEXTURE0 + index);
