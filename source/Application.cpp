@@ -450,7 +450,47 @@ namespace Tmpl {
 	{
 		std::vector<Logic::VoxelData> voxels;
 		glm::vec3 position;
-		size_t side = 15;
+		size_t side = 100;
+
+		struct SphereData
+		{
+			SphereData(const glm::vec3& position, float radius)
+				: position(position)
+				, radius(radius)
+			{
+			}
+
+			glm::vec3 position;
+			float radius;
+		};
+
+		std::vector<SphereData> spheres;
+		spheres.push_back(SphereData(glm::vec3(0.0f, 0.0f, 0.0f), 250.0f));
+
+		for (size_t i = 0; i < 8; ++i)
+		{
+			float radians = glm::radians(360.0f / 8.0f) * i;
+			static const float tilt = 25.0f;
+			static const float distance = 550.0f;
+
+			glm::mat4x4 transform(1.0f);
+			transform = glm::translate(
+				transform,
+				glm::vec3(0.0f, -distance, 0.0f));
+			transform = glm::scale(
+				transform,
+				glm::vec3(distance));
+			transform = glm::rotate(
+				transform,
+				glm::radians(tilt),
+				glm::vec3(1.0f, 0.0f, 0.0f));
+			transform = glm::rotate(
+				transform,
+				glm::radians((360.0f / 8.0f) * i),
+				glm::vec3(0.0f, 1.0f, 0.0f));
+
+			spheres.push_back(SphereData(glm::vec3(transform * glm::vec4(1.0f)), 100.0f));
+		}
 
 		for (size_t x = 0; x < side; ++x)
 		{
@@ -464,8 +504,20 @@ namespace Tmpl {
 				{
 					position.z = (-(float)(side / 2) + (float)z) * (m_voxelHalfSize * 2.0f);
 
-					float length = glm::length(position);
-					if (length < 12.0f * m_voxelHalfSize)
+					bool hit = false;
+
+					for (auto& sphere : spheres)
+					{
+						float distance = glm::length(position - sphere.position);
+						if (distance <= sphere.radius)
+						{
+							hit = true;
+
+							break;
+						}
+					}
+
+					if (hit)
 					{
 						Logic::VoxelData voxel;
 						voxel.position = position;
