@@ -6,6 +6,12 @@ namespace Tmpl {
 
 	struct Options
 	{
+		enum class LogicType
+		{
+			ObjectOriented,
+			DataOriented
+		};
+
 		enum class CameraType
 		{
 			User,
@@ -13,13 +19,15 @@ namespace Tmpl {
 		};
 
 		Options()
-			: camera(CameraType::User)
+			: logic(LogicType::ObjectOriented)
+			, camera(CameraType::User)
 			, culling(true)
 			, help(false)
 			, showCulled(false)
 		{
 		}
 
+		LogicType logic;
 		CameraType camera;
 		bool culling;
 		bool help;

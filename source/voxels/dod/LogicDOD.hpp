@@ -5,12 +5,11 @@
 #include "graphics/Buffer.hpp"
 #include "graphics/Program.hpp"
 #include "graphics/VertexArrays.hpp"
-#include "voxels/oop/Voxel.hpp"
 #include "voxels/Logic.hpp"
 
 namespace Tmpl {
 
-	class LogicOOP
+	class LogicDOD
 		: public Logic
 	{
 
@@ -33,8 +32,8 @@ namespace Tmpl {
 
 	public:
 
-		LogicOOP();
-		~LogicOOP();
+		LogicDOD();
+		~LogicDOD();
 
 		virtual bool initialize() override;
 
@@ -52,12 +51,24 @@ namespace Tmpl {
 
 	private:
 
-		std::vector<Voxel> m_voxels;
-		std::vector<Ray> m_rays;
-		size_t m_voxelsActive;
-		float m_voxelHalfSize;
+		struct VoxelCollection
+		{
+			float voxel_position_x[Logic::MaxVoxelCount];
+			float voxel_position_y[Logic::MaxVoxelCount];
+			float voxel_position_z[Logic::MaxVoxelCount];
+			float voxel_color_r[Logic::MaxVoxelCount];
+			float voxel_color_g[Logic::MaxVoxelCount];
+			float voxel_color_b[Logic::MaxVoxelCount];
+			float ray_direction_x[Logic::MaxVoxelCount];
+			float ray_direction_y[Logic::MaxVoxelCount];
+			float ray_direction_z[Logic::MaxVoxelCount];
+			float ray_time_minimum[Logic::MaxVoxelCount];
+			size_t ray_closest[Logic::MaxVoxelCount];
+		};
+		VoxelCollection m_collection;
+		size_t m_collectionActive;
 
-		Vertex m_vertexData[Logic::MaxVoxelCount];
+		float m_voxelHalfSize;
 
 	};
 

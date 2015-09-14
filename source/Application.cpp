@@ -4,6 +4,7 @@
 #include "graphics/Sphere.hpp"
 #include "text/FreeTypeLoader.hpp"
 #include "text/TextBatch.hpp"
+#include "voxels/dod/LogicDOD.hpp"
 #include "voxels/oop/LogicOOP.hpp"
 
 namespace Tmpl {
@@ -234,6 +235,14 @@ namespace Tmpl {
 			return 1;
 		}
 
+		m_logicDOD = std::make_shared<LogicDOD>();
+		if (!m_logicDOD->initialize())
+		{
+			return 1;
+		}
+
+		m_logic = m_logicOOP;
+
 		generateScene(1.0f);
 
 		// Main loop
@@ -310,7 +319,7 @@ namespace Tmpl {
 
 		if (m_options.culling)
 		{
-			m_voxelsCulled = m_logicOOP->cullVoxels(m_options, m_targetPosition);
+			m_voxelsCulled = m_logic->cullVoxels(m_options, m_targetPosition);
 		}
 
 		m_targetAngle += 1.0f;
@@ -356,7 +365,7 @@ namespace Tmpl {
 
 		glm::mat4x4 viewProjection = perspective * viewCamera;
 
-		m_logicOOP->render(m_options, viewProjection);
+		m_logic->render(m_options, viewProjection);
 
 		if (m_options.camera != Options::CameraType::Target)
 		{
@@ -435,6 +444,21 @@ namespace Tmpl {
 			if (m_options.culling)
 			{
 				m_options.showCulled = !m_options.showCulled;
+			}
+			break;
+
+		case GLFW_KEY_R:
+			if (m_options.logic == Options::LogicType::ObjectOriented)
+			{
+				m_logic = m_logicDOD;
+
+				m_options.logic = Options::LogicType::DataOriented;
+			}
+			else
+			{
+				m_logic = m_logicOOP;
+
+				m_options.logic = Options::LogicType::ObjectOriented;
 			}
 			break;
 
@@ -546,6 +570,7 @@ namespace Tmpl {
 		}
 
 		m_logicOOP->setVoxels(voxels, m_voxelHalfSize);
+		m_logicDOD->setVoxels(voxels, m_voxelHalfSize);
 
 		m_voxelsActive = voxels.size();
 	}
@@ -559,6 +584,16 @@ namespace Tmpl {
 			return;
 		}
 
+		if (m_options.logic == Options::LogicType::ObjectOriented)
+		{
+			addText("Data-oriented logic: [R]");
+		}
+		else if (
+			m_options.logic == Options::LogicType::DataOriented)
+		{
+			addText("Object-oriented logic: [R]");
+		}
+
 		addText("Scene size: [1], [2], [3]");
 
 		if (m_options.camera == Options::CameraType::User)
@@ -567,7 +602,8 @@ namespace Tmpl {
 			addText("Rotate: [A], [D]");
 			addText("Zoom: [W], [S]");
 		}
-		else if (m_options.camera == Options::CameraType::Target)
+		else if (
+			m_options.camera == Options::CameraType::Target)
 		{
 			addText("Free camera: [G]");
 		}

@@ -48,6 +48,7 @@ namespace Tmpl {
 		Options m_options;
 		std::shared_ptr<Logic> m_logicOOP;
 		std::shared_ptr<Logic> m_logicDOD;
+		std::shared_ptr<Logic> m_logic;
 		size_t m_voxelsActive;
 		size_t m_voxelsCulled;
 		float m_voxelHalfSize;

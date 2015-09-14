@@ -1,19 +1,18 @@
-#include "voxels/oop/LogicOOP.hpp"
+#include "voxels/dod/LogicDOD.hpp"
 
 namespace Tmpl {
 
-	LogicOOP::LogicOOP()
-		: m_voxelsActive(0)
+	LogicDOD::LogicDOD()
+		: m_collectionActive(0)
 		, m_voxelHalfSize(0.0f)
-		
 	{
 	}
 
-	LogicOOP::~LogicOOP()
+	LogicDOD::~LogicDOD()
 	{
 	}
 
-	bool LogicOOP::initialize()
+	bool LogicDOD::initialize()
 	{
 		// Program
 
@@ -71,67 +70,39 @@ namespace Tmpl {
 		return true;
 	}
 
-	void LogicOOP::setVoxels(
+	void LogicDOD::setVoxels(
 		const std::vector<VoxelData>& voxels,
 		float halfSize)
 	{
-		m_voxels.resize(voxels.size());
-		m_rays.resize(voxels.size());
-
-		m_voxelsActive = 0;
+		size_t i = 0;
 
 		for (const auto& voxel : voxels)
 		{
-			m_voxels[m_voxelsActive++].setup(
-				voxel.position,
-				halfSize,
-				voxel.color);
+			m_collection.voxel_position_x[i] = voxel.position.x;
+			m_collection.voxel_position_y[i] = voxel.position.y;
+			m_collection.voxel_position_z[i] = voxel.position.z;
+			m_collection.voxel_color_r[i] = voxel.color.x;
+			m_collection.voxel_color_g[i] = voxel.color.y;
+			m_collection.voxel_color_b[i] = voxel.color.z;
+
+			i++;
 		}
+
+		m_collectionActive = i;
 
 		m_voxelHalfSize = halfSize;
 	}
 
-	size_t LogicOOP::cullVoxels(
+	size_t LogicDOD::cullVoxels(
 		const Options& options,
 		const glm::vec3& targetPosition)
 	{
-		size_t culled = 0;
-
-		for (size_t i = 0; i < m_voxelsActive; ++i)
-		{
-			Voxel& voxelCurrent = m_voxels[i];
-			Ray& rayCurrent = m_rays[i];
-
-			rayCurrent.setup(
-				voxelCurrent,
-				targetPosition,
-				glm::vec3(1.0f) / glm::normalize(voxelCurrent.getPosition() - targetPosition));
-
-			for (size_t j = 0; j < m_voxelsActive; ++j)
-			{
-				rayCurrent.intersects(m_voxels[j]);
-			}
-		}
-
-		for (size_t i = 0; i < m_voxelsActive; ++i)
-		{
-			Voxel& voxelCurrent = m_voxels[i];
-			Ray& rayCurrent = m_rays[i];
-
-			voxelCurrent.setCulled(
-				rayCurrent.getClosest() == nullptr ||
-				rayCurrent.getClosest() != &voxelCurrent);
-
-			if (voxelCurrent.isCulled())
-			{
-				culled++;
-			}
-		}
-
-		return culled;
+		return 0;
 	}
 
-	void LogicOOP::render(const Options& options, const glm::mat4x4& modelViewProjection)
+	void LogicDOD::render(
+		const Options& options,
+		const glm::mat4x4& modelViewProjection)
 	{
 		m_uniforms->bind();
 			Uniforms* transform = m_uniforms->mapRange<Uniforms>(0, 1, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
@@ -144,44 +115,17 @@ namespace Tmpl {
 		Vertex* data_dst = data;
 		size_t data_count = 0;
 
-		if (!options.culling)
+		for (size_t i = 0; i < m_collectionActive; ++i)
 		{
-			for (size_t i = 0; i < m_voxelsActive; ++i)
-			{
-				data[i].position = m_voxels[i].getPosition();
-				data[i].color = m_voxels[i].getColor();
-			}
-
-			data_count = m_voxelsActive;
+			data[i].position.x = m_collection.voxel_position_x[i];
+			data[i].position.y = m_collection.voxel_position_y[i];
+			data[i].position.z = m_collection.voxel_position_z[i];
+			data[i].color.x = m_collection.voxel_color_r[i];
+			data[i].color.y = m_collection.voxel_color_g[i];
+			data[i].color.z = m_collection.voxel_color_b[i];
 		}
-		else if (
-			options.showCulled)
-		{
-			static const glm::vec3 ColorCulled(1.0f, 0.0f, 0.0f);
-			static const glm::vec3 ColorVisible(0.0f, 1.0f, 0.0f);
 
-			for (size_t i = 0; i < m_voxelsActive; ++i)
-			{
-				data[i].position = m_voxels[i].getPosition();
-				data[i].color = m_voxels[i].isCulled() ? ColorCulled : ColorVisible;
-			}
-
-			data_count = m_voxelsActive;
-		}
-		else
-		{
-			for (size_t i = 0; i < m_voxelsActive; ++i)
-			{
-				if (!m_voxels[i].isCulled())
-				{
-					data_dst->position = m_voxels[i].getPosition();
-					data_dst->color = m_voxels[i].getColor();
-
-					data_dst++;
-					data_count++;
-				}
-			}
-		}
+		data_count = m_collectionActive;
 
 		m_vertices->unmap();
 		m_vertices->unbind();
