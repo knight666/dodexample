@@ -41,7 +41,9 @@ namespace Tmpl {
 
 		virtual bool initialize() override;
 
-		virtual void generateVoxels(size_t count, float halfSize) override;
+		virtual void setVoxels(
+			const std::vector<VoxelData>& voxels,
+			float halfSize) override;
 
 		virtual size_t cullVoxels(const Options& options, const glm::vec3& targetPosition) override;
 		virtual void render(const Options& options, const glm::mat4x4& modelViewProjection) override;

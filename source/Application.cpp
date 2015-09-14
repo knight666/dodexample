@@ -135,7 +135,7 @@ namespace Tmpl {
 		, m_loader(new FreeTypeLoader())
 		, m_logicOOP(nullptr)
 		, m_voxelsCulled(0)
-		, m_voxelsActive(1000)
+		, m_voxelsActive(0)
 		, m_voxelHalfSize(20.0f)
 		, m_targetAngle(0.0f)
 		, m_targetDistance(1000.0f)
@@ -170,7 +170,7 @@ namespace Tmpl {
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	#if TMPL_FEATURE_OPENGL_DEBUG
-		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+		//glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 	#endif
 
 		TMPL_LOG_INFO(GLFW) << "Creating window.";
@@ -225,18 +225,22 @@ namespace Tmpl {
 
 		m_text = std::shared_ptr<TextBatch>(new TextBatch(m_loader, 256, 256));
 
+		m_targetSphere = std::make_shared<Sphere>();
+		m_targetSphere->setup(20, 20);
+
 		m_logicOOP = std::make_shared<LogicOOP>();
 		if (!m_logicOOP->initialize())
 		{
 			return 1;
 		}
 
-		m_logicOOP->generateVoxels(m_voxelsActive, m_voxelHalfSize);
+		TMPL_LOG_INFO(Application) << "Generating scene...";
 
-		m_targetSphere = std::make_shared<Sphere>();
-		m_targetSphere->setup(20, 20);
+		generateScene();
 
 		// Main loop
+
+		TMPL_LOG_INFO(Application) << "Entering main loop.";
 
 		typedef std::chrono::steady_clock clock;
 		typedef std::chrono::microseconds us;
@@ -440,6 +444,44 @@ namespace Tmpl {
 			break;
 
 		}
+	}
+
+	void Application::generateScene()
+	{
+		std::vector<Logic::VoxelData> voxels;
+		glm::vec3 position;
+		size_t side = 15;
+
+		for (size_t x = 0; x < side; ++x)
+		{
+			position.x = (-(float)(side / 2) + (float)x) * (m_voxelHalfSize * 2.0f);
+
+			for (size_t y = 0; y < side; ++y)
+			{
+				position.y = (-(float)(side / 2) + (float)y) * (m_voxelHalfSize * 2.0f);
+
+				for (size_t z = 0; z < side; ++z)
+				{
+					position.z = (-(float)(side / 2) + (float)z) * (m_voxelHalfSize * 2.0f);
+
+					float length = glm::length(position);
+					if (length < 12.0f * m_voxelHalfSize)
+					{
+						Logic::VoxelData voxel;
+						voxel.position = position;
+						voxel.color = glm::linearRand(
+							glm::vec3(0.0f, 0.0f, 0.0f),
+							glm::vec3(1.0f, 1.0f, 1.0f));
+
+						voxels.push_back(voxel);
+					}
+				}
+			}
+		}
+
+		m_logicOOP->setVoxels(voxels, m_voxelHalfSize);
+
+		m_voxelsActive = voxels.size();
 	}
 
 	void Application::renderHelp()

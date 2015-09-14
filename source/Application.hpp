@@ -32,6 +32,8 @@ namespace Tmpl {
 
 	private:
 
+		void generateScene();
+
 		void renderHelp();
 
 		void addText(const char* message, ...);
