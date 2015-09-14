@@ -290,23 +290,28 @@ namespace Tmpl {
 
 	void Application::update(uint32_t milliSeconds)
 	{
+		static const float TimeStep = 1000.0f / 30.0f;
+		static const float TimeStepMaximum = TimeStep * 10.0f;
+
+		float delta = glm::min((float)milliSeconds, TimeStepMaximum) / TimeStep;
+
 		if (m_options.camera == Options::CameraType::User)
 		{
 			if (m_keysPressed[GLFW_KEY_A])
 			{
-				m_cameraAngle += 1.0f;
+				m_cameraAngle += 1.0f * delta;
 			}
 			if (m_keysPressed[GLFW_KEY_D])
 			{
-				m_cameraAngle -= 1.0f;
+				m_cameraAngle -= 1.0f * delta;
 			}
 			if (m_keysPressed[GLFW_KEY_W])
 			{
-				m_cameraDistance -= 10.0f;
+				m_cameraDistance -= 10.0f * delta;
 			}
 			if (m_keysPressed[GLFW_KEY_S])
 			{
-				m_cameraDistance += 10.0f;
+				m_cameraDistance += 10.0f * delta;
 			}
 		}
 
@@ -322,7 +327,7 @@ namespace Tmpl {
 			m_voxelsCulled = m_logic->cullVoxels(m_options, m_targetPosition);
 		}
 
-		m_targetAngle += 1.0f;
+		m_targetAngle += 1.0f * delta;
 	}
 
 	void Application::render()
