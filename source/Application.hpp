@@ -5,14 +5,22 @@
 
 namespace Tmpl {
 
+	class Buffer;
 	class FreeTypeLoader;
 	class Logic;
 	class Quad;
+	class Program;
 	class Sphere;
 	class TextBatch;
+	class VertexArrays;
 
 	class Application
 	{
+
+		struct Uniforms
+		{
+			glm::mat4x4 modelViewProjection;
+		};
 
 	public:
 
@@ -67,6 +75,13 @@ namespace Tmpl {
 
 		std::shared_ptr<TextBatch> m_text;
 		std::string m_textCombined;
+
+		std::shared_ptr<Program> m_program;
+		std::shared_ptr<Buffer> m_vertices;
+		std::shared_ptr<VertexArrays> m_attributes;
+		std::shared_ptr<Buffer> m_uniforms;
+		GLint m_uniformTransform;
+		GLint m_uniformHalfSize;
 
 	};
 

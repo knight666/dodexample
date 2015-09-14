@@ -2,9 +2,9 @@
 
 namespace Tmpl {
 
-	LogicDOD::LogicDOD()
-		: m_collectionActive(0)
-		, m_voxelHalfSize(0.0f)
+	LogicDOD::LogicDOD(float halfSize)
+		: Logic(halfSize)
+		, m_collectionActive(0)
 	{
 	}
 
@@ -12,67 +12,8 @@ namespace Tmpl {
 	{
 	}
 
-	bool LogicDOD::initialize()
-	{
-		// Program
-
-		bool validated = true;
-		validated &= m_program->loadShaderFromFile(Shader::Type::Vertex, "media/shaders/voxels.vert");
-		validated &= m_program->loadShaderFromFile(Shader::Type::Geometry, "media/shaders/voxels.geom");
-		validated &= m_program->loadShaderFromFile(Shader::Type::Fragment, "media/shaders/voxels.frag");
-		validated &= m_program->link();
-
-		if (!validated)
-		{
-			return false;
-		}
-
-		// Vertices
-
-		m_vertices->bind();
-			m_vertices->setData<Vertex>(nullptr, Logic::MaxVoxelCount, GL_STREAM_DRAW);
-		m_vertices->unbind();
-
-		// Attributes
-
-		m_attributes->bind();
-			m_vertices->bind();
-				m_attributes->setAttribute(
-					m_program->getAttributeLocation("attrPosition"),
-					3, GL_FLOAT,
-					GL_FALSE,
-					sizeof(Vertex),
-					(const GLvoid*)Vertex::Offset::Position);
-				m_attributes->setAttribute(
-					m_program->getAttributeLocation("attrColor"),
-					3, GL_FLOAT, GL_FALSE,
-					sizeof(Vertex),
-					(const GLvoid*)Vertex::Offset::Color);
-			m_vertices->unbind();
-		m_attributes->unbind();
-
-		// Uniforms
-
-		m_uniformTransform = m_program->getUniformBlockIndex("VertexUniforms");
-		m_uniformHalfSize = m_program->getUniformLocation("halfSize");
-
-		GLint uniform_buffer_offset = 0;
-		glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &uniform_buffer_offset);
-		size_t uniform_buffer_size = glm::max(uniform_buffer_offset, (GLint)sizeof(Uniforms));
-
-		m_uniforms->bind();
-			m_uniforms->setData<Uniforms>(
-				nullptr,
-				uniform_buffer_size,
-				GL_DYNAMIC_DRAW);
-		m_uniforms->unbind();
-
-		return true;
-	}
-
-	void LogicDOD::setVoxels(
-		const std::vector<VoxelData>& voxels,
-		float halfSize)
+	bool LogicDOD::initialize(
+		const std::vector<VoxelData>& voxels)
 	{
 		size_t i = 0;
 
@@ -90,7 +31,7 @@ namespace Tmpl {
 
 		m_collectionActive = i;
 
-		m_voxelHalfSize = halfSize;
+		return true;
 	}
 
 	size_t LogicDOD::cullVoxels(
@@ -185,100 +126,77 @@ namespace Tmpl {
 		return culled;
 	}
 
-	void LogicDOD::render(
+	size_t LogicDOD::render(
 		const Options& options,
-		const glm::mat4x4& modelViewProjection)
+		Vertex* target)
 	{
-		m_vertices->bind();
-		Vertex* data = m_vertices->map<Vertex>(GL_READ_WRITE);
-		Vertex* data_dst = data;
-		size_t data_count = 0;
+		Vertex* dst = target;
 
 		if (!options.culling)
 		{
 			for (size_t i = 0; i < m_collectionActive; ++i)
 			{
-				data[i].position.x = m_collection.voxel_position_x[i];
-				data[i].position.y = m_collection.voxel_position_y[i];
-				data[i].position.z = m_collection.voxel_position_z[i];
-				data[i].color.r = m_collection.voxel_color_r[i];
-				data[i].color.g = m_collection.voxel_color_g[i];
-				data[i].color.b = m_collection.voxel_color_b[i];
+				dst->position.x = m_collection.voxel_position_x[i];
+				dst->position.y = m_collection.voxel_position_y[i];
+				dst->position.z = m_collection.voxel_position_z[i];
+				dst->color.r = m_collection.voxel_color_r[i];
+				dst->color.g = m_collection.voxel_color_g[i];
+				dst->color.b = m_collection.voxel_color_b[i];
+
+				dst++;
 			}
 
-			data_count = m_collectionActive;
+			return m_collectionActive;
 		}
 		else if (
 			options.showCulled)
 		{
 			for (size_t i = 0; i < m_collectionActive; ++i)
 			{
-				data[i].position.x = m_collection.voxel_position_x[i];
-				data[i].position.y = m_collection.voxel_position_y[i];
-				data[i].position.z = m_collection.voxel_position_z[i];
+				dst->position.x = m_collection.voxel_position_x[i];
+				dst->position.y = m_collection.voxel_position_y[i];
+				dst->position.z = m_collection.voxel_position_z[i];
 
 				if (m_collection.voxel_culled[i])
 				{
-					data[i].color.r = 1.0f;
-					data[i].color.g = 0.0f;
-					data[i].color.b = 0.0f;
+					dst->color.r = 1.0f;
+					dst->color.g = 0.0f;
+					dst->color.b = 0.0f;
 				}
 				else
 				{
-					data[i].color.r = 0.0f;
-					data[i].color.g = 1.0f;
-					data[i].color.b = 0.0f;
+					dst->color.r = 0.0f;
+					dst->color.g = 1.0f;
+					dst->color.b = 0.0f;
 				}
+
+				dst++;
 			}
 
-			data_count = m_collectionActive;
+			return m_collectionActive;
 		}
 		else
 		{
+			size_t used = 0;
+
 			for (size_t i = 0; i < m_collectionActive; ++i)
 			{
 				if (!m_collection.voxel_culled[i])
 				{
-					data_dst->position.x = m_collection.voxel_position_x[i];
-					data_dst->position.y = m_collection.voxel_position_y[i];
-					data_dst->position.z = m_collection.voxel_position_z[i];
-					data_dst->color.x = m_collection.voxel_color_r[i];
-					data_dst->color.y = m_collection.voxel_color_g[i];
-					data_dst->color.z = m_collection.voxel_color_b[i];
+					dst->position.x = m_collection.voxel_position_x[i];
+					dst->position.y = m_collection.voxel_position_y[i];
+					dst->position.z = m_collection.voxel_position_z[i];
+					dst->color.x = m_collection.voxel_color_r[i];
+					dst->color.y = m_collection.voxel_color_g[i];
+					dst->color.z = m_collection.voxel_color_b[i];
 
-					data_dst++;
-					data_count++;
+					dst++;
+					used++;
 				}
 			}
+
+			return used;
 		}
-
-		m_vertices->unmap();
-		m_vertices->unbind();
-
-		m_program->bind();
-
-		m_program->setUniform(m_uniformHalfSize, m_voxelHalfSize);
-
-		m_uniforms->bindBase(0);
-
-		Uniforms* transform = m_uniforms->mapRange<Uniforms>(
-			0, 1,
-			GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-			transform->modelViewProjection = modelViewProjection;
-		m_uniforms->unmap();
-
-		m_program->setUniformBlockBinding(m_uniformTransform, 0);
-
-		m_attributes->bind();
-
-		glDrawArrays(
-			GL_POINTS,
-			0,
-			data_count);
-
-		m_attributes->unbind();
-		m_uniforms->unbind();
-		m_program->unbind();
 	}
 
 }; // namespace Tmpl
