@@ -2,6 +2,7 @@
 
 #include "base/Main.hpp"
 #include "voxels/Options.hpp"
+#include "voxels/Renderer.hpp"
 
 namespace Tmpl {
 
@@ -9,18 +10,6 @@ namespace Tmpl {
 	{
 
 	public:
-
-		struct Vertex
-		{
-			enum class Offset
-			{
-				Position = 0,
-				Color = sizeof(glm::vec3)
-			};
-
-			glm::vec3 position;
-			glm::vec3 color;
-		};
 
 		struct VoxelData
 		{
@@ -44,7 +33,7 @@ namespace Tmpl {
 
 		virtual size_t render(
 			const Options& options,
-			Vertex* target) = 0;
+			Renderer::Vertex* target) = 0;
 
 	protected:
 

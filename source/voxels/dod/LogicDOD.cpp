@@ -128,9 +128,9 @@ namespace Tmpl {
 
 	size_t LogicDOD::render(
 		const Options& options,
-		Vertex* target)
+		Renderer::Vertex* target)
 	{
-		Vertex* dst = target;
+		Renderer::Vertex* dst = target;
 
 		if (!options.culling)
 		{

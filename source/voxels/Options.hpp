@@ -24,6 +24,7 @@ namespace Tmpl {
 			, culling(true)
 			, help(false)
 			, showCulled(false)
+			, voxelHalfSize(20.0f)
 		{
 		}
 
@@ -32,6 +33,7 @@ namespace Tmpl {
 		bool culling;
 		bool help;
 		bool showCulled;
+		float voxelHalfSize;
 	};
 
 }; // namespace Tmpl

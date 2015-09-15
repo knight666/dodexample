@@ -1,14 +1,12 @@
 #include "Application.hpp"
 
-#include "graphics/Buffer.hpp"
-#include "graphics/Program.hpp"
 #include "graphics/Quad.hpp"
 #include "graphics/Sphere.hpp"
-#include "graphics/VertexArrays.hpp"
 #include "text/FreeTypeLoader.hpp"
 #include "text/TextBatch.hpp"
 #include "voxels/dod/LogicDOD.hpp"
 #include "voxels/oop/LogicOOP.hpp"
+#include "voxels/Renderer.hpp"
 
 namespace Tmpl {
 
@@ -146,6 +144,7 @@ namespace Tmpl {
 		, m_targetSphere(nullptr)
 		, m_cameraAngle(45.0f)
 		, m_cameraDistance(5000.0f)
+		, m_renderer(new Renderer())
 	{
 		memset(m_keysPressed, 0, sizeof(m_keysPressed));
 	}
@@ -222,78 +221,6 @@ namespace Tmpl {
 
 		TMPL_LOG_INFO(Application) << "Initializing.";
 
-		// Initialize
-
-		// Program
-
-		m_program = std::make_shared<Program>();
-
-		bool validated = true;
-		validated &= m_program->loadShaderFromFile(
-			Shader::Type::Vertex,
-			"media/shaders/voxels.vert");
-		validated &= m_program->loadShaderFromFile(
-			Shader::Type::Geometry,
-			"media/shaders/voxels.geom");
-		validated &= m_program->loadShaderFromFile(
-			Shader::Type::Fragment,
-			"media/shaders/voxels.frag");
-		validated &= m_program->link();
-
-		if (!validated)
-		{
-			return 1;
-		}
-
-		// Vertices
-
-		m_vertices = std::make_shared<Buffer>(GL_ARRAY_BUFFER);
-		m_vertices->bind();
-			m_vertices->setData<Logic::Vertex>(
-				nullptr,
-				Logic::MaxVoxelCount,
-				GL_STREAM_DRAW);
-		m_vertices->unbind();
-
-		// Attributes
-
-		m_attributes = std::make_shared<VertexArrays>();
-		m_attributes->bind();
-			m_vertices->bind();
-				m_attributes->setAttribute(
-					m_program->getAttributeLocation("attrPosition"),
-					3, GL_FLOAT,
-					GL_FALSE,
-					sizeof(Logic::Vertex),
-					(const GLvoid*)Logic::Vertex::Offset::Position);
-				m_attributes->setAttribute(
-					m_program->getAttributeLocation("attrColor"),
-					3, GL_FLOAT, GL_FALSE,
-					sizeof(Logic::Vertex),
-					(const GLvoid*)Logic::Vertex::Offset::Color);
-			m_vertices->unbind();
-		m_attributes->unbind();
-
-		// Uniforms
-
-		m_uniformTransform = m_program->getUniformBlockIndex("VertexUniforms");
-		m_uniformHalfSize = m_program->getUniformLocation("halfSize");
-
-		GLint uniform_buffer_offset = 0;
-		glGetIntegerv(
-			GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT,
-			&uniform_buffer_offset);
-		size_t uniform_buffer_size =
-			glm::max(uniform_buffer_offset, (GLint)sizeof(Uniforms));
-
-		m_uniforms = std::make_shared<Buffer>(GL_UNIFORM_BUFFER);
-		m_uniforms->bind();
-			m_uniforms->setData<Uniforms>(
-				nullptr,
-				uniform_buffer_size,
-				GL_DYNAMIC_DRAW);
-		m_uniforms->unbind();
-
 		// Text
 
 		m_loader->loadFace("media/fonts/Roboto/Roboto-Black.ttf", 12.0f);
@@ -314,6 +241,13 @@ namespace Tmpl {
 		m_logic = m_logicOOP;
 
 		generateScene(1.0f);
+
+		// Renderer
+
+		if (!m_renderer->initialize())
+		{
+			return -1;
+		}
 
 		// Main loop
 
@@ -440,33 +374,10 @@ namespace Tmpl {
 
 		glm::mat4x4 viewProjection = perspective * viewCamera;
 
-		m_vertices->bind();
-			Logic::Vertex* data = m_vertices->map<Logic::Vertex>(GL_READ_WRITE);
-				size_t used = m_logic->render(m_options, data);
-			m_vertices->unmap();
-		m_vertices->unbind();
-
-		m_program->bind();
-
-		m_program->setUniform(m_uniformHalfSize, m_voxelHalfSize);
-
-		m_uniforms->bindBase(0);
-
-		Uniforms* transform = m_uniforms->mapRange<Uniforms>(
-			0, 1,
-			GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-		transform->modelViewProjection = viewProjection;
-		m_uniforms->unmap();
-
-		m_program->setUniformBlockBinding(m_uniformTransform, 0);
-
-		m_attributes->bind();
-
-		glDrawArrays(GL_POINTS, 0, used);
-
-		m_attributes->unbind();
-		m_uniforms->unbind();
-		m_program->unbind();
+		m_renderer->render(
+			m_logic,
+			m_options,
+			viewProjection);
 
 		if (m_options.camera != Options::CameraType::Target)
 		{

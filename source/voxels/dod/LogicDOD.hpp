@@ -27,7 +27,7 @@ namespace Tmpl {
 
 		virtual size_t render(
 			const Options& options,
-			Vertex* target) override;
+			Renderer::Vertex* target) override;
 
 	private:
 

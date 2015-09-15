@@ -28,15 +28,13 @@ namespace Tmpl {
 
 		virtual size_t render(
 			const Options& options,
-			Vertex* target) override;
+			Renderer::Vertex* target) override;
 
 	private:
 
 		std::vector<Voxel> m_voxels;
 		std::vector<Ray> m_rays;
 		size_t m_voxelsActive;
-
-		Vertex m_vertexData[Logic::MaxVoxelCount];
 
 	};
 
