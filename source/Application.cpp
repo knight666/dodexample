@@ -211,15 +211,19 @@ namespace Tmpl {
 
 		m_voxelsCulled = 0;
 
-		if (m_options.culling &&
-			m_lightDirty)
+		if (m_lightDirty)
 		{
 			m_lightPosition = glm::vec3(
 				glm::cos(glm::radians(m_lightAngle)) * m_lightDistance,
 				10.0f,
 				glm::sin(glm::radians(m_lightAngle)) * m_lightDistance);
 
-			m_voxelsCulled = m_logic->cullVoxels(m_options, m_lightPosition);
+			if (m_options.culling)
+			{
+				m_voxelsCulled = m_logic->cullVoxels(
+					m_options,
+					m_lightPosition);
+			}
 
 			m_lightDirty = false;
 		}
