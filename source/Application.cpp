@@ -394,11 +394,8 @@ namespace Tmpl {
 
 	void Application::generateScene(float scale /*= 1.0f*/)
 	{
-		TMPL_LOG_INFO(Application) << "Generating scene with a scale factor of " << scale << "...";
-
-		std::vector<Logic::VoxelData> voxels;
-		glm::vec3 position;
-		size_t side = 100;
+		TMPL_LOG_INFO(Application)
+			<< "Generating scene with a scale factor of " << scale << "...";
 
 		struct SphereData
 		{
@@ -413,12 +410,20 @@ namespace Tmpl {
 		};
 
 		std::vector<SphereData> spheres;
-		spheres.push_back(SphereData(glm::vec3(0.0f, 0.0f, 0.0f), 250.0f * scale));
+		spheres.push_back(SphereData(
+			glm::vec3(0.0f, 0.0f, 0.0f),
+			250.0f * scale));
 
+		std::vector<Logic::VoxelData> voxels;
+		glm::vec3 position;
+		size_t side = 100;
+		size_t planet_count = 8;
 		float tilt = 25.0f;
 		float distance = 550.0f * scale;
+		float offset = -(float)(side / 2);
+		float voxel_size = m_options.voxelHalfSize * 2.0f;
 
-		for (size_t i = 0; i < 8; ++i)
+		for (size_t i = 0; i < planet_count; ++i)
 		{
 			glm::mat4x4 transform(1.0f);
 			transform = glm::translate(
@@ -433,30 +438,33 @@ namespace Tmpl {
 				glm::vec3(1.0f, 0.0f, 0.0f));
 			transform = glm::rotate(
 				transform,
-				glm::radians((360.0f / 8.0f) * i),
+				glm::radians((360.0f / (float)planet_count) * i),
 				glm::vec3(0.0f, 1.0f, 0.0f));
 
-			spheres.push_back(SphereData(glm::vec3(transform * glm::vec4(1.0f)), 100.0f * scale));
+			spheres.push_back(SphereData(
+				glm::vec3(transform * glm::vec4(1.0f)),
+				100.0f * scale));
 		}
 
 		for (size_t x = 0; x < side; ++x)
 		{
-			position.x = (-(float)(side / 2) + (float)x) * (m_options.voxelHalfSize * 2.0f);
+			position.x = (offset + (float)x) * voxel_size;
 
 			for (size_t y = 0; y < side; ++y)
 			{
-				position.y = (-(float)(side / 2) + (float)y) * (m_options.voxelHalfSize * 2.0f);
+				position.y = (offset + (float)y) * voxel_size;
 
 				for (size_t z = 0; z < side; ++z)
 				{
-					position.z = (-(float)(side / 2) + (float)z) * (m_options.voxelHalfSize * 2.0f);
+					position.z = (offset + (float)z) * voxel_size;
 
 					bool hit = false;
 
 					for (auto& sphere : spheres)
 					{
-						float distance = glm::length(position - sphere.position);
-						if (distance <= sphere.radius)
+						glm::vec3 relative = position - sphere.position;
+
+						if (glm::length(relative) <= sphere.radius)
 						{
 							hit = true;
 
