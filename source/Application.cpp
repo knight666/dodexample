@@ -50,9 +50,53 @@ namespace Tmpl {
 
 	int Application::run(int argc, const char** argv)
 	{
-		glfwSetErrorCallback(Tmpl::glfwErrors);
+		TMPL_LOG_INFO(Application) << "Running.";
+
+		for (int i = 1; i < argc; ++i)
+		{
+			if (!strcmp(argv[i], "-profiling"))
+			{
+				TMPL_LOG_INFO(Application) <<
+					"Enabling profiling mode.";
+
+				m_options.profiling = true;
+			}
+			else if (
+				!strcmp(argv[i], "-dod"))
+			{
+				m_options.logic = Options::LogicType::DataOriented;
+			}
+			else if (
+				!strcmp(argv[i], "-oop"))
+			{
+				m_options.logic = Options::LogicType::ObjectOriented;
+			}
+			else if (
+				!strcmp(argv[i], "-scene") &&
+				i < argc)
+			{
+				i++;
+
+				if (!strcmp(argv[i], "1"))
+				{
+					m_options.scene = Options::Scene::Small;
+				}
+				else if (
+					!strcmp(argv[i], "2"))
+				{
+					m_options.scene = Options::Scene::Medium;
+				}
+				else if (
+					!strcmp(argv[i], "3"))
+				{
+					m_options.scene = Options::Scene::Large;
+				}
+			}
+		}
 
 		TMPL_LOG_INFO(GLFW) << "Initializing.";
+
+		glfwSetErrorCallback(Tmpl::glfwErrors);
 
 		if (glfwInit() == 0)
 		{
@@ -125,9 +169,20 @@ namespace Tmpl {
 		m_logicOOP = std::make_shared<LogicOOP>();
 		m_logicDOD = std::make_shared<LogicDOD>();
 
-		m_logic = m_logicOOP;
+		if (m_options.logic == Options::LogicType::ObjectOriented)
+		{
+			TMPL_LOG_INFO(Application) << "Using object-oriented logic.";
 
-		generateScene(1.0f);
+			m_logic = m_logicOOP;
+		}
+		else
+		{
+			TMPL_LOG_INFO(Application) << "Using data-oriented logic.";
+
+			m_logic = m_logicDOD;
+		}
+
+		generateScene(m_options.scene);
 
 		// Renderer
 
@@ -146,33 +201,77 @@ namespace Tmpl {
 
 		clock::time_point time_start = clock::now();
 		clock::time_point time_current;
-		clock::time_point time_render_start;
 
-		while (
-			!glfwWindowShouldClose(m_window))
+		if (m_options.profiling)
 		{
-			glfwPollEvents();
+			clock::time_point time_render_start;
+			us time_delta(0);
+			us profiling_average;
 
-			time_current = clock::now();
-			us time_delta = std::chrono::duration_cast<us>(
-				time_current - time_start);
+			TMPL_LOG_INFO(Application) <<
+				"Starting profiling over "
+				<< m_options.profilingFrames << " frames.";
 
-			update((uint32_t)(time_delta.count() / 1000));
+			for (size_t i = 0; i < m_options.profilingFrames; ++i)
+			{
+				if (glfwWindowShouldClose(m_window))
+				{
+					break;
+				}
 
-			time_render_start = clock::now();
-			m_timeUpdate = std::chrono::duration_cast<us>(
-				time_render_start - time_current);
+				glfwPollEvents();
 
-			render();
+				time_start = clock::now();
 
-			m_timeRender = std::chrono::duration_cast<us>(
-				clock::now() - time_render_start);
+				update((uint32_t)(time_delta.count() / 1000));
+				render();
 
-			renderInterface();
+				glfwSwapBuffers(m_window);
 
-			glfwSwapBuffers(m_window);
+				time_current = clock::now();
+				time_delta = std::chrono::duration_cast<us>(
+					 time_current - time_start);
+				time_start = time_current;
 
-			time_start = time_current;
+				TMPL_LOG_INFO(Profiling)
+					<< "Frame " << i << ": "
+					<< (uint32_t)(time_delta.count() / 1000) << " ms";
+
+				profiling_average += time_delta;
+			}
+
+			TMPL_LOG_INFO(Application) << "Finished profiling.";
+		}
+		else
+		{
+			clock::time_point time_render_start;
+
+			while (
+				!glfwWindowShouldClose(m_window))
+			{
+				glfwPollEvents();
+
+				time_current = clock::now();
+				us time_delta = std::chrono::duration_cast<us>(
+					time_current - time_start);
+
+				update((uint32_t)(time_delta.count() / 1000));
+
+				time_render_start = clock::now();
+				m_timeUpdate = std::chrono::duration_cast<us>(
+					time_render_start - time_current);
+
+				render();
+
+				m_timeRender = std::chrono::duration_cast<us>(
+					clock::now() - time_render_start);
+
+				renderInterface();
+
+				glfwSwapBuffers(m_window);
+
+				time_start = time_current;
+			}
 		}
 
 		TMPL_LOG_INFO(Application) << "Shutting down.";
@@ -186,28 +285,6 @@ namespace Tmpl {
 		static const float TimeStepMaximum = TimeStep * 10.0f;
 
 		float delta = glm::min((float)milliSeconds, TimeStepMaximum) / TimeStep;
-
-		if (m_options.camera == Options::CameraType::User)
-		{
-			float speed = m_keysPressed[GLFW_KEY_LEFT_SHIFT] ? 5.0f : 1.0f;
-
-			if (m_keysPressed[GLFW_KEY_A])
-			{
-				m_cameraAngle += 1.0f * speed * delta;
-			}
-			if (m_keysPressed[GLFW_KEY_D])
-			{
-				m_cameraAngle -= 1.0f * speed * delta;
-			}
-			if (m_keysPressed[GLFW_KEY_W])
-			{
-				m_cameraDistance -= 10.0f * speed * delta;
-			}
-			if (m_keysPressed[GLFW_KEY_S])
-			{
-				m_cameraDistance += 10.0f * speed * delta;
-			}
-		}
 
 		m_voxelsCulled = 0;
 
@@ -234,8 +311,31 @@ namespace Tmpl {
 
 			m_lightDirty = true;
 		}
-		else
+		else if (
+			!m_options.profiling)
 		{
+			if (m_options.camera == Options::CameraType::User)
+			{
+				float speed = m_keysPressed[GLFW_KEY_LEFT_SHIFT] ? 5.0f : 1.0f;
+
+				if (m_keysPressed[GLFW_KEY_A])
+				{
+					m_cameraAngle += 1.0f * speed * delta;
+				}
+				if (m_keysPressed[GLFW_KEY_D])
+				{
+					m_cameraAngle -= 1.0f * speed * delta;
+				}
+				if (m_keysPressed[GLFW_KEY_W])
+				{
+					m_cameraDistance -= 10.0f * speed * delta;
+				}
+				if (m_keysPressed[GLFW_KEY_S])
+				{
+					m_cameraDistance += 10.0f * speed * delta;
+				}
+			}
+
 			if (m_keysPressed[GLFW_KEY_J])
 			{
 				m_lightAngle -= 1.0f * delta;
@@ -368,15 +468,30 @@ namespace Tmpl {
 			break;
 
 		case GLFW_KEY_1:
-			generateScene(1.0f);
+			if (m_options.scene != Options::Scene::Small)
+			{
+				generateScene(Options::Scene::Small);
+
+				m_options.scene = Options::Scene::Small;
+			}
 			break;
 
 		case GLFW_KEY_2:
-			generateScene(1.4f);
+			if (m_options.scene != Options::Scene::Medium)
+			{
+				generateScene(Options::Scene::Medium);
+
+				m_options.scene = Options::Scene::Medium;
+			}
 			break;
 
 		case GLFW_KEY_3:
-			generateScene(1.8f);
+			if (m_options.scene != Options::Scene::Large)
+			{
+				generateScene(Options::Scene::Large);
+
+				m_options.scene = Options::Scene::Large;
+			}
 			break;
 
 		case GLFW_KEY_C:
@@ -428,8 +543,30 @@ namespace Tmpl {
 		}
 	}
 
-	void Application::generateScene(float scale /*= 1.0f*/)
+	void Application::generateScene(Options::Scene scene)
 	{
+		float scale = 0.0f;
+
+		switch (scene)
+		{
+
+		case Options::Scene::Small:
+			scale = 1.0f;
+			break;
+
+		case Options::Scene::Medium:
+			scale = 1.4f;
+			break;
+
+		case Options::Scene::Large:
+			scale = 1.8f;
+			break;
+
+		default:
+			break;
+
+		}
+
 		TMPL_LOG_INFO(Application)
 			<< "Generating scene with a scale factor of " << scale << "...";
 

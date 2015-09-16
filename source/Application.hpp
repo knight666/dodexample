@@ -33,7 +33,7 @@ namespace Tmpl {
 
 	private:
 
-		void generateScene(float scale = 1.0f);
+		void generateScene(Options::Scene scene);
 
 		void renderHelp();
 
@@ -46,6 +46,7 @@ namespace Tmpl {
 
 		std::chrono::microseconds m_timeUpdate;
 		std::chrono::microseconds m_timeRender;
+		std::chrono::microseconds m_timeTotal;
 
 		Options m_options;
 		std::shared_ptr<Logic> m_logicOOP;
