@@ -60,25 +60,8 @@ namespace Tmpl {
 
 			// Setup ray
 
-			float offsetMinimum;
-			float offsetMaximum;
-
-			m_collection.ray_time_minimum[i] = 0.0f;
-
-			offsetMinimum = ((m_collection.voxel_position_x[i] - options.voxelHalfSize) - targetPosition.x) * m_collection.ray_direction_x[i];
-			offsetMaximum = ((m_collection.voxel_position_x[i] + options.voxelHalfSize) - targetPosition.x) * m_collection.ray_direction_x[i];
-
-			m_collection.ray_time_minimum[i] = glm::max(m_collection.ray_time_minimum[i], glm::min(offsetMinimum, offsetMaximum));
-
-			offsetMinimum = ((m_collection.voxel_position_y[i] - options.voxelHalfSize) - targetPosition.y) * m_collection.ray_direction_y[i];
-			offsetMaximum = ((m_collection.voxel_position_y[i] + options.voxelHalfSize) - targetPosition.y) * m_collection.ray_direction_y[i];
-
-			m_collection.ray_time_minimum[i] = glm::max(m_collection.ray_time_minimum[i], glm::min(offsetMinimum, offsetMaximum));
-
-			offsetMinimum = ((m_collection.voxel_position_z[i] - options.voxelHalfSize) - targetPosition.z) * m_collection.ray_direction_z[i];
-			offsetMaximum = ((m_collection.voxel_position_z[i] + options.voxelHalfSize) - targetPosition.z) * m_collection.ray_direction_z[i];
-
-			m_collection.ray_time_minimum[i] = glm::max(m_collection.ray_time_minimum[i], glm::min(offsetMinimum, offsetMaximum));
+			m_collection.ray_time_minimum[i] = std::numeric_limits<float>::max();
+			m_collection.ray_closest[i] = i;
 
 			// Check intersections
 
@@ -86,11 +69,8 @@ namespace Tmpl {
 
 			for (size_t j = 0; j < m_collectionActive; ++j)
 			{
-				if (j == i)
-				{
-					continue;
-				}
-
+				float offsetMinimum;
+				float offsetMaximum;
 				float localTimeMinimum = 0.0f;
 				float localTimeMaximum = std::numeric_limits<float>::max();
 
@@ -115,11 +95,15 @@ namespace Tmpl {
 				if (localTimeMinimum <= localTimeMaximum &&
 					localTimeMinimum <= m_collection.ray_time_minimum[i])
 				{
-					m_collection.voxel_culled[i] = true;
-					culled++;
-
-					break;
+					m_collection.ray_time_minimum[i] = localTimeMinimum;
+					m_collection.ray_closest[i] = j;
 				}
+			}
+
+			m_collection.voxel_culled[i] = m_collection.ray_closest[i] != i;
+			if (m_collection.voxel_culled[i])
+			{
+				culled++;
 			}
 		}
 

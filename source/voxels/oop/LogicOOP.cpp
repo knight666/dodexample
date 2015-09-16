@@ -47,18 +47,16 @@ namespace Tmpl {
 				targetPosition,
 				glm::vec3(1.0f) / glm::normalize(voxelCurrent.getPosition() - targetPosition));
 
-			voxelCurrent.setCulled(false);
-
 			for (size_t j = 0; j < m_voxelsActive; ++j)
 			{
-				if (j != i &&
-					rayCurrent.intersects(m_voxels[j]) != &voxelCurrent)
-				{
-					voxelCurrent.setCulled(true);
-					culled++;
+				rayCurrent.intersects(m_voxels[j]);
+			}
 
-					break;
-				}
+			voxelCurrent.setCulled(rayCurrent.getClosest() != &voxelCurrent);
+
+			if (voxelCurrent.isCulled())
+			{
+				culled++;
 			}
 		}
 

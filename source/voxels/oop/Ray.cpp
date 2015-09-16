@@ -6,6 +6,7 @@ namespace Tmpl {
 
 	Ray::Ray()
 		: m_owner(nullptr)
+		, m_closest(nullptr)
 		, m_timeMinimum(0.0f)
 	{
 	}
@@ -49,11 +50,10 @@ namespace Tmpl {
 			localTimeMinimum <= m_timeMinimum)
 		{
 			m_timeMinimum = localTimeMinimum;
-
-			return &other;
+			m_closest = &other;
 		}
 
-		return m_owner;
+		return m_closest;
 	}
 
 }; // namespace Tmpl
