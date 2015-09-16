@@ -35,8 +35,9 @@ namespace Tmpl {
 		: m_window(nullptr)
 		, m_voxelsCulled(0)
 		, m_voxelsActive(0)
-		, m_targetAngle(0.0f)
-		, m_targetDistance(1000.0f)
+		, m_lightAngle(0.0f)
+		, m_lightDistance(1000.0f)
+		, m_lightDirty(true)
 		, m_cameraAngle(45.0f)
 		, m_cameraDistance(5000.0f)
 	{
@@ -116,8 +117,8 @@ namespace Tmpl {
 
 		// Models
 
-		m_targetSphere = std::make_shared<Sphere>();
-		m_targetSphere->setup(20, 20);
+		m_lightSphere = std::make_shared<Sphere>();
+		m_lightSphere->setup(20, 20);
 
 		// Logic
 
@@ -188,37 +189,62 @@ namespace Tmpl {
 
 		if (m_options.camera == Options::CameraType::User)
 		{
+			float speed = m_keysPressed[GLFW_KEY_LEFT_SHIFT] ? 5.0f : 1.0f;
+
 			if (m_keysPressed[GLFW_KEY_A])
 			{
-				m_cameraAngle += 1.0f * delta;
+				m_cameraAngle += 1.0f * speed * delta;
 			}
 			if (m_keysPressed[GLFW_KEY_D])
 			{
-				m_cameraAngle -= 1.0f * delta;
+				m_cameraAngle -= 1.0f * speed * delta;
 			}
 			if (m_keysPressed[GLFW_KEY_W])
 			{
-				m_cameraDistance -= 10.0f * delta;
+				m_cameraDistance -= 10.0f * speed * delta;
 			}
 			if (m_keysPressed[GLFW_KEY_S])
 			{
-				m_cameraDistance += 10.0f * delta;
+				m_cameraDistance += 10.0f * speed * delta;
 			}
 		}
 
-		m_targetPosition = glm::vec3(
-			glm::cos(glm::radians(m_targetAngle)) * m_targetDistance,
-			10.0f,
-			glm::sin(glm::radians(m_targetAngle)) * m_targetDistance);
-
 		m_voxelsCulled = 0;
 
-		if (m_options.culling)
+		if (m_options.culling &&
+			m_lightDirty)
 		{
-			m_voxelsCulled = m_logic->cullVoxels(m_options, m_targetPosition);
+			m_lightPosition = glm::vec3(
+				glm::cos(glm::radians(m_lightAngle)) * m_lightDistance,
+				10.0f,
+				glm::sin(glm::radians(m_lightAngle)) * m_lightDistance);
+
+			m_voxelsCulled = m_logic->cullVoxels(m_options, m_lightPosition);
+
+			m_lightDirty = false;
 		}
 
-		m_targetAngle += 1.0f * delta;
+		if (m_options.lightRunning)
+		{
+			m_lightAngle += 1.0f * delta;
+
+			m_lightDirty = true;
+		}
+		else
+		{
+			if (m_keysPressed[GLFW_KEY_J])
+			{
+				m_lightAngle -= 1.0f * delta;
+
+				m_lightDirty = true;
+			}
+			if (m_keysPressed[GLFW_KEY_K])
+			{
+				m_lightAngle += 1.0f * delta;
+
+				m_lightDirty = true;
+			}
+		}
 	}
 
 	void Application::render()
@@ -246,7 +272,7 @@ namespace Tmpl {
 		else if (
 			m_options.camera == Options::CameraType::Target)
 		{
-			m_eyePosition = m_targetPosition;
+			m_eyePosition = m_lightPosition;
 		}
 
 		glm::mat4x4 perspective = glm::perspectiveFov(
@@ -268,9 +294,9 @@ namespace Tmpl {
 
 		if (m_options.camera != Options::CameraType::Target)
 		{
-			m_targetSphere->render(
+			m_lightSphere->render(
 				viewProjection,
-				m_targetPosition,
+				m_lightPosition,
 				15.0f,
 				glm::vec3(1.0f, 1.0f, 0.0f));
 		}
@@ -333,6 +359,10 @@ namespace Tmpl {
 		switch (key)
 		{
 
+		case GLFW_KEY_SPACE:
+			m_options.lightRunning = !m_options.lightRunning;
+			break;
+
 		case GLFW_KEY_1:
 			generateScene(1.0f);
 			break;
@@ -360,12 +390,14 @@ namespace Tmpl {
 			if (m_options.logic == Options::LogicType::ObjectOriented)
 			{
 				m_logic = m_logicDOD;
+				m_lightDirty = true;
 
 				m_options.logic = Options::LogicType::DataOriented;
 			}
 			else
 			{
 				m_logic = m_logicOOP;
+				m_lightDirty = true;
 
 				m_options.logic = Options::LogicType::ObjectOriented;
 			}
@@ -515,14 +547,25 @@ namespace Tmpl {
 
 		if (m_options.camera == Options::CameraType::User)
 		{
-			addText("Target camera: [G]");
+			addText("Light camera: [G]");
 			addText("Rotate: [A], [D]");
 			addText("Zoom: [W], [S]");
+			addText("Increased zoom speed: [Left Shift]");
 		}
 		else if (
 			m_options.camera == Options::CameraType::Target)
 		{
 			addText("Free camera: [G]");
+		}
+
+		if (m_options.lightRunning)
+		{
+			addText("Pause light rotation: [Space]");
+		}
+		else
+		{
+			addText("Rotate light: [J], [K]");
+			addText("Resume light rotation: [Space]");
 		}
 
 		if (m_options.culling)

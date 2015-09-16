@@ -22,6 +22,7 @@ namespace Tmpl {
 		Options()
 			: logic(LogicType::ObjectOriented)
 			, camera(CameraType::User)
+			, lightRunning(true)
 			, culling(true)
 			, help(false)
 			, showCulled(false)
@@ -31,6 +32,7 @@ namespace Tmpl {
 
 		LogicType logic;
 		CameraType camera;
+		bool lightRunning;
 		bool culling;
 		bool help;
 		bool showCulled;

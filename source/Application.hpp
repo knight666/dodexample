@@ -54,10 +54,11 @@ namespace Tmpl {
 		size_t m_voxelsActive;
 		size_t m_voxelsCulled;
 
-		glm::vec3 m_targetPosition;
-		float m_targetAngle;
-		float m_targetDistance;
-		std::shared_ptr<Sphere> m_targetSphere;
+		glm::vec3 m_lightPosition;
+		float m_lightAngle;
+		float m_lightDistance;
+		bool m_lightDirty;
+		std::shared_ptr<Sphere> m_lightSphere;
 
 		glm::vec3 m_eyePosition;
 
