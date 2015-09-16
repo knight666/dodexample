@@ -7,7 +7,7 @@ namespace Tmpl {
 		, m_vertices(new Buffer(GL_ARRAY_BUFFER))
 		, m_elements(new Buffer(GL_ELEMENT_ARRAY_BUFFER))
 		, m_program(new Program())
-		, m_attributes(new VertexArrays())
+		, m_attributes(new VertexArrays(m_program))
 		, m_uniforms(new Buffer(GL_UNIFORM_BUFFER))
 	{
 		// Texture
@@ -57,11 +57,17 @@ namespace Tmpl {
 		// Program
 
 		bool validated = true;
-		validated &= m_program->loadShaderFromFile(Shader::Type::Vertex, "media/shaders/texture-2d.vert");
-		validated &= m_program->loadShaderFromFile(Shader::Type::Fragment, "media/shaders/texture-2d.frag");
+		validated &= m_program->loadShaderFromFile(
+			Shader::Type::Vertex,
+			"media/shaders/texture-2d.vert");
+		validated &= m_program->loadShaderFromFile(
+			Shader::Type::Fragment,
+			"media/shaders/texture-2d.frag");
 		validated &= m_program->link();
 
-		m_program->bindFragmentDataLocation("Color", Program::FragmentDataLocation::Color);
+		m_program->bindFragmentDataLocation(
+			"Color",
+			Program::FragmentDataLocation::Color);
 
 		m_uniformTransform = m_program->getUniformBlockIndex("vertexUniforms");
 		m_uniformDiffuse = m_program->getUniformLocation("texDiffuse");
@@ -70,8 +76,16 @@ namespace Tmpl {
 
 		m_attributes->bind();
 			m_vertices->bind();
-				m_attributes->setAttribute(m_program->getAttributeLocation("attrPosition"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)Vertex::Offset::Position);
-				m_attributes->setAttribute(m_program->getAttributeLocation("attrTextureCoordinate"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)Vertex::Offset::TextureCoordinate);
+				m_attributes->setAttribute<glm::vec2>(
+					"attrPosition",
+					GL_FALSE,
+					sizeof(Vertex),
+					(const GLvoid*)Vertex::Offset::Position);
+				m_attributes->setAttribute<glm::vec2>(
+					"attrTextureCoordinate",
+					GL_FALSE,
+					sizeof(Vertex),
+					(const GLvoid*)Vertex::Offset::TextureCoordinate);
 			m_vertices->unbind();
 		m_attributes->unbind();
 
@@ -82,7 +96,10 @@ namespace Tmpl {
 		size_t uniform_buffer_size = glm::max(uniform_buffer_offset, (GLint)sizeof(Uniforms));
 
 		m_uniforms->bind();
-			m_uniforms->setData<Uniforms>(nullptr, uniform_buffer_size, GL_DYNAMIC_DRAW);
+			m_uniforms->setData<Uniforms>(
+				nullptr,
+				uniform_buffer_size,
+				GL_DYNAMIC_DRAW);
 		m_uniforms->unbind();
 	}
 
@@ -107,34 +124,38 @@ namespace Tmpl {
 
 		std::shared_ptr<Buffer> pixel_buffer = m_texture->getPixels();
 		pixel_buffer->bind();
-		pixel_buffer->setData<GLbyte>(nullptr, src_size, GL_STREAM_DRAW);
-		GLbyte* mapped = pixel_buffer->mapRange<GLbyte>(0, src_size, GL_MAP_WRITE_BIT);
-		GLbyte* dst = mapped;
 
-		for (GLsizei y = 0; y < height; ++y)
-		{
-			memcpy(dst, src, src_pitch);
-			dst += dst_pitch;
-			src += src_pitch;
-		}
+			pixel_buffer->setData<GLbyte>(nullptr, src_size, GL_STREAM_DRAW);
 
-		pixel_buffer->unmap();
+			GLbyte* mapped = pixel_buffer->mapRange<GLbyte>(
+				0, src_size,
+				GL_MAP_WRITE_BIT);
+			{
+				GLbyte* dst = mapped;
 
-		m_texture->subImage2D(0, (const GLbyte*)nullptr, GL_BGRA);
+				for (GLsizei y = 0; y < height; ++y)
+				{
+					memcpy(dst, src, src_pitch);
+					dst += dst_pitch;
+					src += src_pitch;
+				}
+			}
+			pixel_buffer->unmap();
+
+			m_texture->subImage2D(0, (const GLbyte*)nullptr, GL_BGRA);
 
 		pixel_buffer->unbind();
-
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-
 		m_texture->unbind();
 
-		GLenum errors = glGetError();
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 	}
 
 	void Quad::render(const glm::mat4x4& modelViewProjection)
 	{
 		m_uniforms->bind();
-			Uniforms* transform = m_uniforms->mapRange<Uniforms>(0, 1, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+			Uniforms* transform = m_uniforms->mapRange<Uniforms>(
+				0, 1,
+				GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 				transform->modelViewProjection = modelViewProjection;
 			m_uniforms->unmap();
 		m_uniforms->unbind();

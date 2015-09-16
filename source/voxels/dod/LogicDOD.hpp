@@ -1,10 +1,6 @@
 #pragma once
 
 #include "base/Main.hpp"
-
-#include "graphics/Buffer.hpp"
-#include "graphics/Program.hpp"
-#include "graphics/VertexArrays.hpp"
 #include "voxels/Logic.hpp"
 
 namespace Tmpl {

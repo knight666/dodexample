@@ -59,18 +59,17 @@ namespace Tmpl {
 
 		// Attributes
 
-		m_attributes = std::make_shared<VertexArrays>();
+		m_attributes = std::make_shared<VertexArrays>(m_program);
 		m_attributes->bind();
 			m_vertices->bind();
-				m_attributes->setAttribute(
-					m_program->getAttributeLocation("attrPosition"),
-					3, GL_FLOAT,
+				m_attributes->setAttribute<glm::vec3>(
+					"attrPosition",
 					GL_FALSE,
 					sizeof(Vertex),
 					(const GLvoid*)Vertex::Offset::Position);
-				m_attributes->setAttribute(
-					m_program->getAttributeLocation("attrColor"),
-					3, GL_FLOAT, GL_FALSE,
+				m_attributes->setAttribute<glm::vec3>(
+					"attrColor",
+					GL_FALSE,
 					sizeof(Vertex),
 					(const GLvoid*)Vertex::Offset::Color);
 			m_vertices->unbind();

@@ -6,23 +6,26 @@ namespace Tmpl {
 		: m_vertices(new Buffer(GL_ARRAY_BUFFER))
 		, m_elements(new Buffer(GL_ELEMENT_ARRAY_BUFFER))
 		, m_program(new Program())
-		, m_attributes(new VertexArrays())
+		, m_attributes(new VertexArrays(m_program))
 		, m_uniforms(new Buffer(GL_UNIFORM_BUFFER))
 	{
 		// Program
 
 		bool validated = true;
-		validated &= m_program->loadShaderFromFile(Shader::Type::Vertex, "media/shaders/sphere.vert");
-		validated &= m_program->loadShaderFromFile(Shader::Type::Fragment, "media/shaders/sphere.frag");
+		validated &= m_program->loadShaderFromFile(
+			Shader::Type::Vertex,
+			"media/shaders/sphere.vert");
+		validated &= m_program->loadShaderFromFile(
+			Shader::Type::Fragment,
+			"media/shaders/sphere.frag");
 		validated &= m_program->link();
 
 		// Attributes
 
 		m_attributes->bind();
 			m_vertices->bind();
-				m_attributes->setAttribute(
-					m_program->getAttributeLocation("attrPosition"),
-					3, GL_FLOAT,
+				m_attributes->setAttribute<glm::vec3>(
+					"attrPosition",
 					GL_FALSE,
 					sizeof(Vertex),
 					(const GLvoid*)Vertex::Offset::Position);

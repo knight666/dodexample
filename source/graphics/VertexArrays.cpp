@@ -2,7 +2,8 @@
 
 namespace Tmpl {
 
-	VertexArrays::VertexArrays()
+	VertexArrays::VertexArrays(std::shared_ptr<Program> program)
+		: m_program(program)
 	{
 		glGenVertexArrays(1, &m_handle);
 	}
@@ -27,11 +28,17 @@ namespace Tmpl {
 		}
 	}
 
-	void VertexArrays::setAttribute(GLint attribute, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* data)
+	void VertexArrays::setAttribute(
+		GLint attribute,
+		GLint size,
+		GLenum type, 
+		GLboolean normalized,
+		GLsizei stride,
+		const GLvoid* offset)
 	{
 		if (m_bound == 0) { return; }
 		glEnableVertexAttribArray(attribute);
-		glVertexAttribPointer(attribute, size, type, normalized, stride, data);
+		glVertexAttribPointer(attribute, size, type, normalized, stride, offset);
 	}
 
 }; // namespace Tmpl
