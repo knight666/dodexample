@@ -12,10 +12,11 @@ namespace Tmpl {
 
 	public:
 
-		LogicOOP(float halfSize);
+		LogicOOP();
 		~LogicOOP();
 
 		virtual bool initialize(
+			const Options& options,
 			const std::vector<VoxelData>& voxels) override;
 
 		virtual size_t cullVoxels(

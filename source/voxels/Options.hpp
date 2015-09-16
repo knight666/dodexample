@@ -6,6 +6,7 @@ namespace Tmpl {
 
 	struct Options
 	{
+
 		enum class LogicType
 		{
 			ObjectOriented,
@@ -34,6 +35,8 @@ namespace Tmpl {
 		bool help;
 		bool showCulled;
 		float voxelHalfSize;
+		static const size_t MaxVoxelCount = 1024 * 1024;
+
 	};
 
 }; // namespace Tmpl

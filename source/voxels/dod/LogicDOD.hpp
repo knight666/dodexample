@@ -11,10 +11,11 @@ namespace Tmpl {
 
 	public:
 
-		LogicDOD(float halfSize);
+		LogicDOD();
 		~LogicDOD();
 
 		virtual bool initialize(
+			const Options& options,
 			const std::vector<VoxelData>& voxels) override;
 
 		virtual size_t cullVoxels(
@@ -29,17 +30,17 @@ namespace Tmpl {
 
 		struct VoxelCollection
 		{
-			float voxel_position_x[Logic::MaxVoxelCount];
-			float voxel_position_y[Logic::MaxVoxelCount];
-			float voxel_position_z[Logic::MaxVoxelCount];
-			float voxel_color_r[Logic::MaxVoxelCount];
-			float voxel_color_g[Logic::MaxVoxelCount];
-			float voxel_color_b[Logic::MaxVoxelCount];
-			bool voxel_culled[Logic::MaxVoxelCount];
-			float ray_direction_x[Logic::MaxVoxelCount];
-			float ray_direction_y[Logic::MaxVoxelCount];
-			float ray_direction_z[Logic::MaxVoxelCount];
-			float ray_time_minimum[Logic::MaxVoxelCount];
+			float voxel_position_x[Options::MaxVoxelCount];
+			float voxel_position_y[Options::MaxVoxelCount];
+			float voxel_position_z[Options::MaxVoxelCount];
+			float voxel_color_r[Options::MaxVoxelCount];
+			float voxel_color_g[Options::MaxVoxelCount];
+			float voxel_color_b[Options::MaxVoxelCount];
+			bool voxel_culled[Options::MaxVoxelCount];
+			float ray_direction_x[Options::MaxVoxelCount];
+			float ray_direction_y[Options::MaxVoxelCount];
+			float ray_direction_z[Options::MaxVoxelCount];
+			float ray_time_minimum[Options::MaxVoxelCount];
 		};
 		VoxelCollection m_collection;
 		size_t m_collectionActive;

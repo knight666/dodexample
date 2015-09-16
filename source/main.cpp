@@ -6,8 +6,9 @@ int main(int argc, const char** argv)
 {
 	Tmpl::Logger::initialize();
 
-	Tmpl::Application application;
-	int result = application.run(argc, argv);
+	Tmpl::Application* application = new Tmpl::Application();
+	int result = application->run(argc, argv);
+	delete application;
 
 	Tmpl::Logger::destroy();
 

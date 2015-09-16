@@ -2,9 +2,8 @@
 
 namespace Tmpl {
 
-	LogicDOD::LogicDOD(float halfSize)
-		: Logic(halfSize)
-		, m_collectionActive(0)
+	LogicDOD::LogicDOD()
+		: m_collectionActive(0)
 	{
 	}
 
@@ -13,6 +12,7 @@ namespace Tmpl {
 	}
 
 	bool LogicDOD::initialize(
+		const Options& options,
 		const std::vector<VoxelData>& voxels)
 	{
 		size_t i = 0;
@@ -65,18 +65,18 @@ namespace Tmpl {
 
 			m_collection.ray_time_minimum[i] = 0.0f;
 
-			offsetMinimum = ((m_collection.voxel_position_x[i] - m_voxelHalfSize) - targetPosition.x) * m_collection.ray_direction_x[i];
-			offsetMaximum = ((m_collection.voxel_position_x[i] + m_voxelHalfSize) - targetPosition.x) * m_collection.ray_direction_x[i];
+			offsetMinimum = ((m_collection.voxel_position_x[i] - options.voxelHalfSize) - targetPosition.x) * m_collection.ray_direction_x[i];
+			offsetMaximum = ((m_collection.voxel_position_x[i] + options.voxelHalfSize) - targetPosition.x) * m_collection.ray_direction_x[i];
 
 			m_collection.ray_time_minimum[i] = glm::max(m_collection.ray_time_minimum[i], glm::min(offsetMinimum, offsetMaximum));
 
-			offsetMinimum = ((m_collection.voxel_position_y[i] - m_voxelHalfSize) - targetPosition.y) * m_collection.ray_direction_y[i];
-			offsetMaximum = ((m_collection.voxel_position_y[i] + m_voxelHalfSize) - targetPosition.y) * m_collection.ray_direction_y[i];
+			offsetMinimum = ((m_collection.voxel_position_y[i] - options.voxelHalfSize) - targetPosition.y) * m_collection.ray_direction_y[i];
+			offsetMaximum = ((m_collection.voxel_position_y[i] + options.voxelHalfSize) - targetPosition.y) * m_collection.ray_direction_y[i];
 
 			m_collection.ray_time_minimum[i] = glm::max(m_collection.ray_time_minimum[i], glm::min(offsetMinimum, offsetMaximum));
 
-			offsetMinimum = ((m_collection.voxel_position_z[i] - m_voxelHalfSize) - targetPosition.z) * m_collection.ray_direction_z[i];
-			offsetMaximum = ((m_collection.voxel_position_z[i] + m_voxelHalfSize) - targetPosition.z) * m_collection.ray_direction_z[i];
+			offsetMinimum = ((m_collection.voxel_position_z[i] - options.voxelHalfSize) - targetPosition.z) * m_collection.ray_direction_z[i];
+			offsetMaximum = ((m_collection.voxel_position_z[i] + options.voxelHalfSize) - targetPosition.z) * m_collection.ray_direction_z[i];
 
 			m_collection.ray_time_minimum[i] = glm::max(m_collection.ray_time_minimum[i], glm::min(offsetMinimum, offsetMaximum));
 
@@ -94,20 +94,20 @@ namespace Tmpl {
 				float localTimeMinimum = 0.0f;
 				float localTimeMaximum = std::numeric_limits<float>::max();
 
-				offsetMinimum = ((m_collection.voxel_position_x[j] - m_voxelHalfSize) - targetPosition.x) * m_collection.ray_direction_x[i];
-				offsetMaximum = ((m_collection.voxel_position_x[j] + m_voxelHalfSize) - targetPosition.x) * m_collection.ray_direction_x[i];
+				offsetMinimum = ((m_collection.voxel_position_x[j] - options.voxelHalfSize) - targetPosition.x) * m_collection.ray_direction_x[i];
+				offsetMaximum = ((m_collection.voxel_position_x[j] + options.voxelHalfSize) - targetPosition.x) * m_collection.ray_direction_x[i];
 
 				localTimeMinimum = glm::max(localTimeMinimum, glm::min(offsetMinimum, offsetMaximum));
 				localTimeMaximum = glm::min(localTimeMaximum, glm::max(offsetMinimum, offsetMaximum));
 
-				offsetMinimum = ((m_collection.voxel_position_y[j] - m_voxelHalfSize) - targetPosition.y) * m_collection.ray_direction_y[i];
-				offsetMaximum = ((m_collection.voxel_position_y[j] + m_voxelHalfSize) - targetPosition.y) * m_collection.ray_direction_y[i];
+				offsetMinimum = ((m_collection.voxel_position_y[j] - options.voxelHalfSize) - targetPosition.y) * m_collection.ray_direction_y[i];
+				offsetMaximum = ((m_collection.voxel_position_y[j] + options.voxelHalfSize) - targetPosition.y) * m_collection.ray_direction_y[i];
 
 				localTimeMinimum = glm::max(localTimeMinimum, glm::min(offsetMinimum, offsetMaximum));
 				localTimeMaximum = glm::min(localTimeMaximum, glm::max(offsetMinimum, offsetMaximum));
 
-				offsetMinimum = ((m_collection.voxel_position_z[j] - m_voxelHalfSize) - targetPosition.z) * m_collection.ray_direction_z[i];
-				offsetMaximum = ((m_collection.voxel_position_z[j] + m_voxelHalfSize) - targetPosition.z) * m_collection.ray_direction_z[i];
+				offsetMinimum = ((m_collection.voxel_position_z[j] - options.voxelHalfSize) - targetPosition.z) * m_collection.ray_direction_z[i];
+				offsetMaximum = ((m_collection.voxel_position_z[j] + options.voxelHalfSize) - targetPosition.z) * m_collection.ray_direction_z[i];
 
 				localTimeMinimum = glm::max(localTimeMinimum, glm::min(offsetMinimum, offsetMaximum));
 				localTimeMaximum = glm::min(localTimeMaximum, glm::max(offsetMinimum, offsetMaximum));

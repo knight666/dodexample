@@ -17,14 +17,12 @@ namespace Tmpl {
 			glm::vec3 color;
 		};
 
-		static const size_t MaxVoxelCount = 1024 * 1024;
-
 	public:
 
-		Logic(float halfSize);
-		virtual ~Logic();
+		virtual ~Logic() { }
 
 		virtual bool initialize(
+			const Options& options,
 			const std::vector<VoxelData>& voxels) = 0;
 
 		virtual size_t cullVoxels(
@@ -34,10 +32,6 @@ namespace Tmpl {
 		virtual size_t render(
 			const Options& options,
 			Renderer::Vertex* target) = 0;
-
-	protected:
-
-		float m_voxelHalfSize;
 
 	};
 

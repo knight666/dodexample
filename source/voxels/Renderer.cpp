@@ -53,7 +53,7 @@ namespace Tmpl {
 		m_vertices->bind();
 			m_vertices->setData<Vertex>(
 				nullptr,
-				Logic::MaxVoxelCount,
+				Options::MaxVoxelCount,
 				GL_STREAM_DRAW);
 		m_vertices->unbind();
 

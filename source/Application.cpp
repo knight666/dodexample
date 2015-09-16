@@ -33,17 +33,12 @@ namespace Tmpl {
 
 	Application::Application()
 		: m_window(nullptr)
-		, m_loader(new FreeTypeLoader())
-		, m_logicOOP(nullptr)
 		, m_voxelsCulled(0)
 		, m_voxelsActive(0)
-		, m_voxelHalfSize(20.0f)
 		, m_targetAngle(0.0f)
 		, m_targetDistance(1000.0f)
-		, m_targetSphere(nullptr)
 		, m_cameraAngle(45.0f)
 		, m_cameraDistance(5000.0f)
-		, m_renderer(new Renderer())
 	{
 		memset(m_keysPressed, 0, sizeof(m_keysPressed));
 	}
@@ -113,6 +108,7 @@ namespace Tmpl {
 
 		// Text
 
+		m_loader = std::make_shared<FreeTypeLoader>();
 		m_loader->loadFace("media/fonts/Roboto/Roboto-Black.ttf", 12.0f);
 		m_loader->loadGlyphRange(0x00, 0xFF); // preload Basic Latin and Latin-1
 
@@ -125,8 +121,8 @@ namespace Tmpl {
 
 		// Logic
 
-		m_logicOOP = std::make_shared<LogicOOP>(m_voxelHalfSize);
-		m_logicDOD = std::make_shared<LogicDOD>(m_voxelHalfSize);
+		m_logicOOP = std::make_shared<LogicOOP>();
+		m_logicDOD = std::make_shared<LogicDOD>();
 
 		m_logic = m_logicOOP;
 
@@ -134,6 +130,7 @@ namespace Tmpl {
 
 		// Renderer
 
+		m_renderer = std::make_shared<Renderer>();
 		if (!m_renderer->initialize())
 		{
 			return -1;
@@ -444,15 +441,15 @@ namespace Tmpl {
 
 		for (size_t x = 0; x < side; ++x)
 		{
-			position.x = (-(float)(side / 2) + (float)x) * (m_voxelHalfSize * 2.0f);
+			position.x = (-(float)(side / 2) + (float)x) * (m_options.voxelHalfSize * 2.0f);
 
 			for (size_t y = 0; y < side; ++y)
 			{
-				position.y = (-(float)(side / 2) + (float)y) * (m_voxelHalfSize * 2.0f);
+				position.y = (-(float)(side / 2) + (float)y) * (m_options.voxelHalfSize * 2.0f);
 
 				for (size_t z = 0; z < side; ++z)
 				{
-					position.z = (-(float)(side / 2) + (float)z) * (m_voxelHalfSize * 2.0f);
+					position.z = (-(float)(side / 2) + (float)z) * (m_options.voxelHalfSize * 2.0f);
 
 					bool hit = false;
 
@@ -481,8 +478,8 @@ namespace Tmpl {
 			}
 		}
 
-		m_logicOOP->initialize(voxels);
-		m_logicDOD->initialize(voxels);
+		m_logicOOP->initialize(m_options, voxels);
+		m_logicDOD->initialize(m_options, voxels);
 
 		m_voxelsActive = voxels.size();
 	}

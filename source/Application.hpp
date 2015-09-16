@@ -43,7 +43,6 @@ namespace Tmpl {
 
 		bool m_running;
 		GLFWwindow* m_window;
-		std::shared_ptr<FreeTypeLoader> m_loader;
 
 		std::chrono::microseconds m_timeUpdate;
 		std::chrono::microseconds m_timeRender;
@@ -54,7 +53,6 @@ namespace Tmpl {
 		std::shared_ptr<Logic> m_logic;
 		size_t m_voxelsActive;
 		size_t m_voxelsCulled;
-		float m_voxelHalfSize;
 
 		glm::vec3 m_targetPosition;
 		float m_targetAngle;
@@ -68,6 +66,7 @@ namespace Tmpl {
 
 		bool m_keysPressed[GLFW_KEY_LAST];
 
+		std::shared_ptr<FreeTypeLoader> m_loader;
 		std::shared_ptr<TextBatch> m_text;
 		std::string m_textCombined;
 

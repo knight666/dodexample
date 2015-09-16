@@ -2,9 +2,8 @@
 
 namespace Tmpl {
 
-	LogicOOP::LogicOOP(float halfSize)
-		: Logic(halfSize)
-		, m_voxelsActive(0)
+	LogicOOP::LogicOOP()
+		: m_voxelsActive(0)
 	{
 	}
 
@@ -13,6 +12,7 @@ namespace Tmpl {
 	}
 
 	bool LogicOOP::initialize(
+		const Options& options,
 		const std::vector<VoxelData>& voxels)
 	{
 		m_voxels.resize(voxels.size());
@@ -24,7 +24,7 @@ namespace Tmpl {
 		{
 			m_voxels[m_voxelsActive++].setup(
 				voxel.position,
-				m_voxelHalfSize,
+				options.voxelHalfSize,
 				voxel.color);
 		}
 
