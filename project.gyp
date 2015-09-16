@@ -10,7 +10,6 @@
 				'TMPL_WINDOW_TITLE="DODExample"',
 				'TMPL_WINDOW_WIDTH=1280',
 				'TMPL_WINDOW_HEIGHT=720',
-				'TMPL_FEATURE_OPENGL_DEBUG=1'
 			],
 			'dependencies': [
 				'dependencies/utf8rewind-1.2.1/utf8rewind.gyp:utf8rewind',
@@ -20,7 +19,7 @@
 				'dependencies/glm-0.9.7.1/glm.gyp:glm',
 			],
 			'include_dirs': [
-				'source'
+				'source',
 			],
 			'sources': [
 				'source/base/Main.hpp',
@@ -71,13 +70,15 @@
 				'source/Application.hpp',
 				'source/main.cpp',
 			],
-			'libraries': [
-				'-lkernel32',
-				'-luser32',
-				'-lgdi32',
-				'-lshell32',
-			],
 			'conditions': [
+				['OS=="win"', {
+					'libraries': [
+						'-lkernel32',
+						'-luser32',
+						'-lgdi32',
+						'-lshell32',
+					],
+				}],
 				['OS!="win"', {
 					'product_dir': 'output/<(platform_name)/<(architecture_name)/<(CONFIGURATION_NAME)',
 				}],
