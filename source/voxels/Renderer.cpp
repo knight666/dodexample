@@ -125,7 +125,7 @@ namespace Tmpl {
 
 		m_attributes->bind();
 
-		glDrawArrays(GL_POINTS, 0, used);
+		glDrawArrays(GL_POINTS, 0, (GLsizei)used);
 
 		m_attributes->unbind();
 		m_uniforms->unbind();

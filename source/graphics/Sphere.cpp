@@ -189,7 +189,9 @@ namespace Tmpl {
 		model = glm::scale(model, glm::vec3(scale));
 
 		m_uniforms->bind();
-			Uniforms* transform = m_uniforms->mapRange<Uniforms>(0, 1, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+			Uniforms* transform = m_uniforms->mapRange<Uniforms>(
+				0, 1,
+				GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 				transform->modelViewProjection = viewProjection * model;
 			m_uniforms->unmap();
 		m_uniforms->unbind();
@@ -207,7 +209,7 @@ namespace Tmpl {
 
 			glDrawElements(
 				GL_TRIANGLES,
-				m_elementData.size(),
+				(GLsizei)m_elementData.size(),
 				GL_UNSIGNED_INT,
 				nullptr);
 
