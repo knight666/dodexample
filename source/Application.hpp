@@ -22,7 +22,7 @@ namespace Tmpl {
 
 		int run(int argc, const char** argv);
 
-		bool isRunning() const { return m_running; }
+		bool parseCommandLine(int argc, const char** argv);
 
 		void update(float deltaTime);
 		void updateUserInput(float deltaTime);
@@ -43,7 +43,6 @@ namespace Tmpl {
 
 	private:
 
-		bool m_running;
 		GLFWwindow* m_window;
 
 		std::chrono::microseconds m_timeUpdate;

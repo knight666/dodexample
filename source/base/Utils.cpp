@@ -52,6 +52,56 @@ namespace Tmpl {
 		return converted;
 	}
 
+	std::string tolower(const char* utf8Text, size_t sizeInBytes)
+	{
+		std::string converted;
+		int32_t errors = 0;
+
+		size_t convertedSize = utf8tolower(
+			utf8Text, sizeInBytes,
+			nullptr, 0,
+			&errors);
+		if (convertedSize == 0 ||
+			errors != 0)
+		{
+			return converted;
+		}
+
+		converted.resize(convertedSize);
+
+		utf8tolower(
+			utf8Text, sizeInBytes,
+			&converted[0], converted.size(),
+			nullptr);
+
+		return converted;
+	}
+
+	std::string toupper(const char* utf8Text, size_t sizeInBytes)
+	{
+		std::string converted;
+		int32_t errors = 0;
+
+		size_t convertedSize = utf8toupper(
+			utf8Text, sizeInBytes,
+			nullptr, 0,
+			&errors);
+		if (convertedSize == 0 ||
+			errors != 0)
+		{
+			return converted;
+		}
+
+		converted.resize(convertedSize);
+
+		utf8toupper(
+			utf8Text, sizeInBytes,
+			&converted[0], converted.size(),
+			nullptr);
+
+		return converted;
+	}
+
 	void glfwErrors(int errorCode, const char* description)
 	{
 		TMPL_LOG_ERROR(GLFW) << std::hex << errorCode << ": " << description;

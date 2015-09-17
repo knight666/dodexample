@@ -51,60 +51,11 @@ namespace Tmpl {
 
 	int Application::run(int argc, const char** argv)
 	{
-		TMPL_LOG_INFO(Application) << "Running.";
+		TMPL_LOG_INFO(Application) << "Parsing command line.";
 
-		for (int i = 1; i < argc; ++i)
+		if (!parseCommandLine(argc, argv))
 		{
-			if (!strcmp(argv[i], "-profiling"))
-			{
-				TMPL_LOG_INFO(Application) <<
-					"Enabling profiling mode.";
-
-				m_options.profiling = true;
-
-				if (i + 1 < argc)
-				{
-					char* found = nullptr;
-					double result = strtod(argv[i + 1], &found);
-					if (found != nullptr)
-					{
-						m_options.profilingFrames = (size_t)result;
-
-						i++;
-					}
-				}
-			}
-			else if (
-				!strcmp(argv[i], "-dod"))
-			{
-				m_options.logic = Options::LogicType::DataOriented;
-			}
-			else if (
-				!strcmp(argv[i], "-oop"))
-			{
-				m_options.logic = Options::LogicType::ObjectOriented;
-			}
-			else if (
-				!strcmp(argv[i], "-scene") &&
-				i < argc)
-			{
-				i++;
-
-				if (!strcmp(argv[i], "1"))
-				{
-					m_options.scene = Options::Scene::Small;
-				}
-				else if (
-					!strcmp(argv[i], "2"))
-				{
-					m_options.scene = Options::Scene::Medium;
-				}
-				else if (
-					!strcmp(argv[i], "3"))
-				{
-					m_options.scene = Options::Scene::Large;
-				}
-			}
+			return 0;
 		}
 
 		TMPL_LOG_INFO(GLFW) << "Initializing.";
@@ -115,7 +66,7 @@ namespace Tmpl {
 		{
 			TMPL_LOG_ERROR(GLFW) << "Failed to initialize.";
 
-			return 1;
+			return -1;
 		}
 
 		TMPL_LOG_INFO(GLFW) << "Setting window hints.";
@@ -137,7 +88,7 @@ namespace Tmpl {
 		{
 			TMPL_LOG_ERROR(GLFW) << "Failed to create window.";
 
-			return 1;
+			return -1;
 		}
 
 		glfwSetWindowUserPointer(m_window, this);
@@ -154,7 +105,7 @@ namespace Tmpl {
 		{
 			TMPL_LOG_ERROR(GLEW) << "Failed to initialize.";
 
-			return 1;
+			return -1;
 		}
 
 		glEnable(GL_CULL_FACE);
@@ -298,6 +249,139 @@ namespace Tmpl {
 		TMPL_LOG_INFO(Application) << "Shutting down.";
 
 		return 0;
+	}
+
+	bool Application::parseCommandLine(int argc, const char** argv)
+	{
+		if (argc <= 1)
+		{
+			return true;
+		}
+
+		bool show_help = false;
+
+		for (int i = 1; i < argc; ++i)
+		{
+			std::string arg = tolower(argv[i]);
+
+			if (arg == "-help" ||
+				arg == "--help" ||
+				arg == "/help" ||
+				arg == "-?" ||
+				arg == "--?" ||
+				arg == "/?")
+			{
+				show_help = true;
+
+				break;
+			}
+			else if (
+				arg == "-profile" ||
+				arg == "-profiling")
+			{
+				TMPL_LOG_INFO(Application) <<
+					"Enabling profiling mode.";
+
+				m_options.profiling = true;
+
+				if (i + 1 < argc)
+				{
+					char* found = nullptr;
+					double result = strtod(argv[i + 1], &found);
+					if (found != nullptr)
+					{
+						m_options.profilingFrames = (size_t)result;
+
+						i++;
+					}
+				}
+			}
+			else if (
+				arg == "-dod")
+			{
+				m_options.logic = Options::LogicType::DataOriented;
+			}
+			else if (
+				arg == "-oop")
+			{
+				m_options.logic = Options::LogicType::ObjectOriented;
+			}
+			else if (
+				arg == "-scene")
+			{
+				if (i + 1 < argc)
+				{
+					arg = tolower(argv[++i]);
+
+					if (arg == "1" ||
+						arg == "small")
+					{
+						m_options.scene = Options::Scene::Small;
+					}
+					else if (
+						arg == "2" ||
+						arg == "medium")
+					{
+						m_options.scene = Options::Scene::Medium;
+					}
+					else if (
+						arg == "3" ||
+						arg == "large")
+					{
+						m_options.scene = Options::Scene::Large;
+					}
+					else
+					{
+						TMPL_LOG_ERROR(Application)
+							<< "Unknown scene size \"" << arg << "\".";
+					}
+				}
+			}
+			else
+			{
+				TMPL_LOG_ERROR(Application)
+					<< "Unknown command line option \"" << arg << "\".";
+
+				show_help = true;
+
+				break;
+			}
+		}
+
+		if (show_help)
+		{
+			std::stringstream help_text;
+
+			help_text
+				<< "Example of data-oriented design, by Quinten Lansu." << std::endl
+				<< std::endl
+				<< "   -help" << std::endl
+				<< "        Display this help text and exit." << std::endl
+				<< std::endl
+				<< "   -profiling [FRAME_COUNT]" << std::endl
+				<< "        Enable profiling mode with a default frame count of " << m_options.profilingFrames << "." << std::endl
+				<< std::endl
+				<< "   -dod" << std::endl
+				<< "        Use data-oriented design logic." << std::endl
+				<< std::endl
+				<< "   -oop" << std::endl
+				<< "        Use object-oriented design logic (default)." << std::endl
+				<< std::endl
+				<< "   -scene {SMALL|MEDIUM|LARGE}" << std::endl
+				<< "        Set the scene size on start-up." << std::endl;
+
+			TMPL_LOG_INFO(Application) << help_text.str();
+
+		#if defined(WIN32) || defined(_WINDOWS)
+			::MessageBoxW(
+				NULL,
+				widen(help_text.str()).c_str(),
+				widen(TMPL_WINDOW_TITLE).c_str(),
+				MB_OK | MB_ICONINFORMATION);
+		#endif
+		}
+
+		return !show_help;
 	}
 
 	void Application::update(float deltaTime)

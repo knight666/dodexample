@@ -26,6 +26,26 @@ namespace Tmpl {
 		return widen(utf8Text.c_str(), utf8Text.length());
 	}
 
+	std::string tolower(const char* utf8Text, size_t sizeInBytes);
+	inline std::string tolower(const char* utf8Text)
+	{
+		return tolower(utf8Text, strlen(utf8Text));
+	}
+	inline std::string tolower(const std::string& utf8Text)
+	{
+		return tolower(utf8Text.c_str(), utf8Text.length());
+	}
+
+	std::string toupper(const char* utf8Text, size_t sizeInBytes);
+	inline std::string toupper(const char* utf8Text)
+	{
+		return toupper(utf8Text, strlen(utf8Text));
+	}
+	inline std::string toupper(const std::string& utf8Text)
+	{
+		return toupper(utf8Text.c_str(), utf8Text.length());
+	}
+
 	// GLFW
 
 	void glfwErrors(int errorCode, const char* description);
