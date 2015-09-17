@@ -118,12 +118,12 @@ namespace Tmpl {
 					m_vertexData.push_back(Vertex(pos_bottom_c));
 					m_vertexData.push_back(Vertex(pos_bottom_d));
 
-					m_elementData.push_back(position_index + 0);
 					m_elementData.push_back(position_index + 1);
+					m_elementData.push_back(position_index + 0);
 					m_elementData.push_back(position_index + 2);
 
-					m_elementData.push_back(position_index + 2);
 					m_elementData.push_back(position_index + 1);
+					m_elementData.push_back(position_index + 2);
 					m_elementData.push_back(position_index + 3);
 
 					position_index += 4;
