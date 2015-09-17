@@ -4,39 +4,7 @@ namespace Tmpl {
 
 	SinkFile::SinkFile(const std::string& filename)
 	{
-		std::string targetDirectory;
-
-	#if _WINDOWS
-		wchar_t applicationDirectory[_MAX_PATH] = { 0 };
-		if (::SHGetFolderPathW(
-			NULL,
-			CSIDL_PERSONAL,
-			NULL,
-			SHGFP_TYPE_CURRENT,
-			applicationDirectory) == S_OK)
-		{
-			targetDirectory = narrow(applicationDirectory);
-		}
-	#endif
-
-		targetDirectory += "/";
-		targetDirectory += TMPL_WINDOW_TITLE;
-		targetDirectory += "/";
-
-	#if _WINDOWS
-		std::wstring wideTargetDirectory = widen(targetDirectory);
-
-		::CreateDirectoryW(wideTargetDirectory.c_str(), NULL);
-
-		DWORD directoryAttributes = ::GetFileAttributesW(wideTargetDirectory.c_str());
-		if (directoryAttributes == INVALID_FILE_ATTRIBUTES ||
-			(directoryAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
-		{
-			targetDirectory.clear();
-		}
-	#endif
-
-		m_filePath = targetDirectory + filename;
+		m_filePath = applicationDirectory() + filename;
 		
 		m_file.open(m_filePath.c_str(), std::ios::out | std::ios::trunc);
 		if (m_file.is_open())

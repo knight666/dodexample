@@ -4,6 +4,10 @@
 
 namespace Tmpl {
 
+	// File system
+
+	std::string applicationDirectory();
+
 	// String conversion
 
 	std::string narrow(const wchar_t* wideText, size_t sizeInBytes);

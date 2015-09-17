@@ -80,13 +80,12 @@ namespace Tmpl {
 
 		if (m_options.profiling)
 		{
-			clock::time_point time_render_start;
-			us time_delta(0);
-			us profiling_average;
-
 			TMPL_LOG_INFO(Application) <<
 				"Starting profiling over "
 				<< m_options.profilingFrames << " frames.";
+
+			std::vector<us> frame_samples;
+			frame_samples.reserve(m_options.profilingFrames);
 
 			for (size_t i = 0; i < m_options.profilingFrames; ++i)
 			{
@@ -105,7 +104,7 @@ namespace Tmpl {
 				glfwSwapBuffers(m_window);
 
 				time_current = clock::now();
-				time_delta = std::chrono::duration_cast<us>(
+				us time_delta = std::chrono::duration_cast<us>(
 					 time_current - time_start);
 				time_start = time_current;
 
@@ -113,10 +112,98 @@ namespace Tmpl {
 					<< "Frame " << i << ": "
 					<< (uint32_t)(time_delta.count() / 1000) << " ms";
 
-				profiling_average += time_delta;
+				frame_samples.push_back(time_delta);
 			}
 
 			TMPL_LOG_INFO(Application) << "Finished profiling.";
+
+			time_t time_stamp = std::chrono::system_clock::to_time_t(
+				clock::now());
+
+			struct tm* time_local = localtime(&time_stamp);
+
+			std::string logic_text;
+
+			switch (m_options.logic)
+			{
+
+			case Options::LogicType::DataOriented:
+				logic_text = "dod";
+				break;
+
+			case Options::LogicType::ObjectOriented:
+				logic_text = "ood";
+				break;
+
+			default:
+				break;
+
+			}
+
+			std::string scene_text;
+
+			switch (m_options.scene)
+			{
+
+			case Options::Scene::Small:
+				scene_text = "1";
+				break;
+
+			case Options::Scene::Medium:
+				scene_text = "2";
+				break;
+
+			case Options::Scene::Large:
+				scene_text = "3";
+				break;
+
+			default:
+				break;
+
+			}
+
+			std::stringstream csv_path;
+			csv_path
+				<< applicationDirectory()
+				<< "profiling_"
+				<< "logic_" << logic_text << "_"
+				<< "scene_" << scene_text << "_"
+				<< "samples_" << m_options.profilingFrames << "_"
+				<< std::setw(4) << std::setfill('0')
+				<< (1900 + time_local->tm_year) << "_"
+				<< std::setw(2) << std::setfill('0')
+				<< (time_local->tm_mon + 1) << "_"
+				<< std::setw(2) << std::setfill('0')
+				<< time_local->tm_mday << "_"
+				<< std::setw(2) << std::setfill('0')
+				<< time_local->tm_hour << "_"
+				<< std::setw(2) << std::setfill('0')
+				<< time_local->tm_min << "_"
+				<< std::setw(2) << std::setfill('0')
+				<< time_local->tm_sec
+				<< ".csv";
+
+			TMPL_LOG_INFO(Application) <<
+				"Writing sample data to \"" << csv_path.str() << "\".";
+
+			std::ofstream csv_file(
+				csv_path.str().c_str(),
+				std::ios::out | std::ios::trunc);
+
+			if (csv_file.is_open())
+			{
+				for (us& sample : frame_samples)
+				{
+					std::stringstream ss;
+					ss << (uint32_t)(sample.count() / 1000);
+					csv_file << ss.str() << std::endl;
+				}
+
+				csv_file.close();
+			}
+
+			TMPL_LOG_INFO(Application)
+				<< "Finished writing sample data.";
 		}
 		else
 		{
