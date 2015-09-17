@@ -24,7 +24,9 @@ namespace Tmpl {
 
 		bool isRunning() const { return m_running; }
 
-		void update(uint32_t milliSeconds);
+		void update(float deltaTime);
+		void updateUserInput(float deltaTime);
+
 		void render();
 		void renderInterface();
 
@@ -67,6 +69,7 @@ namespace Tmpl {
 		float m_cameraDistance;
 
 		bool m_keysPressed[GLFW_KEY_LAST];
+		bool m_keysReleased[GLFW_KEY_LAST];
 
 		std::shared_ptr<FreeTypeLoader> m_loader;
 		std::shared_ptr<TextBatch> m_text;

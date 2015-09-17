@@ -42,6 +42,7 @@ namespace Tmpl {
 		, m_cameraDistance(5000.0f)
 	{
 		memset(m_keysPressed, 0, sizeof(m_keysPressed));
+		memset(m_keysReleased, 0, sizeof(m_keysReleased));
 	}
 
 	Application::~Application()
@@ -208,6 +209,9 @@ namespace Tmpl {
 
 		TMPL_LOG_INFO(Application) << "Entering main loop.";
 
+		static const float TimeStep = 1000.0f / 30.0f;
+		static const float TimeStepMaximum = TimeStep * 10.0f;
+
 		typedef std::chrono::steady_clock clock;
 		typedef std::chrono::microseconds us;
 
@@ -219,7 +223,6 @@ namespace Tmpl {
 			clock::time_point time_render_start;
 			us time_delta(0);
 			us profiling_average;
-			static const uint32_t FixedFrameRate = 1000 / 30;
 
 			TMPL_LOG_INFO(Application) <<
 				"Starting profiling over "
@@ -236,7 +239,7 @@ namespace Tmpl {
 
 				time_start = clock::now();
 
-				update(FixedFrameRate);
+				update(TimeStep);
 				render();
 
 				glfwSwapBuffers(m_window);
@@ -268,7 +271,12 @@ namespace Tmpl {
 				us time_delta = std::chrono::duration_cast<us>(
 					time_current - time_start);
 
-				update((uint32_t)(time_delta.count() / 1000));
+				float delta_time = glm::min(
+					(float)time_delta.count() / 1000.0f,
+					TimeStepMaximum) / TimeStep;
+
+				update(delta_time);
+				updateUserInput(delta_time);
 
 				time_render_start = clock::now();
 				m_timeUpdate = std::chrono::duration_cast<us>(
@@ -292,13 +300,8 @@ namespace Tmpl {
 		return 0;
 	}
 
-	void Application::update(uint32_t milliSeconds)
+	void Application::update(float deltaTime)
 	{
-		static const float TimeStep = 1000.0f / 30.0f;
-		static const float TimeStepMaximum = TimeStep * 10.0f;
-
-		float delta = glm::min((float)milliSeconds, TimeStepMaximum) / TimeStep;
-
 		m_voxelsCulled = 0;
 
 		if (m_lightDirty)
@@ -320,48 +323,136 @@ namespace Tmpl {
 
 		if (m_options.lightRunning)
 		{
-			m_lightAngle += 1.0f * delta;
+			m_lightAngle += 1.0f * deltaTime;
 
 			m_lightDirty = true;
 		}
-		else if (
-			!m_options.profiling)
+	}
+
+	void Application::updateUserInput(float deltaTime)
+	{
+		if (m_options.camera == Options::CameraType::User)
 		{
-			if (m_options.camera == Options::CameraType::User)
+			float speed = m_keysPressed[GLFW_KEY_LEFT_SHIFT] ? 5.0f : 1.0f;
+
+			if (m_keysPressed[GLFW_KEY_A])
 			{
-				float speed = m_keysPressed[GLFW_KEY_LEFT_SHIFT] ? 5.0f : 1.0f;
-
-				if (m_keysPressed[GLFW_KEY_A])
-				{
-					m_cameraAngle += 1.0f * speed * delta;
-				}
-				if (m_keysPressed[GLFW_KEY_D])
-				{
-					m_cameraAngle -= 1.0f * speed * delta;
-				}
-				if (m_keysPressed[GLFW_KEY_W])
-				{
-					m_cameraDistance -= 10.0f * speed * delta;
-				}
-				if (m_keysPressed[GLFW_KEY_S])
-				{
-					m_cameraDistance += 10.0f * speed * delta;
-				}
+				m_cameraAngle += 1.0f * speed * deltaTime;
 			}
+			if (m_keysPressed[GLFW_KEY_D])
+			{
+				m_cameraAngle -= 1.0f * speed * deltaTime;
+			}
+			if (m_keysPressed[GLFW_KEY_W])
+			{
+				m_cameraDistance -= 10.0f * speed * deltaTime;
+			}
+			if (m_keysPressed[GLFW_KEY_S])
+			{
+				m_cameraDistance += 10.0f * speed * deltaTime;
+			}
+		}
 
+		if (!m_options.lightRunning)
+		{
 			if (m_keysPressed[GLFW_KEY_J])
 			{
-				m_lightAngle -= 1.0f * delta;
+				m_lightAngle -= 1.0f * deltaTime;
 
 				m_lightDirty = true;
 			}
 			if (m_keysPressed[GLFW_KEY_K])
 			{
-				m_lightAngle += 1.0f * delta;
+				m_lightAngle += 1.0f * deltaTime;
 
 				m_lightDirty = true;
 			}
 		}
+
+		if (m_keysReleased[GLFW_KEY_SPACE])
+		{
+			m_options.lightRunning = !m_options.lightRunning;
+		}
+
+		if (m_keysReleased[GLFW_KEY_1])
+		{
+			if (m_options.scene != Options::Scene::Small)
+			{
+				generateScene(Options::Scene::Small);
+
+				m_options.scene = Options::Scene::Small;
+			}
+		}
+
+		if (m_keysReleased[GLFW_KEY_2])
+		{
+			if (m_options.scene != Options::Scene::Medium)
+			{
+				generateScene(Options::Scene::Medium);
+
+				m_options.scene = Options::Scene::Medium;
+			}
+		}
+
+		if (m_keysReleased[GLFW_KEY_3])
+		{
+			if (m_options.scene != Options::Scene::Large)
+			{
+				generateScene(Options::Scene::Large);
+
+				m_options.scene = Options::Scene::Large;
+			}
+		}
+
+		if (m_keysReleased[GLFW_KEY_C])
+		{
+			m_options.culling = !m_options.culling;
+		}
+
+		if (m_keysReleased[GLFW_KEY_F])
+		{
+			if (m_options.culling)
+			{
+				m_options.showCulled = !m_options.showCulled;
+			}
+		}
+
+		if (m_keysReleased[GLFW_KEY_R])
+		{
+			if (m_options.logic == Options::LogicType::ObjectOriented)
+			{
+				m_logic = m_logicDOD;
+				m_lightDirty = true;
+
+				m_options.logic = Options::LogicType::DataOriented;
+			}
+			else
+			{
+				m_logic = m_logicOOP;
+				m_lightDirty = true;
+
+				m_options.logic = Options::LogicType::ObjectOriented;
+			}
+		}
+
+		if (m_keysReleased[GLFW_KEY_G])
+		{
+			if (m_options.camera == Options::CameraType::Target)
+			{
+				m_options.camera = Options::CameraType::User;
+			}
+			else
+			{
+				m_options.camera = Options::CameraType::Target;
+			}
+		}
+
+		if (m_keysReleased[GLFW_KEY_H])
+		{
+			m_options.help = !m_options.help;
+		}
+
+		memset(m_keysReleased, 0, sizeof(m_keysReleased));
 	}
 
 	void Application::render()
@@ -471,89 +562,8 @@ namespace Tmpl {
 
 	void Application::onKeyReleased(int key, int modifierKeys)
 	{
+		m_keysReleased[key] = true;
 		m_keysPressed[key] = false;
-
-		switch (key)
-		{
-
-		case GLFW_KEY_SPACE:
-			m_options.lightRunning = !m_options.lightRunning;
-			break;
-
-		case GLFW_KEY_1:
-			if (m_options.scene != Options::Scene::Small)
-			{
-				generateScene(Options::Scene::Small);
-
-				m_options.scene = Options::Scene::Small;
-			}
-			break;
-
-		case GLFW_KEY_2:
-			if (m_options.scene != Options::Scene::Medium)
-			{
-				generateScene(Options::Scene::Medium);
-
-				m_options.scene = Options::Scene::Medium;
-			}
-			break;
-
-		case GLFW_KEY_3:
-			if (m_options.scene != Options::Scene::Large)
-			{
-				generateScene(Options::Scene::Large);
-
-				m_options.scene = Options::Scene::Large;
-			}
-			break;
-
-		case GLFW_KEY_C:
-			m_options.culling = !m_options.culling;
-			break;
-
-		case GLFW_KEY_F:
-			if (m_options.culling)
-			{
-				m_options.showCulled = !m_options.showCulled;
-			}
-			break;
-
-		case GLFW_KEY_R:
-			if (m_options.logic == Options::LogicType::ObjectOriented)
-			{
-				m_logic = m_logicDOD;
-				m_lightDirty = true;
-
-				m_options.logic = Options::LogicType::DataOriented;
-			}
-			else
-			{
-				m_logic = m_logicOOP;
-				m_lightDirty = true;
-
-				m_options.logic = Options::LogicType::ObjectOriented;
-			}
-			break;
-
-		case GLFW_KEY_G:
-			if (m_options.camera == Options::CameraType::Target)
-			{
-				m_options.camera = Options::CameraType::User;
-			}
-			else
-			{
-				m_options.camera = Options::CameraType::Target;
-			}
-			break;
-
-		case GLFW_KEY_H:
-			m_options.help = !m_options.help;
-			break;
-
-		default:
-			break;
-
-		}
 	}
 
 	void Application::generateScene(Options::Scene scene)
