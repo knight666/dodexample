@@ -275,8 +275,8 @@ namespace Tmpl {
 					(float)time_delta.count() / 1000.0f,
 					TimeStepMaximum) / TimeStep;
 
-				update(delta_time);
 				updateUserInput(delta_time);
+				update(delta_time);
 
 				time_render_start = clock::now();
 				m_timeUpdate = std::chrono::duration_cast<us>(
@@ -380,6 +380,7 @@ namespace Tmpl {
 			{
 				generateScene(Options::Scene::Small);
 
+				m_lightDirty = true;
 				m_options.scene = Options::Scene::Small;
 			}
 		}
@@ -390,6 +391,7 @@ namespace Tmpl {
 			{
 				generateScene(Options::Scene::Medium);
 
+				m_lightDirty = true;
 				m_options.scene = Options::Scene::Medium;
 			}
 		}
@@ -400,6 +402,7 @@ namespace Tmpl {
 			{
 				generateScene(Options::Scene::Large);
 
+				m_lightDirty = true;
 				m_options.scene = Options::Scene::Large;
 			}
 		}
