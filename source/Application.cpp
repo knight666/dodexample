@@ -60,6 +60,18 @@ namespace Tmpl {
 					"Enabling profiling mode.";
 
 				m_options.profiling = true;
+
+				if (i + 1 < argc)
+				{
+					char* found = nullptr;
+					double result = strtod(argv[i + 1], &found);
+					if (found != nullptr)
+					{
+						m_options.profilingFrames = (size_t)result;
+
+						i++;
+					}
+				}
 			}
 			else if (
 				!strcmp(argv[i], "-dod"))
@@ -207,6 +219,7 @@ namespace Tmpl {
 			clock::time_point time_render_start;
 			us time_delta(0);
 			us profiling_average;
+			static const uint32_t FixedFrameRate = 1000 / 30;
 
 			TMPL_LOG_INFO(Application) <<
 				"Starting profiling over "
@@ -223,7 +236,7 @@ namespace Tmpl {
 
 				time_start = clock::now();
 
-				update((uint32_t)(time_delta.count() / 1000));
+				update(FixedFrameRate);
 				render();
 
 				glfwSwapBuffers(m_window);

@@ -37,7 +37,7 @@ namespace Tmpl {
 			, help(false)
 			, showCulled(false)
 			, voxelHalfSize(20.0f)
-			, profiling(true)
+			, profiling(false)
 			, profilingFrames(1000)
 		{
 		}
