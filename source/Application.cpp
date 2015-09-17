@@ -310,6 +310,7 @@ namespace Tmpl {
 				m_options.logic = Options::LogicType::DataOriented;
 			}
 			else if (
+				arg == "-ood" ||
 				arg == "-oop")
 			{
 				m_options.logic = Options::LogicType::ObjectOriented;
@@ -372,7 +373,7 @@ namespace Tmpl {
 				<< "   -dod" << std::endl
 				<< "        Use data-oriented design logic." << std::endl
 				<< std::endl
-				<< "   -oop" << std::endl
+				<< "   -ood" << std::endl
 				<< "        Use object-oriented design logic (default)." << std::endl
 				<< std::endl
 				<< "   -scene {SMALL|MEDIUM|LARGE}" << std::endl
