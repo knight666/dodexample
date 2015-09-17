@@ -6,8 +6,8 @@ namespace Tmpl {
 
 	enum class Levels
 	{
-		Information,
 		Trace,
+		Information,
 		Warning,
 		Error,
 		Fatal
@@ -16,8 +16,8 @@ namespace Tmpl {
 	inline const char* levelToString(Levels level)
 	{
 		static const char* LevelToStringMap[] = {
-			"INFO",
 			"TRACE",
+			"INFO",
 			"WARN",
 			"ERROR",
 			"FATAL"

@@ -9,6 +9,11 @@ namespace Tmpl {
 		const char* filename, int line,
 		const char* message)
 	{
+		if (level <= Levels::Trace)
+		{
+			return;
+		}
+
 		char logmessage_formatted[1024] = { 0 };
 
 		_snprintf(

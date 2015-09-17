@@ -29,7 +29,7 @@ namespace Tmpl {
 		, m_type(type)
 	{
 		m_handle = glCreateShader((GLenum)m_type);
-		TMPL_LOG_INFO(Shader)
+		TMPL_LOG_TRACE(Shader)
 			<< m_handle << " (" << TypeToString(m_type) << "): "
 			<< "Created.";
 
@@ -38,7 +38,7 @@ namespace Tmpl {
 
 	Shader::~Shader()
 	{
-		TMPL_LOG_INFO(Shader)
+		TMPL_LOG_TRACE(Shader)
 			<< m_handle << " (" << TypeToString(m_type) << "): "
 			<< "Deleting.";
 
@@ -48,7 +48,7 @@ namespace Tmpl {
 
 	bool Shader::compile(const std::string& source)
 	{
-		TMPL_LOG_INFO(Shader)
+		TMPL_LOG_TRACE(Shader)
 			<< m_handle << " (" << TypeToString(m_type) << "): "
 			<< "Setting source.";
 
@@ -56,7 +56,7 @@ namespace Tmpl {
 		GLint input_length = (GLint)source.length();
 		glShaderSource(m_handle, 1, &input, &input_length);
 
-		TMPL_LOG_INFO(Shader)
+		TMPL_LOG_TRACE(Shader)
 			<< m_handle << " (" << TypeToString(m_type) << "): "
 			<< "Compiling.";
 
