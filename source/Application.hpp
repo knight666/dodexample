@@ -24,6 +24,8 @@ namespace Tmpl {
 
 		bool parseCommandLine(int argc, const char** argv);
 
+		bool initialize();
+
 		void update(float deltaTime);
 		void updateUserInput(float deltaTime);
 
@@ -34,6 +36,8 @@ namespace Tmpl {
 		void onKeyReleased(int key, int modifierKeys);
 
 	private:
+
+		bool initializeOpenGL();
 
 		void generateScene(Options::Scene scene);
 

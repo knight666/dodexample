@@ -51,108 +51,17 @@ namespace Tmpl {
 
 	int Application::run(int argc, const char** argv)
 	{
-		TMPL_LOG_INFO(Application) << "Parsing command line.";
+		TMPL_LOG_INFO(Application) << "Starting.";
 
 		if (!parseCommandLine(argc, argv))
 		{
 			return 0;
 		}
 
-		TMPL_LOG_INFO(GLFW) << "Initializing.";
-
-		glfwSetErrorCallback(Tmpl::glfwErrors);
-
-		if (glfwInit() == 0)
+		if (!initialize())
 		{
-			TMPL_LOG_ERROR(GLFW) << "Failed to initialize.";
+			TMPL_LOG_ERROR(Application) << "Failed to initialize.";
 
-			return -1;
-		}
-
-		TMPL_LOG_INFO(GLFW) << "Setting window hints.";
-
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
-		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-
-		TMPL_LOG_INFO(GLFW) << "Creating window.";
-
-		m_window = glfwCreateWindow(
-			TMPL_WINDOW_WIDTH, TMPL_WINDOW_HEIGHT,
-			TMPL_WINDOW_TITLE,
-			nullptr,
-			nullptr);
-
-		if (m_window == nullptr)
-		{
-			TMPL_LOG_ERROR(GLFW) << "Failed to create window.";
-
-			return -1;
-		}
-
-		glfwSetWindowUserPointer(m_window, this);
-		glfwSetKeyCallback(m_window, windowKeyHandler);
-
-		TMPL_LOG_INFO(GLFW) << "Enable window context.";
-
-		glfwMakeContextCurrent(m_window);
-
-		TMPL_LOG_INFO(GLEW) << "Initializing.";
-
-		glewExperimental = GL_TRUE;
-		if (glewInit() != GLEW_OK)
-		{
-			TMPL_LOG_ERROR(GLEW) << "Failed to initialize.";
-
-			return -1;
-		}
-
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LESS);
-
-		TMPL_LOG_INFO(Application) << "Initializing.";
-
-		// Text
-
-		m_loader = std::make_shared<FreeTypeLoader>();
-		m_loader->loadFace("media/fonts/Roboto/Roboto-Black.ttf", 12.0f);
-		m_loader->loadGlyphRange(0x00, 0xFF); // preload Basic Latin and Latin-1
-
-		m_text = std::shared_ptr<TextBatch>(new TextBatch(m_loader, 512, 512));
-
-		// Models
-
-		m_lightSphere = std::make_shared<Sphere>();
-		m_lightSphere->setup(20, 20);
-
-		// Logic
-
-		m_logicOOP = std::make_shared<LogicOOP>();
-		m_logicDOD = std::make_shared<LogicDOD>();
-
-		if (m_options.logic == Options::LogicType::ObjectOriented)
-		{
-			TMPL_LOG_INFO(Application) << "Using object-oriented logic.";
-
-			m_logic = m_logicOOP;
-		}
-		else
-		{
-			TMPL_LOG_INFO(Application) << "Using data-oriented logic.";
-
-			m_logic = m_logicDOD;
-		}
-
-		generateScene(m_options.scene);
-
-		// Renderer
-
-		m_renderer = std::make_shared<Renderer>();
-		if (!m_renderer->initialize())
-		{
 			return -1;
 		}
 
@@ -257,6 +166,18 @@ namespace Tmpl {
 		{
 			return true;
 		}
+
+		std::string combined;
+		for (int i = 1; i < argc; ++i)
+		{
+			if (i > 1)
+			{
+				combined += " ";
+			}
+			combined += argv[i];
+		}
+
+		TMPL_LOG_INFO(Application) << "Command line: \"" << combined << "\"";
 
 		bool show_help = false;
 
@@ -382,6 +303,61 @@ namespace Tmpl {
 		}
 
 		return !show_help;
+	}
+
+	bool Application::initialize()
+	{
+		TMPL_LOG_INFO(Application) << "Initializing.";
+
+		if (!initializeOpenGL())
+		{
+			TMPL_LOG_ERROR(Application) << "Failed to initialize OpenGL.";
+
+			return false;
+		}
+
+		// Text
+
+		m_loader = std::make_shared<FreeTypeLoader>();
+		m_loader->loadFace("media/fonts/Roboto/Roboto-Black.ttf", 12.0f);
+		m_loader->loadGlyphRange(0x00, 0xFF); // preload Basic Latin and Latin-1
+
+		m_text = std::shared_ptr<TextBatch>(new TextBatch(m_loader, 512, 512));
+
+		// Models
+
+		m_lightSphere = std::make_shared<Sphere>();
+		m_lightSphere->setup(20, 20);
+
+		// Logic
+
+		m_logicOOP = std::make_shared<LogicOOP>();
+		m_logicDOD = std::make_shared<LogicDOD>();
+
+		if (m_options.logic == Options::LogicType::ObjectOriented)
+		{
+			TMPL_LOG_INFO(Application) << "Using object-oriented logic.";
+
+			m_logic = m_logicOOP;
+		}
+		else
+		{
+			TMPL_LOG_INFO(Application) << "Using data-oriented logic.";
+
+			m_logic = m_logicDOD;
+		}
+
+		generateScene(m_options.scene);
+
+		// Renderer
+
+		m_renderer = std::make_shared<Renderer>();
+		if (!m_renderer->initialize())
+		{
+			return false;
+		}
+
+		return true;
 	}
 
 	void Application::update(float deltaTime)
@@ -651,6 +627,66 @@ namespace Tmpl {
 	{
 		m_keysReleased[key] = true;
 		m_keysPressed[key] = false;
+	}
+
+	bool Application::initializeOpenGL()
+	{
+		TMPL_LOG_INFO(GLFW) << "Initializing.";
+
+		glfwSetErrorCallback(Tmpl::glfwErrors);
+
+		if (glfwInit() == 0)
+		{
+			TMPL_LOG_ERROR(GLFW) << "Failed to initialize.";
+
+			return false;
+		}
+
+		TMPL_LOG_INFO(GLFW) << "Setting window hints.";
+
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
+		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+
+		TMPL_LOG_INFO(GLFW) << "Creating window.";
+
+		m_window = glfwCreateWindow(
+			TMPL_WINDOW_WIDTH, TMPL_WINDOW_HEIGHT,
+			TMPL_WINDOW_TITLE,
+			nullptr,
+			nullptr);
+
+		if (m_window == nullptr)
+		{
+			TMPL_LOG_ERROR(GLFW) << "Failed to create window.";
+
+			return false;
+		}
+
+		glfwSetWindowUserPointer(m_window, this);
+		glfwSetKeyCallback(m_window, windowKeyHandler);
+
+		TMPL_LOG_INFO(GLFW) << "Enable window context.";
+
+		glfwMakeContextCurrent(m_window);
+
+		TMPL_LOG_INFO(GLEW) << "Initializing.";
+
+		glewExperimental = GL_TRUE;
+		if (glewInit() != GLEW_OK)
+		{
+			TMPL_LOG_ERROR(GLEW) << "Failed to initialize.";
+
+			return false;
+		}
+
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LESS);
+
+		return true;
 	}
 
 	void Application::generateScene(Options::Scene scene)
