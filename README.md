@@ -2,6 +2,8 @@
 
 An example of possible optimizations when using data-oriented design.
 
+![Screenshot](https://bitbucket.org/repo/o6dnpp/images/1731901630-Screenshot930.png)
+
 # Compiling
 
 Use [GYP](https://chromium.googlesource.com/external/gyp) to generate a solution and compile it using Visual Studio 2012 or above.
