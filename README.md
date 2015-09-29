@@ -4,6 +4,11 @@ An example of possible optimizations when using data-oriented design.
 
 ![Screenshot](https://bitbucket.org/repo/o6dnpp/images/1731901630-Screenshot930.png)
 
+# Download
+
+* [Binaries 1.0.0 (1.9 MB)](https://bitbucket.org/knight666/dodexample/downloads/DODExample_Executable_1.0.0.zip)
+* [Source 1.0.0 (12.6 MB)](https://bitbucket.org/knight666/dodexample/downloads/DODExample_Source_1.0.0.zip)
+
 # Compiling
 
 Use [GYP](https://chromium.googlesource.com/external/gyp) to generate a solution and compile it using Visual Studio 2012 or above.
